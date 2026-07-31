@@ -137,3 +137,21 @@ export const tasks = pgTable("tasks", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
+
+export const attachments = pgTable("attachments", {
+  id: text("id").primaryKey(),
+  noteId: text("noteId")
+    .notNull()
+    .references(() => notes.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  fileName: text("fileName").notNull(),
+  fileSize: integer("fileSize").notNull().default(0),
+  mimeType: text("mimeType").notNull().default("application/octet-stream"),
+  /** link = external URL, db = bytes in data column, blob = Vercel Blob URL */
+  storage: text("storage").notNull().default("link"),
+  url: text("url"),
+  data: text("data"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});

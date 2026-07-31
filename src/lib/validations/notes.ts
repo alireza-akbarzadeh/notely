@@ -52,6 +52,14 @@ export const updateTaskSchema = z.object({
   sortOrder: z.number().int().optional(),
 });
 
+export const createLinkAttachmentSchema = z.object({
+  noteId: z.string().min(1),
+  fileName: z.string().trim().min(1).max(200),
+  url: z.string().url(),
+  fileSize: z.number().int().nonnegative().optional().default(0),
+  mimeType: z.string().trim().max(120).optional().default("application/octet-stream"),
+});
+
 export type CreateSpaceValues = z.infer<typeof createSpaceSchema>;
 export type UpdateSpaceValues = z.infer<typeof updateSpaceSchema>;
 export type CreateNoteValues = z.infer<typeof createNoteSchema>;
@@ -59,3 +67,5 @@ export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;
 export type CreateTagValues = z.infer<typeof createTagSchema>;
 export type CreateTaskValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskValues = z.infer<typeof updateTaskSchema>;
+export type CreateLinkAttachmentValues = z.infer<typeof createLinkAttachmentSchema>;
+ 

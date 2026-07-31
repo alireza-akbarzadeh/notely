@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Star, Trash2 } from "lucide-react";
@@ -8,12 +8,23 @@ import { ArrowLeft, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NoteChecklist } from "@/components/notes/note-checklist";
+import { NoteResources } from "@/components/notes/note-resources";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 
 type NoteEditorProps = {
   note: NoteSummary;
   allTags: NoteTag[];
 };
+
+type DraftSnapshot = {
+  title: string;
+  content: string;
+  tagIds: string[];
+};
+
+function sameTagIds(a: string[], b: string[]) {
+  return a.length === b.length && a.every((id) => b.includes(id));
+}
 
 export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
@@ -24,13 +35,31 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
+  const savedRef = useRef<DraftSnapshot>({
+    title: note.title,
+    content: note.content,
+    tagIds: note.tags.map((tag) => tag.id),
+  });
+  const draftRef = useRef<DraftSnapshot>(savedRef.current);
+
+  // Only reload local draft when switching notes — never while typing.
+  useEffect(() => {
+    const next: DraftSnapshot = {
+      title: note.title,
+      content: note.content,
+      tagIds: note.tags.map((tag) => tag.id),
+    };
+    setTitle(next.title);
+    setContent(next.content);
+    setTagIds(next.tagIds);
+    savedRef.current = next;
+    draftRef.current = next;
+    setStatus("idle");
+  }, [note.id]);
 
   useEffect(() => {
-    setTitle(note.title);
-    setContent(note.content);
-    setTagIds(note.tags.map((tag) => tag.id));
-    setStatus("idle");
-  }, [note.id, note.title, note.content, note.tags]);
+    draftRef.current = { title, content, tagIds };
+  }, [title, content, tagIds]);
 
   const saveMutation = useMutation({
     mutationFn: async (payload: {
@@ -46,13 +75,35 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to save");
-      return data.note as NoteSummary;
+      return { note: data.note as NoteSummary, payload };
     },
     onMutate: () => setStatus("saving"),
-    onSuccess: (updated) => {
-      setStatus("saved");
+    onSuccess: ({ note: updated, payload }) => {
+      savedRef.current = {
+        title: payload.title,
+        content: payload.content,
+        tagIds: payload.tagIds,
+      };
+
+      const draft = draftRef.current;
+      const draftMatchesSave =
+        draft.title === payload.title &&
+        draft.content === payload.content &&
+        sameTagIds(draft.tagIds, payload.tagIds);
+
+      queryClient.setQueryData(["note", note.id], {
+        note: {
+          ...updated,
+          // Keep newer local draft in the cache if the user typed during save.
+          title: draftMatchesSave ? updated.title : draft.title,
+          content: draftMatchesSave ? updated.content : draft.content,
+          tags: draftMatchesSave
+            ? updated.tags
+            : allTags.filter((tag) => draft.tagIds.includes(tag.id)),
+        },
+      });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.setQueryData(["note", note.id], { note: updated });
+      setStatus(draftMatchesSave ? "saved" : "saving");
     },
     onError: () => setStatus("error"),
   });
@@ -71,14 +122,20 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      if (title === note.title && content === note.content) {
-        const sameTags =
-          tagIds.length === note.tags.length &&
-          tagIds.every((id) => note.tags.some((tag) => tag.id === id));
-        if (sameTags) return;
+      const saved = savedRef.current;
+      if (
+        title === saved.title &&
+        content === saved.content &&
+        sameTagIds(tagIds, saved.tagIds)
+      ) {
+        return;
       }
-      saveMutation.mutate({ title: title.trim() || "Untitled", content, tagIds });
-    }, 600);
+      saveMutation.mutate({
+        title: title.trim() || "Untitled",
+        content,
+        tagIds,
+      });
+    }, 700);
     return () => window.clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, content, tagIds]);
@@ -172,14 +229,15 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
           </div>
         ) : null}
 
-        <NoteChecklist noteId={note.id} />
-
         <textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="Start writing…"
-          className="min-h-[40vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground"
+          className="mb-8 min-h-[40vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground"
         />
+
+        <NoteChecklist noteId={note.id} />
+        <NoteResources noteId={note.id} />
       </div>
     </div>
   );

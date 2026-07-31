@@ -14,7 +14,7 @@ Notes app: **Next.js 16** (App Router) + **React 19** + **TypeScript**, **Drizzl
 | Routes | `src/app/(marketing)`, `(auth)`, `(dashboard)`, `api/**` |
 | Auth | `src/lib/auth`, `src/proxy.ts`, `src/lib/api/auth-guard.ts` |
 | DB | `src/lib/db` |
-| Notes | `src/lib/notes`, `src/app/api/spaces`, `src/app/api/notes`, `src/app/api/tags`, `src/app/api/tasks` |
+| Notes | `src/lib/notes`, `src/app/api/spaces`, `src/app/api/notes`, `src/app/api/tags`, `src/app/api/tasks`, `src/app/api/attachments` |
 | UI | `src/components/{ui,notes,landing,layout,forms,auth}` |
 | Client state | `src/stores` (Zustand) |
 | Env | `src/lib/env.ts` (Zod) |

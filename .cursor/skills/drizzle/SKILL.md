@@ -48,3 +48,5 @@ const [row] = await db
 - After schema edits: `pnpm db:generate` then `pnpm db:migrate`
 - Do not rewrite historical SQL under `drizzle/` — add a new migration
 - Current notes migration: `drizzle/0002_notely_notes.sql`
+- Tasks: `drizzle/0003_note_tasks.sql`
+- Attachments: `drizzle/0004_note_attachments.sql` (DB upload ≤2MB + external links)

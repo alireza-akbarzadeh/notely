@@ -39,3 +39,15 @@ export type NoteTask = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type NoteAttachment = {
+  id: string;
+  noteId: string;
+  userId: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  storage: string;
+  url: string | null;
+  createdAt: string;
+};

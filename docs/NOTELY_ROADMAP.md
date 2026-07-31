@@ -114,8 +114,8 @@ API pattern (same as old exchange routes):
 
 ### Files / attachments
 
-- [ ] `attachments` table: `id`, `noteId`, `fileName`, `fileSize`, `url`
-- [ ] Upload storage (R2/S3) + Resources section UI
+- [x] `attachments` table: `id`, `noteId`, `fileName`, `fileSize`, `url`
+- [x] Upload storage (DB up to 2MB + external links) + Resources section UI
 
 ### Calendar / meetings sidebar
 
