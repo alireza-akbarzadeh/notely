@@ -34,7 +34,7 @@ import type { SpaceSummary } from "@/types/notes";
 async function fetchSpaces(): Promise<{ spaces: SpaceSummary[] }> {
   const response = await fetch("/api/spaces");
   if (!response.ok) throw new Error("Failed to load spaces");
-  return response.json();
+  return (await response.json()) as { spaces: SpaceSummary[] };
 }
 
 export function AppSidebar() {
@@ -85,7 +85,7 @@ export function AppSidebar() {
     },
   });
 
-  const spaces = spacesQuery.data?.spaces ?? [];
+  const spaces: SpaceSummary[] = spacesQuery.data?.spaces ?? [];
   const defaultSpaceId = spaces[0]?.id;
   const onNotes = pathname.startsWith("/notes");
 

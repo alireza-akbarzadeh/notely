@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NotebookPen, Plus, Settings, Star } from "lucide-react";
 
@@ -10,15 +10,17 @@ import type { SpaceSummary } from "@/types/notes";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const view = searchParams.get("view");
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
       const response = await fetch("/api/spaces");
       if (!response.ok) throw new Error("Failed to load spaces");
-      return response.json() as Promise<{ spaces: SpaceSummary[] }>;
+      return response.json();
     },
   });
 
@@ -45,13 +47,13 @@ export function MobileBottomNav() {
       href: "/notes",
       label: "Notes",
       icon: NotebookPen,
-      active: pathname.startsWith("/notes") && !pathname.includes("favorites"),
+      active: pathname.startsWith("/notes") && view !== "favorites",
     },
     {
       href: "/notes?view=favorites",
       label: "Saved",
       icon: Star,
-      active: pathname.includes("view=favorites") || false,
+      active: view === "favorites",
     },
     {
       href: "/settings",

@@ -56,14 +56,14 @@ API pattern (same as old exchange routes):
 
 ## Phase 1 — Strip trading
 
-- [ ] Delete `src/lib/exchange/**`, `src/types/exchange.ts`, `src/lib/validations/exchange.ts`
-- [ ] Delete `/api/exchange/**`, `/api/market`
-- [ ] Delete `src/components/trading/**`, trading hooks/store/websocket
-- [ ] Delete `/trade`, `/markets`, `/portfolio` pages and trading dashboard overview
-- [ ] Remove `ccxt`, `lightweight-charts`, `protobufjs` from `package.json`
-- [ ] Remove `ENCRYPTION_KEY` from `src/lib/env.ts` and `.env.example`
-- [ ] Strip exchange UI from settings
-- [ ] Update Cursor architecture rule to Notely
+- [x] Delete `src/lib/exchange/**`, `src/types/exchange.ts`, `src/lib/validations/exchange.ts`
+- [x] Delete `/api/exchange/**`, `/api/market`
+- [x] Delete `src/components/trading/**`, trading hooks/store/websocket
+- [x] Delete `/trade`, `/markets`, `/portfolio` pages and trading dashboard overview
+- [x] Remove `ccxt`, `lightweight-charts`, `protobufjs` from `package.json`
+- [x] Remove `ENCRYPTION_KEY` from `src/lib/env.ts` and `.env.example`
+- [x] Strip exchange UI from settings
+- [x] Update Cursor architecture rule to Notely
 
 **Done when:** App builds with no exchange imports; auth + settings still work.
 
@@ -71,11 +71,11 @@ API pattern (same as old exchange routes):
 
 ## Phase 2 — Auth rebrand (logic unchanged)
 
-- [ ] `appName` / 2FA issuer → `Notely`
-- [ ] Auth shell, login, register, emails → Notely copy (no trading tape / exchanges)
-- [ ] Root metadata title → Notely
-- [ ] Redirects: post-login → `/notes` (update `proxy.ts` + auth pages)
-- [ ] Placeholders like `you@notely.app`
+- [x] `appName` / 2FA issuer → `Notely`
+- [x] Auth shell, login, register, emails → Notely copy (no trading tape / exchanges)
+- [x] Root metadata title → Notely
+- [x] Redirects: post-login → `/notes` (update `proxy.ts` + auth pages)
+- [x] Placeholders like `you@notely.app`
 
 **Done when:** Login/register/2FA/reset still work; UI says Notely everywhere.
 
@@ -83,11 +83,11 @@ API pattern (same as old exchange routes):
 
 ## Phase 3 — Schema + notes API
 
-- [ ] Add spaces / notes / tags / note_tags to `schema.ts`; remove exchange tables
-- [ ] Generate + run migration `0002_…`
-- [ ] `src/lib/notes/**` services
-- [ ] Zod validators in `src/lib/validations/notes.ts`
-- [ ] API routes: `/api/spaces`, `/api/notes`, `/api/notes/[id]`, `/api/tags`
+- [x] Add spaces / notes / tags / note_tags to `schema.ts`; remove exchange tables
+- [x] Generate + run migration `0002_…`
+- [x] `src/lib/notes/**` services
+- [x] Zod validators in `src/lib/validations/notes.ts`
+- [x] API routes: `/api/spaces`, `/api/notes`, `/api/notes/[id]`, `/api/tags`
 
 **Done when:** Authenticated CRUD via API for spaces, notes, tags.
 
@@ -95,11 +95,11 @@ API pattern (same as old exchange routes):
 
 ## Phase 4 — App shell + mobile + landing
 
-- [ ] Rewrite sidebar: New note, Search stub, Today, Favorites, Spaces, Settings
-- [ ] Notes list panel + editor (title, tags, textarea content)
-- [ ] Routes under `(dashboard)`: `/notes`, `/notes/[id]`, `/settings`
-- [ ] Mobile: list/editor stack, sheet sidebar, safe-area, large tap targets
-- [ ] Replace marketing landing with Notely hero
+- [x] Rewrite sidebar: New note, Search stub, Today, Favorites, Spaces, Settings
+- [x] Notes list panel + editor (title, tags, textarea content)
+- [x] Routes under `(dashboard)`: `/notes`, `/notes/[id]`, `/settings`
+- [x] Mobile: list/editor stack, sheet sidebar, safe-area, large tap targets
+- [x] Replace marketing landing with Notely hero
 
 **Done when:** Create/open/edit notes on desktop and mobile; landing is notes-branded.
 

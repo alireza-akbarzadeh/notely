@@ -1,12 +1,12 @@
 ---
 name: better-auth
 description: >-
-  Nexora Better Auth setup (Drizzle adapter, sessions, route protection). Use when
+  Notely Better Auth setup (Drizzle adapter, sessions, route protection). Use when
   changing auth config, login/register, sessions, requireSession, or src/lib/auth/**,
   src/proxy.ts, or /api/auth.
 ---
 
-# Nexora Better Auth
+# Notely Better Auth
 
 ## Layout
 
@@ -32,13 +32,11 @@ description: >-
 - Auth tables live in `src/lib/db/schema.ts` (`user`, `session`, `account`, `verification`, `twoFactor`)
 - Protected API routes must call `requireSession()` first and return its `response` on failure
 - Public routes in proxy: `/`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/two-factor`; `/api/auth` and `/api/dev` stay open
+- After login, redirect to `/notes`
 
 ## Pattern (API route)
 
 ```typescript
 const { session, response } = await requireSession();
 if (!session) return response!;
-// use session.user.id
 ```
-
-Do not invent a parallel auth system. Extend Better Auth plugins/config in `src/lib/auth/index.ts`.

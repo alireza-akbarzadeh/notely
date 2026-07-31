@@ -20,49 +20,49 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
       const response = await fetch("/api/spaces");
       if (!response.ok) throw new Error("Failed to load spaces");
-      return response.json() as Promise<{ spaces: SpaceSummary[] }>;
+      return response.json();
     },
   });
 
   const notesQuery = useQuery({
     queryKey: ["notes", spaceId, view],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
       const params = new URLSearchParams();
       if (spaceId) params.set("spaceId", spaceId);
       if (view === "favorites") params.set("favorites", "1");
       const response = await fetch(`/api/notes?${params.toString()}`);
       if (!response.ok) throw new Error("Failed to load notes");
-      return response.json() as Promise<{ notes: NoteSummary[] }>;
+      return response.json();
     },
   });
 
   const tagsQuery = useQuery({
     queryKey: ["tags"],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ tags: NoteTag[] }> => {
       const response = await fetch("/api/tags");
       if (!response.ok) throw new Error("Failed to load tags");
-      return response.json() as Promise<{ tags: NoteTag[] }>;
+      return response.json();
     },
   });
 
   const noteQuery = useQuery({
     queryKey: ["note", noteId],
     enabled: Boolean(noteId),
-    queryFn: async () => {
+    queryFn: async (): Promise<{ note: NoteSummary }> => {
       const response = await fetch(`/api/notes/${noteId}`);
       if (!response.ok) throw new Error("Failed to load note");
-      return response.json() as Promise<{ note: NoteSummary }>;
+      return response.json();
     },
   });
 
   const notes = useMemo(() => {
-    const rows = notesQuery.data?.notes ?? [];
+    const rows: NoteSummary[] = notesQuery.data?.notes ?? [];
     if (view === "today") {
       const today = new Date();
-      return rows.filter((note) => {
+      return rows.filter((note: NoteSummary) => {
         const updated = new Date(note.updatedAt);
         return (
           updated.getFullYear() === today.getFullYear() &&
@@ -71,12 +71,13 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         );
       });
     }
-    if (view === "inbox") return [];
+    if (view === "inbox") return [] as NoteSummary[];
     return rows;
   }, [notesQuery.data?.notes, view]);
 
   const spaceName =
-    spacesQuery.data?.spaces.find((space) => space.id === spaceId)?.name ??
+    spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
+      ?.name ??
     spacesQuery.data?.spaces[0]?.name ??
     "Notes";
 

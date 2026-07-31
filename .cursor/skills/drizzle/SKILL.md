@@ -1,11 +1,11 @@
 ---
 name: drizzle
 description: >-
-  Nexora Drizzle ORM + Neon Postgres patterns. Use when editing pgTable schemas,
+  Notely Drizzle ORM + Neon Postgres patterns. Use when editing pgTable schemas,
   db.select/insert/update, migrations, drizzle-kit scripts, or src/lib/db/**.
 ---
 
-# Nexora Drizzle + Neon
+# Notely Drizzle + Neon
 
 ## Layout
 
@@ -18,9 +18,10 @@ description: >-
 
 - Text primary keys (Better Auth style), not serials
 - Better Auth tables keep camelCase column names (`emailVerified`, `userId`) to match the adapter
-- App tables (`exchange_connections`, `watchlists`) follow the same column naming as nearby schema
+- App tables (`spaces`, `notes`, `tags`, `note_tags`) follow the same column naming as nearby schema
 - Export tables from `schema.ts`; re-export via `@/lib/db`
 - Always pass `{ schema }` to `drizzle(...)` so relational queries work
+- Domain logic for notes lives in `src/lib/notes/service.ts`
 
 ## Queries
 
@@ -28,15 +29,15 @@ Prefer the existing style:
 
 ```typescript
 import { and, eq } from "drizzle-orm";
-import { db, exchangeConnections } from "@/lib/db";
+import { db, notes } from "@/lib/db";
 
 const [row] = await db
   .select()
-  .from(exchangeConnections)
+  .from(notes)
   .where(
     and(
-      eq(exchangeConnections.userId, userId),
-      eq(exchangeConnections.isActive, true),
+      eq(notes.userId, userId),
+      eq(notes.id, noteId),
     ),
   )
   .limit(1);
@@ -44,9 +45,6 @@ const [row] = await db
 
 ## Migrations
 
-1. Edit `src/lib/db/schema.ts`
-2. `pnpm db:generate`
-3. Review SQL under `drizzle/`
-4. `pnpm db:migrate` (or `db:push` only for local prototyping)
-
-Never put secrets in schema files. `DATABASE_URL` comes from env via `getEnv()`.
+- After schema edits: `pnpm db:generate` then `pnpm db:migrate`
+- Do not rewrite historical SQL under `drizzle/` — add a new migration
+- Current notes migration: `drizzle/0002_notely_notes.sql`
