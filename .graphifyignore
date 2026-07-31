@@ -1,0 +1,4 @@
+# Keep the knowledge graph focused on Nexora app code
+.cursor/skills/graphify/
+public/*.svg
+pnpm-workspace.yaml

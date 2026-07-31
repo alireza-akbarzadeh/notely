@@ -1,0 +1,14 @@
+---
+description: Next.js App Router API route patterns for Notely
+globs: src/app/api/**/*.ts
+alwaysApply: false
+---
+
+# API routes
+
+- Default export style: named `GET` / `POST` / `PATCH` / `DELETE` handlers
+- Private notes routes: start with `requireSession()`; return `response` when unauthenticated
+- Validate with Zod (`safeParse`); on failure use `jsonError(...)` from `@/lib/api/auth-guard`
+- Call `src/lib/notes/**` or `src/lib/db` — keep DB details out of the route file when possible
+- Return `NextResponse.json(...)`; use `jsonError(message, status)` for errors
+- Auth catch-all stays at `src/app/api/auth/[...all]/route.ts` — do not duplicate Better Auth handlers

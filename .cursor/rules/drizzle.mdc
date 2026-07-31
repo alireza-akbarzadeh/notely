@@ -1,0 +1,13 @@
+---
+description: Drizzle schema and Neon DB conventions for Nexora
+globs: src/lib/db/**/*.{ts,tsx},drizzle.config.ts,drizzle/**
+alwaysApply: false
+---
+
+# Database
+
+- Single schema module: `src/lib/db/schema.ts`
+- Client: Neon HTTP via `src/lib/db/index.ts`
+- Prefer text PKs; keep Better Auth table/column names adapter-compatible
+- Use `pnpm db:generate` after schema changes; commit SQL under `drizzle/`
+- Load skills/drizzle when adding tables, indexes, or query helpers

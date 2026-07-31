@@ -1,0 +1,6 @@
+allowBuilds:
+  bufferutil: true
+  ccxt: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true

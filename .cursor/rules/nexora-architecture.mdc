@@ -1,0 +1,29 @@
+---
+description: Notely stack and architecture conventions (Next.js App Router notes app)
+alwaysApply: true
+---
+
+# Notely architecture
+
+Notes app: **Next.js 16** (App Router) + **React 19** + **TypeScript**, **Drizzle/Neon**, **Better Auth**, **TanStack Query**, **Zustand**, **Zod**, **Tailwind/shadcn**.
+
+## Layout
+
+| Area | Path |
+|------|------|
+| Routes | `src/app/(marketing)`, `(auth)`, `(dashboard)`, `api/**` |
+| Auth | `src/lib/auth`, `src/proxy.ts`, `src/lib/api/auth-guard.ts` |
+| DB | `src/lib/db` |
+| Notes | `src/lib/notes`, `src/app/api/spaces`, `src/app/api/notes`, `src/app/api/tags` |
+| UI | `src/components/{ui,notes,landing,layout,forms,auth}` |
+| Client state | `src/stores` (Zustand) |
+| Env | `src/lib/env.ts` (Zod) |
+
+## Conventions
+
+- Path alias `@/` → `src/`
+- Server secrets only through `getEnv()` — never read `process.env` ad hoc in feature code
+- API handlers: thin — validate with Zod, auth with `requireSession`, logic in `src/lib/**`
+- Prefer existing UI primitives under `src/components/ui` over new one-offs
+- App home after login: `/notes`
+- After substantive code edits, run `graphify update .` (see graphify rule)
