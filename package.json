@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio",
     "graphify:open": "open graphify-out/graph.html",
     "graphify:report": "open graphify-out/GRAPH_REPORT.md",
-    "graphify:update": "$HOME/.local/bin/graphify update .",
+    "graphify:update": "GRAPHIFY_MAX_WORKERS=1 $HOME/.local/bin/graphify update .",
     "graphify:query": "$HOME/.local/bin/graphify query",
     "graphify:mcp": "$HOME/.local/bin/graphify-mcp graphify-out/graph.json"
   },
@@ -27,7 +27,6 @@
     "@tanstack/react-query": "^5.101.4",
     "better-auth": "^1.6.25",
     "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.5",
     "lucide-react": "^1.27.0",
