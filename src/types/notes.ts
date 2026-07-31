@@ -28,3 +28,14 @@ export type SpaceSummary = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type NoteTask = {
+  id: string;
+  noteId: string;
+  userId: string;
+  text: string;
+  isCompleted: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};

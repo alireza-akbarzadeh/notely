@@ -18,10 +18,10 @@ description: >-
 
 - Text primary keys (Better Auth style), not serials
 - Better Auth tables keep camelCase column names (`emailVerified`, `userId`) to match the adapter
-- App tables (`spaces`, `notes`, `tags`, `note_tags`) follow the same column naming as nearby schema
+- App tables (`spaces`, `notes`, `tags`, `note_tags`, `tasks`) follow the same column naming as nearby schema
 - Export tables from `schema.ts`; re-export via `@/lib/db`
 - Always pass `{ schema }` to `drizzle(...)` so relational queries work
-- Domain logic for notes lives in `src/lib/notes/service.ts`
+- Domain logic for notes lives in `src/lib/notes/service.ts`; tasks in `src/lib/notes/tasks.ts`
 
 ## Queries
 

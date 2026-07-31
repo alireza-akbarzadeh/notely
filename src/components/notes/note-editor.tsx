@@ -7,6 +7,7 @@ import { ArrowLeft, Star, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NoteChecklist } from "@/components/notes/note-checklist";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 
 type NoteEditorProps = {
@@ -171,11 +172,13 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
           </div>
         ) : null}
 
+        <NoteChecklist noteId={note.id} />
+
         <textarea
           value={content}
           onChange={(event) => setContent(event.target.value)}
           placeholder="Start writing…"
-          className="min-h-[50vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground"
+          className="min-h-[40vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground"
         />
       </div>
     </div>

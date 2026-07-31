@@ -41,8 +41,21 @@ export const createTagSchema = z.object({
     .optional(),
 });
 
+export const createTaskSchema = z.object({
+  noteId: z.string().min(1),
+  text: z.string().trim().max(500).default(""),
+});
+
+export const updateTaskSchema = z.object({
+  text: z.string().trim().max(500).optional(),
+  isCompleted: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+});
+
 export type CreateSpaceValues = z.infer<typeof createSpaceSchema>;
 export type UpdateSpaceValues = z.infer<typeof updateSpaceSchema>;
 export type CreateNoteValues = z.infer<typeof createNoteSchema>;
 export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;
 export type CreateTagValues = z.infer<typeof createTagSchema>;
+export type CreateTaskValues = z.infer<typeof createTaskSchema>;
+export type UpdateTaskValues = z.infer<typeof updateTaskSchema>;

@@ -109,8 +109,8 @@ API pattern (same as old exchange routes):
 
 ### Tasks / checklists
 
-- [ ] `tasks` table: `id`, `noteId`, `text`, `isCompleted`, `sortOrder`
-- [ ] Checklist block in editor; `/api/tasks`
+- [x] `tasks` table: `id`, `noteId`, `text`, `isCompleted`, `sortOrder`
+- [x] Checklist block in editor; `/api/tasks`
 
 ### Files / attachments
 

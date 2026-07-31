@@ -122,3 +122,18 @@ export const noteTags = pgTable(
   },
   (table) => [primaryKey({ columns: [table.noteId, table.tagId] })],
 );
+
+export const tasks = pgTable("tasks", {
+  id: text("id").primaryKey(),
+  noteId: text("noteId")
+    .notNull()
+    .references(() => notes.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  text: text("text").notNull().default(""),
+  isCompleted: boolean("isCompleted").notNull().default(false),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
