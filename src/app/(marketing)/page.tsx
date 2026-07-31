@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing";
 
 export const metadata: Metadata = {
-  title: "Nexora — Trade the Future of Finance",
+  title: "Notely — Think. Note. Plan.",
   description:
-    "Institutional-grade digital asset exchange. Lightning-fast execution, deep liquidity, and enterprise security trusted by 10M+ traders.",
+    "A calm workspace for notes, spaces, and tags — built to feel native on mobile.",
   openGraph: {
-    title: "Nexora — Trade the Future of Finance",
+    title: "Notely — Think. Note. Plan.",
     description:
-      "Institutional-grade digital asset exchange. Lightning-fast execution and enterprise security.",
+      "Capture ideas, organize spaces, and keep everything searchable in one workspace.",
     type: "website",
   },
   twitter: {

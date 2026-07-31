@@ -1,11 +1,5 @@
-import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
-import { Header } from "@/components/layout/header";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
-  return (
-    <>
-      <Header title="Dashboard" subtitle="Overview of your trading activity" />
-      <DashboardOverview />
-    </>
-  );
+  redirect("/notes");
 }

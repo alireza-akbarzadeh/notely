@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
@@ -31,33 +31,6 @@ import {
 } from "@/components/ui/sidebar";
 import type { SpaceSummary } from "@/types/notes";
 
-const primaryNav = [
-  {
-    href: "/notes",
-    label: "Notes",
-    icon: FolderOpen,
-    match: (path: string) => path.startsWith("/notes") && !path.includes("favorites"),
-  },
-  {
-    href: "/notes?view=today",
-    label: "Today",
-    icon: CalendarDays,
-    match: (path: string) => path.includes("view=today"),
-  },
-  {
-    href: "/notes?view=favorites",
-    label: "Favorites",
-    icon: Star,
-    match: (path: string) => path.includes("view=favorites"),
-  },
-  {
-    href: "/notes?view=inbox",
-    label: "Inbox",
-    icon: Inbox,
-    match: (path: string) => path.includes("view=inbox"),
-  },
-];
-
 async function fetchSpaces(): Promise<{ spaces: SpaceSummary[] }> {
   const response = await fetch("/api/spaces");
   if (!response.ok) throw new Error("Failed to load spaces");
@@ -66,8 +39,11 @@ async function fetchSpaces(): Promise<{ spaces: SpaceSummary[] }> {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const view = searchParams.get("view");
+  const activeSpaceId = searchParams.get("spaceId");
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
@@ -111,6 +87,7 @@ export function AppSidebar() {
 
   const spaces = spacesQuery.data?.spaces ?? [];
   const defaultSpaceId = spaces[0]?.id;
+  const onNotes = pathname.startsWith("/notes");
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -136,7 +113,7 @@ export function AppSidebar() {
         </SidebarMenu>
 
         <Button
-          className="mt-2 w-full justify-start gap-2"
+          className="mt-2 h-10 w-full justify-start gap-2"
           size="sm"
           disabled={!defaultSpaceId || createNoteMutation.isPending}
           onClick={() => defaultSpaceId && createNoteMutation.mutate(defaultSpaceId)}
@@ -158,18 +135,46 @@ export function AppSidebar() {
                   <span className="ml-auto text-[10px] text-muted-foreground">⌘K</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {primaryNav.map(({ href, label, icon: Icon, match }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    isActive={match(`${pathname}${typeof window !== "undefined" ? window.location.search : ""}`)}
-                    tooltip={label}
-                    render={<Link href={href} />}
-                  >
-                    <Icon />
-                    <span>{label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={onNotes && !view}
+                  tooltip="Notes"
+                  render={<Link href="/notes" />}
+                >
+                  <FolderOpen />
+                  <span>Notes</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={view === "today"}
+                  tooltip="Today"
+                  render={<Link href="/notes?view=today" />}
+                >
+                  <CalendarDays />
+                  <span>Today</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={view === "favorites"}
+                  tooltip="Favorites"
+                  render={<Link href="/notes?view=favorites" />}
+                >
+                  <Star />
+                  <span>Favorites</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={view === "inbox"}
+                  tooltip="Inbox"
+                  render={<Link href="/notes?view=inbox" />}
+                >
+                  <Inbox />
+                  <span>Inbox</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -177,11 +182,11 @@ export function AppSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center justify-between gap-2">
+          <SidebarGroupLabel className="flex items-center justify-between gap-2 pr-1">
             <span>Spaces</span>
             <button
               type="button"
-              className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+              className="rounded p-1 text-muted-foreground hover:text-foreground"
               onClick={() => createSpaceMutation.mutate()}
               aria-label="Add space"
             >
@@ -193,12 +198,9 @@ export function AppSidebar() {
               {spaces.map((space) => (
                 <SidebarMenuItem key={space.id}>
                   <SidebarMenuButton
-                    isActive={pathname.startsWith("/notes") && !pathname.includes("view=")}
+                    isActive={activeSpaceId === space.id || (!activeSpaceId && !view && space.id === defaultSpaceId && onNotes)}
                     tooltip={space.name}
                     render={<Link href={`/notes?spaceId=${space.id}`} />}
-                    onClick={() => {
-                      if (defaultSpaceId === space.id) return;
-                    }}
                   >
                     <FolderOpen />
                     <span>{space.name}</span>
