@@ -1,14 +1,14 @@
 "use client";
 
-import { Activity, Lock, ShieldCheck, Zap } from "lucide-react";
+import { Lock, NotebookPen, Search, ShieldCheck, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { NexoraLogo } from "@/components/landing/shared/nexora-logo";
+import { NotelyLogo } from "@/components/landing/shared/notely-logo";
 
-const SIGNALS = [
-  { label: "BTC/USDT", value: "+2.4%", up: true },
-  { label: "ETH/USDT", value: "+1.1%", up: true },
-  { label: "SOL/USDT", value: "−0.6%", up: false },
+const HIGHLIGHTS = [
+  { label: "Spaces", value: "Organize work & life" },
+  { label: "Notes", value: "Write without friction" },
+  { label: "Tags", value: "Find anything fast" },
 ] as const;
 
 type AuthShellProps = {
@@ -31,14 +31,14 @@ export function AuthShell({
         className="pointer-events-none absolute inset-0"
         style={{ background: "var(--gradient-hero)" }}
       />
-      <div className="animate-pulse-glow pointer-events-none absolute top-24 left-[-4rem] h-72 w-72 rounded-full bg-[oklch(0.72_0.19_250/0.18)] blur-3xl" />
+      <div className="animate-pulse-glow pointer-events-none absolute top-24 left-[-4rem] h-72 w-72 rounded-full bg-[oklch(0.78_0.19_160/0.16)] blur-3xl" />
       <div
-        className="animate-pulse-glow pointer-events-none absolute right-[-3rem] bottom-16 h-80 w-80 rounded-full bg-[oklch(0.78_0.19_160/0.12)] blur-3xl"
+        className="animate-pulse-glow pointer-events-none absolute right-[-3rem] bottom-16 h-80 w-80 rounded-full bg-[oklch(0.72_0.19_250/0.12)] blur-3xl"
         style={{ animationDelay: "1.4s" }}
       />
 
       <aside className="relative hidden w-[46%] flex-col justify-between border-r border-white/5 p-10 lg:flex xl:p-14">
-        <NexoraLogo />
+        <NotelyLogo />
 
         <div className="animate-rise max-w-md space-y-8">
           <div>
@@ -46,28 +46,28 @@ export function AuthShell({
               {eyebrow}
             </p>
             <h1 className="font-display text-4xl leading-[1.05] font-bold tracking-tight xl:text-5xl">
-              <span className="gradient-text">Trade the markets</span>
+              <span className="gradient-text">Think. Note. Plan.</span>
               <br />
-              <span className="text-foreground">with confidence.</span>
+              <span className="text-foreground">Together.</span>
             </h1>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-              Connect exchanges, watch live books, and manage positions from one
-              encrypted Nexora workspace.
+              Capture ideas, organize spaces, and keep everything searchable in
+              one encrypted Notely workspace.
             </p>
           </div>
 
           <div className="glass-strong animate-float rounded-2xl p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
-                Live tape
+                Workspace
               </span>
               <span className="flex items-center gap-1.5 text-[10px] text-[oklch(0.78_0.19_160)]">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[oklch(0.78_0.19_160)]" />
-                Streaming
+                Ready
               </span>
             </div>
             <ul className="space-y-2">
-              {SIGNALS.map((row) => (
+              {HIGHLIGHTS.map((row) => (
                 <li
                   key={row.label}
                   className="flex items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2.5"
@@ -75,13 +75,7 @@ export function AuthShell({
                   <span className="font-mono text-sm text-foreground">
                     {row.label}
                   </span>
-                  <span
-                    className={`font-mono text-sm tabular-nums ${
-                      row.up ? "text-buy" : "text-sell"
-                    }`}
-                  >
-                    {row.value}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{row.value}</span>
                 </li>
               ))}
             </ul>
@@ -89,32 +83,36 @@ export function AuthShell({
 
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-center gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              Encrypted API keys at rest
+              <NotebookPen className="h-4 w-4 text-primary" />
+              Fast notes across spaces
             </li>
             <li className="flex items-center gap-2.5">
-              <Zap className="h-4 w-4 text-primary" />
-              Real-time market data
+              <Search className="h-4 w-4 text-primary" />
+              Tags and favorites for quick recall
             </li>
             <li className="flex items-center gap-2.5">
               <Lock className="h-4 w-4 text-primary" />
               Session &amp; 2FA controls
             </li>
             <li className="flex items-center gap-2.5">
-              <Activity className="h-4 w-4 text-primary" />
-              Multi-exchange portfolio view
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Built for mobile-native flow
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Calm dark workspace
             </li>
           </ul>
         </div>
 
         <p className="font-mono text-[11px] text-muted-foreground/70">
-          nexora.app / auth
+          notely.app / auth
         </p>
       </aside>
 
       <main className="relative flex flex-1 flex-col">
         <div className="flex items-center justify-between px-6 pt-6 lg:hidden">
-          <NexoraLogo />
+          <NotelyLogo />
           <span className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
             Auth
           </span>

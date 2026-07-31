@@ -50,18 +50,18 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/notes");
     router.refresh();
   }
 
   return (
     <AuthShell
       eyebrow="Get started"
-      title="Create your trading account"
-      subtitle="One workspace for live markets, order flow, and exchange keys."
+      title="Create your Notely account"
+      subtitle="One workspace for notes, spaces, and tags."
     >
       <AuthPanel>
-        <SocialAuthButtons callbackURL="/dashboard" className="mb-5" />
+        <SocialAuthButtons callbackURL="/notes" className="mb-5" />
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FieldGroup>
@@ -70,7 +70,7 @@ export default function RegisterPage() {
               name="name"
               label="Name"
               autoComplete="name"
-              placeholder="Alex Trader"
+              placeholder="Alex"
             />
             <FormTextField
               control={form.control}
@@ -78,7 +78,7 @@ export default function RegisterPage() {
               label="Email"
               type="email"
               autoComplete="email"
-              placeholder="trader@nexora.app"
+              placeholder="you@notely.app"
             />
             <FormPasswordField
               control={form.control}
@@ -102,7 +102,7 @@ export default function RegisterPage() {
             pending={form.formState.isSubmitting}
             pendingLabel="Creating account…"
           >
-            Start trading with email
+            Continue with email
           </AuthSubmit>
         </form>
 

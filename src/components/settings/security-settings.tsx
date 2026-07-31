@@ -127,7 +127,7 @@ export function SecuritySettings() {
 
     const result = await authClient.twoFactor.enable({
       password: values.password,
-      issuer: "Nexora",
+      issuer: "Notely",
     });
 
     if (result.error) {

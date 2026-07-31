@@ -3,12 +3,11 @@
 import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
-  LayoutDashboard,
   LogOut,
+  NotebookPen,
   Settings,
   ShieldCheck,
   User,
-  Wallet,
 } from "lucide-react";
 
 import { authClient } from "@/lib/auth/client";
@@ -132,7 +131,7 @@ export function UserMenu({ variant = "header", className }: UserMenuProps) {
               size="lg"
             />
             <div className="min-w-0 flex-1 space-y-1">
-              <p className="truncate font-medium">{user?.name ?? "Nexora User"}</p>
+              <p className="truncate font-medium">{user?.name ?? "Notely User"}</p>
               <p className="truncate text-xs text-muted-foreground">
                 {user?.email ?? "No email on file"}
               </p>
@@ -161,13 +160,9 @@ export function UserMenu({ variant = "header", className }: UserMenuProps) {
           <DropdownMenuLabel className="text-[10px] uppercase tracking-wider">
             Account
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-            <LayoutDashboard className="size-4" />
-            Dashboard
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/portfolio")}>
-            <Wallet className="size-4" />
-            Portfolio
+          <DropdownMenuItem onClick={() => router.push("/notes")}>
+            <NotebookPen className="size-4" />
+            Notes
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/settings")}>
             <Settings className="size-4" />

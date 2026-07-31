@@ -66,7 +66,7 @@ function ResetPasswordForm() {
     <AuthShell
       eyebrow="New credentials"
       title="Choose a new password"
-      subtitle="Pick something strong — you’ll use it to unlock your trading desk."
+      subtitle="Pick something strong — you’ll use it to unlock your notes."
     >
       <AuthPanel>
         {!token && !errorParam ? (

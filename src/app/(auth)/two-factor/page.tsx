@@ -54,7 +54,7 @@ export default function TwoFactorPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/notes");
     router.refresh();
   }
 
@@ -62,7 +62,7 @@ export default function TwoFactorPage() {
     <AuthShell
       eyebrow="Second factor"
       title="Confirm it’s you"
-      subtitle="Enter a code from your authenticator to unlock the trading desk."
+      subtitle="Enter a code from your authenticator to unlock your workspace."
     >
       <AuthPanel>
         <div className="mb-5 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">

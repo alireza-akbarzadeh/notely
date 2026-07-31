@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
           <div className="space-y-5">
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
               <p className="text-sm text-foreground">
-                If that email is on Nexora, a reset link was sent.
+                If that email is on Notely, a reset link was sent.
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Console email mode logs the link in the server terminal.
@@ -115,7 +115,7 @@ export default function ForgotPasswordPage() {
                 label="Email"
                 type="email"
                 autoComplete="email"
-                placeholder="trader@nexora.app"
+                placeholder="you@notely.app"
               />
             </FieldGroup>
 

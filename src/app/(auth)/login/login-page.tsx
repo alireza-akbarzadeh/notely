@@ -26,7 +26,7 @@ import { FieldGroup } from "@/components/ui/field";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/notes";
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
@@ -63,8 +63,8 @@ export default function LoginPage() {
   return (
     <AuthShell
       eyebrow="Welcome back"
-      title="Sign in to Nexora"
-      subtitle="Access your dashboard, watchlists, and connected exchanges."
+      title="Sign in to Notely"
+      subtitle="Access your spaces, notes, and tags."
     >
       <AuthPanel>
         <SocialAuthButtons callbackURL={callbackUrl} className="mb-5" />
@@ -77,7 +77,7 @@ export default function LoginPage() {
               label="Email"
               type="email"
               autoComplete="email"
-              placeholder="trader@nexora.app"
+              placeholder="you@notely.app"
             />
             <FormPasswordField
               control={form.control}
@@ -109,7 +109,7 @@ export default function LoginPage() {
 
         <div className="mt-6">
           <AuthFooterLink
-            prompt="New to Nexora?"
+            prompt="New to Notely?"
             href="/register"
             label="Create an account"
           />

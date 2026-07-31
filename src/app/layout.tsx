@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexora | Crypto Trading Platform",
-  description: "Real-time crypto trading powered by exchange APIs",
+  title: "Notely | Think. Note. Plan.",
+  description: "Capture ideas, organize spaces, and plan in one workspace.",
 };
 
 export default function RootLayout({

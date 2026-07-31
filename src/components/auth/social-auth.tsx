@@ -48,7 +48,7 @@ function AppleIcon({ className }: { className?: string }) {
 }
 
 export function SocialAuthButtons({
-  callbackURL = "/dashboard",
+  callbackURL = "/notes",
   className,
 }: SocialAuthButtonsProps) {
   const googleConfigured = process.env.NEXT_PUBLIC_AUTH_GOOGLE === "true";
