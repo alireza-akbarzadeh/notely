@@ -1,16 +1,14 @@
 import { and, asc, eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
-import { attachments, db, notes } from "@/lib/db";
+import { attachments, db } from "@/lib/db";
+import { requireNoteAccess } from "@/lib/notes/access";
 import type { CreateLinkAttachmentValues } from "@/lib/validations/notes";
 
 /** Soft limit for DB-backed uploads (base64 in Postgres). */
 export const MAX_DB_ATTACHMENT_BYTES = 2 * 1024 * 1024;
 
-function serializeAttachment(
-  row: typeof attachments.$inferSelect,
-  options?: { includeData?: boolean },
-) {
+function serializeAttachment(row: typeof attachments.$inferSelect) {
   return {
     id: row.id,
     noteId: row.noteId,
@@ -24,27 +22,17 @@ function serializeAttachment(
         ? `/api/attachments/${row.id}/file`
         : (row.url ?? null),
     createdAt: row.createdAt.toISOString(),
-    ...(options?.includeData ? { data: row.data } : {}),
   };
 }
 
-async function assertNoteOwned(userId: string, noteId: string) {
-  const [note] = await db
-    .select({ id: notes.id })
-    .from(notes)
-    .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-    .limit(1);
-  return Boolean(note);
-}
-
 export async function listAttachmentsForNote(userId: string, noteId: string) {
-  const owned = await assertNoteOwned(userId, noteId);
-  if (!owned) return null;
+  const access = await requireNoteAccess(userId, noteId, "read");
+  if (!access) return null;
 
   const rows = await db
     .select()
     .from(attachments)
-    .where(and(eq(attachments.noteId, noteId), eq(attachments.userId, userId)))
+    .where(eq(attachments.noteId, noteId))
     .orderBy(asc(attachments.createdAt));
 
   return rows.map((row) => serializeAttachment(row));
@@ -54,8 +42,8 @@ export async function createLinkAttachment(
   userId: string,
   input: CreateLinkAttachmentValues,
 ) {
-  const owned = await assertNoteOwned(userId, input.noteId);
-  if (!owned) throw new Error("Note not found");
+  const access = await requireNoteAccess(userId, input.noteId, "edit");
+  if (!access) throw new Error("Note not found");
 
   const id = randomUUID();
   await db.insert(attachments).values({
@@ -87,8 +75,8 @@ export async function createDbFileAttachment(
     bytes: Buffer;
   },
 ) {
-  const owned = await assertNoteOwned(userId, input.noteId);
-  if (!owned) throw new Error("Note not found");
+  const access = await requireNoteAccess(userId, input.noteId, "edit");
+  if (!access) throw new Error("Note not found");
 
   if (input.bytes.byteLength === 0) {
     throw new Error("File is empty");
@@ -124,14 +112,26 @@ export async function getAttachmentForUser(userId: string, attachmentId: string)
   const [row] = await db
     .select()
     .from(attachments)
-    .where(and(eq(attachments.id, attachmentId), eq(attachments.userId, userId)))
+    .where(eq(attachments.id, attachmentId))
     .limit(1);
-  return row ?? null;
+  if (!row) return null;
+
+  const access = await requireNoteAccess(userId, row.noteId, "read");
+  if (!access) return null;
+  return row;
 }
 
 export async function deleteAttachment(userId: string, attachmentId: string) {
-  const existing = await getAttachmentForUser(userId, attachmentId);
+  const [existing] = await db
+    .select()
+    .from(attachments)
+    .where(eq(attachments.id, attachmentId))
+    .limit(1);
   if (!existing) return false;
+
+  const access = await requireNoteAccess(userId, existing.noteId, "edit");
+  if (!access) return false;
+
   await db.delete(attachments).where(eq(attachments.id, attachmentId));
   return true;
 }

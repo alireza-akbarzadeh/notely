@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NoteChecklist } from "@/components/notes/note-checklist";
 import { NoteResources } from "@/components/notes/note-resources";
+import { NoteSharePanel } from "@/components/notes/note-share-panel";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 
 type NoteEditorProps = {
@@ -29,6 +30,8 @@ function sameTagIds(a: string[], b: string[]) {
 export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const canEdit = note.accessRole !== "viewer";
+  const canShare = note.accessRole === "owner";
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tagIds, setTagIds] = useState(note.tags.map((tag) => tag.id));
@@ -121,6 +124,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   });
 
   useEffect(() => {
+    if (!canEdit) return;
     const handle = window.setTimeout(() => {
       const saved = savedRef.current;
       if (
@@ -138,7 +142,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
     }, 700);
     return () => window.clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, content, tagIds]);
+  }, [title, content, tagIds, canEdit]);
 
   function toggleTag(tagId: string) {
     setTagIds((current) =>
@@ -161,52 +165,62 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
           <ArrowLeft className="size-5" />
         </Button>
         <p className="flex-1 truncate text-xs text-muted-foreground">
+          {note.isShared ? `Shared · ${note.accessRole ?? "editor"} · ` : ""}
           {status === "saving"
             ? "Saving…"
             : status === "saved"
               ? "Saved"
               : status === "error"
                 ? "Couldn’t save"
-                : "Ready"}
+                : canEdit
+                  ? "Ready"
+                  : "View only"}
         </p>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() =>
-            saveMutation.mutate({
-              title: title.trim() || "Untitled",
-              content,
-              tagIds,
-              isFavorite: !note.isFavorite,
-            })
-          }
-          aria-label="Toggle favorite"
-        >
-          <Star
-            className={`size-4 ${note.isFavorite ? "fill-primary text-primary" : ""}`}
-          />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            if (window.confirm("Delete this note?")) deleteMutation.mutate();
-          }}
-          aria-label="Delete note"
-        >
-          <Trash2 className="size-4" />
-        </Button>
+        {canShare ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              saveMutation.mutate({
+                title: title.trim() || "Untitled",
+                content,
+                tagIds,
+                isFavorite: !note.isFavorite,
+              })
+            }
+            aria-label="Toggle favorite"
+          >
+            <Star
+              className={`size-4 ${note.isFavorite ? "fill-primary text-primary" : ""}`}
+            />
+          </Button>
+        ) : null}
+        {canShare ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (window.confirm("Delete this note?")) deleteMutation.mutate();
+            }}
+            aria-label="Delete note"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        ) : null}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:px-10 md:pb-10">
         <Input
           value={title}
+          readOnly={!canEdit}
           onChange={(event) => setTitle(event.target.value)}
           className="mb-4 h-auto border-0 bg-transparent px-0 text-3xl font-semibold shadow-none focus-visible:ring-0 md:text-4xl"
           placeholder="Untitled"
         />
 
-        {allTags.length > 0 ? (
+        <NoteSharePanel noteId={note.id} canShare={canShare} />
+
+        {allTags.length > 0 && canShare ? (
           <div className="mb-6 flex flex-wrap gap-2">
             {allTags.map((tag) => {
               const selected = tagIds.includes(tag.id);
@@ -231,13 +245,14 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
 
         <textarea
           value={content}
+          readOnly={!canEdit}
           onChange={(event) => setContent(event.target.value)}
           placeholder="Start writing…"
-          className="mb-8 min-h-[40vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground"
+          className="mb-8 min-h-[40vh] w-full resize-none bg-transparent text-base leading-7 text-foreground outline-none placeholder:text-muted-foreground read-only:opacity-90"
         />
 
-        <NoteChecklist noteId={note.id} />
-        <NoteResources noteId={note.id} />
+        <NoteChecklist noteId={note.id} canEdit={canEdit} />
+        <NoteResources noteId={note.id} canEdit={canEdit} />
       </div>
     </div>
   );

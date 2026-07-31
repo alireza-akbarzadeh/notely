@@ -155,3 +155,33 @@ export const attachments = pgTable("attachments", {
   data: text("data"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
+
+export const noteShares = pgTable("note_shares", {
+  id: text("id").primaryKey(),
+  noteId: text("noteId")
+    .notNull()
+    .references(() => notes.id, { onDelete: "cascade" }),
+  invitedByUserId: text("invitedByUserId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  userId: text("userId").references(() => user.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  role: text("role").notNull().default("editor"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+export const events = pgTable("events", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  startTime: timestamp("startTime").notNull(),
+  endTime: timestamp("endTime"),
+  link: text("link"),
+  noteId: text("noteId").references(() => notes.id, { onDelete: "set null" }),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});

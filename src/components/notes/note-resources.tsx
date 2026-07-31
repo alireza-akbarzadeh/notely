@@ -11,6 +11,7 @@ import type { NoteAttachment } from "@/types/notes";
 
 type NoteResourcesProps = {
   noteId: string;
+  canEdit?: boolean;
 };
 
 function formatBytes(size: number) {
@@ -20,7 +21,7 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function NoteResources({ noteId }: NoteResourcesProps) {
+export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [linkName, setLinkName] = useState("");
@@ -116,27 +117,31 @@ export function NoteResources({ noteId }: NoteResourcesProps) {
                 : `${items.length} attachment${items.length === 1 ? "" : "s"}`}
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-9 gap-1.5"
-          disabled={uploadMutation.isPending}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="size-3.5" />
-          Upload
-        </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (file) uploadMutation.mutate(file);
-          }}
-        />
+        {canEdit ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1.5"
+              disabled={uploadMutation.isPending}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="size-3.5" />
+              Upload
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (file) uploadMutation.mutate(file);
+              }}
+            />
+          </>
+        ) : null}
       </div>
 
       <ul className="space-y-2">
@@ -170,56 +175,62 @@ export function NoteResources({ noteId }: NoteResourcesProps) {
                 <ExternalLink className="size-4" />
               </a>
             ) : null}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => deleteMutation.mutate(item.id)}
-              aria-label="Delete attachment"
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {canEdit ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={() => deleteMutation.mutate(item.id)}
+                aria-label="Delete attachment"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </li>
         ))}
       </ul>
 
-      <form
-        className="mt-3 grid gap-2 sm:grid-cols-[1fr_1.4fr_auto]"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!linkUrl.trim()) return;
-          linkMutation.mutate();
-        }}
-      >
-        <Input
-          value={linkName}
-          onChange={(event) => setLinkName(event.target.value)}
-          placeholder="Label"
-          className="h-10"
-        />
-        <Input
-          value={linkUrl}
-          onChange={(event) => setLinkUrl(event.target.value)}
-          placeholder="https://…"
-          type="url"
-          className="h-10"
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          className="h-10 gap-1.5"
-          disabled={!linkUrl.trim() || linkMutation.isPending}
-        >
-          <Paperclip className="size-3.5" />
-          Add link
-        </Button>
-      </form>
+      {canEdit ? (
+        <>
+          <form
+            className="mt-3 grid gap-2 sm:grid-cols-[1fr_1.4fr_auto]"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!linkUrl.trim()) return;
+              linkMutation.mutate();
+            }}
+          >
+            <Input
+              value={linkName}
+              onChange={(event) => setLinkName(event.target.value)}
+              placeholder="Label"
+              className="h-10"
+            />
+            <Input
+              value={linkUrl}
+              onChange={(event) => setLinkUrl(event.target.value)}
+              placeholder="https://…"
+              type="url"
+              className="h-10"
+            />
+            <Button
+              type="submit"
+              variant="secondary"
+              className="h-10 gap-1.5"
+              disabled={!linkUrl.trim() || linkMutation.isPending}
+            >
+              <Paperclip className="size-3.5" />
+              Add link
+            </Button>
+          </form>
 
-      {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
-      <p className="mt-2 text-[11px] text-muted-foreground">
-        Uploads up to 2MB are stored with your note. Larger files: paste a link.
-      </p>
+          {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Uploads up to 2MB are stored with your note. Larger files: paste a link.
+          </p>
+        </>
+      ) : null}
     </section>
   );
 }

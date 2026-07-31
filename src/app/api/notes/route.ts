@@ -11,9 +11,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const spaceId = searchParams.get("spaceId") ?? undefined;
   const favoritesOnly = searchParams.get("favorites") === "1";
+  const sharedOnly = searchParams.get("shared") === "1";
 
   await ensureDefaultSpace(session.user.id);
-  const rows = await listNotes(session.user.id, { spaceId, favoritesOnly });
+  const rows = await listNotes(session.user.id, {
+    spaceId,
+    favoritesOnly,
+    sharedOnly,
+  });
 
   return NextResponse.json({ notes: rows });
 }

@@ -16,6 +16,9 @@ export type NoteSummary = {
   createdAt: string;
   updatedAt: string;
   tags: NoteTag[];
+  isShared?: boolean;
+  sharedRole?: string | null;
+  accessRole?: string | null;
 };
 
 export type SpaceSummary = {

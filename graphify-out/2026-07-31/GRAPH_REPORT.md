@@ -1,23 +1,23 @@
 # Graph Report - notely  (2026-07-31)
 
 ## Corpus Check
-- 108 files · ~25,887 words
+- 125 files · ~30,856 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 621 nodes · 1245 edges · 30 communities (26 shown, 4 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.5)
+- 694 nodes · 1463 edges · 35 communities (31 shown, 4 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6271bb1b`
+- Built from commit: `02a42145`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - security-settings.tsx
-- service.ts
-- utils.ts
+- validations/notes.ts
+- react
 - auth/index.ts
 - dependencies
 - user-menu.tsx
@@ -30,29 +30,34 @@
 - Find Skills
 - app/layout.tsx
 - Nexora
-- tabs.tsx
+- shares.ts
 - graphify
 - eslint.config.mjs
 - next.config.ts
 - postcss.config.mjs
-- dialog.tsx
-- dashboard-shell.tsx
-- sheet.tsx
-- header.tsx
+- app-sidebar.tsx
+- button.tsx
 - Notely Drizzle + Neon
 - Notely Better Auth
+- requireSession
+- service.ts
+- utils.ts
+- requireNoteAccess
+- events/route.ts
+- spaces/[id]/route.ts
+- tags/route.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 145 edges
-2. `requireSession()` - 32 edges
-3. `jsonError()` - 29 edges
-4. `scripts` - 16 edges
-5. `compilerOptions` - 16 edges
-6. `Button()` - 14 edges
-7. `authClient` - 10 edges
-8. `Notely roadmap` - 10 edges
-9. `FieldGroup()` - 9 edges
-10. `Input()` - 9 edges
+1. `cn()` - 149 edges
+2. `requireSession()` - 47 edges
+3. `jsonError()` - 41 edges
+4. `requireNoteAccess()` - 20 edges
+5. `Button()` - 18 edges
+6. `scripts` - 16 edges
+7. `compilerOptions` - 16 edges
+8. `Input()` - 13 edges
+9. `authClient` - 10 edges
+10. `Notely roadmap` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `useSidebar()` --references--> `react`  [EXTRACTED]
@@ -69,19 +74,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (30 total, 4 thin omitted)
+## Communities (35 total, 4 thin omitted)
 
 ### Community 0 - "security-settings.tsx"
-Cohesion: 0.06
-Nodes (62): DevAuthEmail, extractUrl(), ForgotPasswordPage(), LoginPage(), TwoFactorPage(), AuthError(), AuthFooterLink(), AuthPanel() (+54 more)
-
-### Community 1 - "service.ts"
 Cohesion: 0.05
-Nodes (88): GET(), Params, DELETE(), Params, GET(), POST(), DELETE(), GET() (+80 more)
+Nodes (64): DevAuthEmail, extractUrl(), ForgotPasswordPage(), LoginPage(), TwoFactorPage(), AuthError(), AuthFooterLink(), AuthPanel() (+56 more)
 
-### Community 2 - "utils.ts"
-Cohesion: 0.09
-Nodes (27): Params, metadata, FormFieldProps, LandingPage(), NotelyLogo(), NotelyLogoProps, MobileBottomNav(), NoteChecklist() (+19 more)
+### Community 1 - "validations/notes.ts"
+Cohesion: 0.10
+Nodes (27): DELETE(), Params, PATCH(), GET(), POST(), tasks, createTask(), deleteTask() (+19 more)
+
+### Community 2 - "react"
+Cohesion: 0.40
+Nodes (5): react, react, SidebarMenuSkeleton(), SidebarProvider(), useIsMobile()
 
 ### Community 3 - "auth/index.ts"
 Cohesion: 0.11
@@ -89,23 +94,23 @@ Nodes (22): { GET, POST }, GET(), appleEnabled, auth, env, googleEnabled, Sessio
 
 ### Community 4 - "dependencies"
 Cohesion: 0.05
-Nodes (41): @base-ui/react, better-auth, @better-auth/infra, class-variance-authority, clsx, drizzle-orm, @hookform/resolvers, jose (+33 more)
+Nodes (43): @base-ui/react, better-auth, @better-auth/infra, class-variance-authority, clsx, drizzle-orm, @hookform/resolvers, jose (+35 more)
 
 ### Community 5 - "user-menu.tsx"
-Cohesion: 0.09
-Nodes (25): UserAvatar(), UserMenu(), UserMenuProps, Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount() (+17 more)
+Cohesion: 0.08
+Nodes (28): UserAvatar(), UserMenu(), UserMenuProps, OPTIONS, ThemeToggle(), ThemeToggleProps, Avatar(), AvatarBadge() (+20 more)
 
 ### Community 6 - "scripts"
 Cohesion: 0.05
 Nodes (38): drizzle-kit, eslint, eslint-config-next, devDependencies, drizzle-kit, eslint, eslint-config-next, tailwindcss (+30 more)
 
 ### Community 7 - "sidebar.tsx"
-Cohesion: 0.11
-Nodes (27): Sidebar(), SidebarContent(), SidebarContext, SidebarContextProps, SidebarFooter(), SidebarGroup(), SidebarGroupAction(), SidebarGroupContent() (+19 more)
+Cohesion: 0.09
+Nodes (27): HeaderProps, Separator(), Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay() (+19 more)
 
 ### Community 8 - "cn"
-Cohesion: 0.12
-Nodes (26): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator(), SelectContent() (+18 more)
+Cohesion: 0.10
+Nodes (31): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator(), SelectContent() (+23 more)
 
 ### Community 9 - "compilerOptions"
 Cohesion: 0.07
@@ -116,40 +121,32 @@ Cohesion: 0.09
 Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+13 more)
 
 ### Community 11 - "Notely roadmap"
-Cohesion: 0.13
-Nodes (14): Architecture, Calendar / meetings sidebar, Files / attachments, Inbox / global search, Keep vs drop, Notely roadmap, Phase 1 — Strip trading, Phase 2 — Auth rebrand (logic unchanged) (+6 more)
+Cohesion: 0.12
+Nodes (15): Architecture, Calendar / meetings sidebar, Files / attachments, Inbox / global search, Keep vs drop, Notely roadmap, Phase 1 — Strip trading, Phase 2 — Auth rebrand (logic unchanged) (+7 more)
 
 ### Community 12 - "Find Skills"
 Cohesion: 0.14
 Nodes (13): Common Skill Categories, Find Skills, How to Help Users Find Skills, Step 1: Understand What They Need, Step 2: Check the Leaderboard First, Step 3: Search for Skills, Step 4: Verify Quality Before Recommending, Step 5: Present Options to the User (+5 more)
 
 ### Community 13 - "app/layout.tsx"
-Cohesion: 0.29
-Nodes (5): geistMono, geistSans, metadata, Providers(), TooltipProvider()
+Cohesion: 0.24
+Nodes (6): geistMono, geistSans, metadata, Providers(), ThemeProvider(), TooltipProvider()
 
 ### Community 14 - "Nexora"
 Cohesion: 0.14
 Nodes (13): 1. Install dependencies, 2. Configure environment, 3. Set up the database, 4. Run the development server, Deploy on Vercel, Features (Phase 1), Getting Started, Nexora (+5 more)
 
-### Community 15 - "tabs.tsx"
-Cohesion: 0.40
-Nodes (5): Tabs(), TabsContent(), TabsList(), tabsListVariants, TabsTrigger()
+### Community 15 - "shares.ts"
+Cohesion: 0.10
+Nodes (23): DELETE(), Params, PATCH(), db, sql, account, attachments, notes (+15 more)
 
-### Community 24 - "dialog.tsx"
-Cohesion: 0.18
-Nodes (6): DialogContent(), DialogDescription(), DialogFooter(), DialogHeader(), DialogOverlay(), DialogTitle()
+### Community 24 - "app-sidebar.tsx"
+Cohesion: 0.09
+Nodes (23): AppSidebar(), fetchSpaces(), DashboardShell(), MobileBottomNav(), NoteSearchDialog(), SearchHit, Dialog(), DialogContent() (+15 more)
 
-### Community 25 - "dashboard-shell.tsx"
-Cohesion: 0.18
-Nodes (9): react, react, AppSidebar(), fetchSpaces(), DashboardShell(), SidebarInset(), SidebarMenuSkeleton(), SidebarProvider() (+1 more)
-
-### Community 26 - "sheet.tsx"
-Cohesion: 0.18
-Nodes (7): Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay(), SheetTitle()
-
-### Community 27 - "header.tsx"
-Cohesion: 0.50
-Nodes (3): HeaderProps, Separator(), SidebarTrigger()
+### Community 26 - "button.tsx"
+Cohesion: 0.21
+Nodes (11): CalendarEvent, daysInMonth(), startOfMonth(), UtilitySidebar(), NoteChecklist(), NoteChecklistProps, NoteSharePanel(), NoteSharePanelProps (+3 more)
 
 ### Community 28 - "Notely Drizzle + Neon"
 Cohesion: 0.33
@@ -159,25 +156,53 @@ Nodes (5): Conventions, Layout, Migrations, Notely Drizzle + Neon, Queries
 Cohesion: 0.40
 Nodes (4): Layout, Notely Better Auth, Pattern (API route), Rules
 
+### Community 30 - "requireSession"
+Cohesion: 0.16
+Nodes (22): GET(), DELETE(), GET(), Params, PATCH(), GET(), POST(), GET() (+14 more)
+
+### Community 31 - "service.ts"
+Cohesion: 0.24
+Nodes (16): GET(), POST(), assertSpaceOwned(), createNote(), createSpace(), ensureDefaultSpace(), getNote(), listNotes() (+8 more)
+
+### Community 32 - "utils.ts"
+Cohesion: 0.08
+Nodes (26): Params, metadata, LandingPage(), NotelyLogo(), NotelyLogoProps, InboxPanel(), Invite, DraftSnapshot (+18 more)
+
+### Community 33 - "requireNoteAccess"
+Cohesion: 0.25
+Nodes (13): GET(), Params, DELETE(), Params, GET(), POST(), requireNoteAccess(), createDbFileAttachment() (+5 more)
+
+### Community 34 - "events/route.ts"
+Cohesion: 0.26
+Nodes (10): DELETE(), Params, GET(), POST(), events, createEvent(), deleteEvent(), listEvents() (+2 more)
+
+### Community 37 - "spaces/[id]/route.ts"
+Cohesion: 0.38
+Nodes (6): DELETE(), Params, PATCH(), deleteSpace(), updateSpace(), updateSpaceSchema
+
+### Community 39 - "tags/route.ts"
+Cohesion: 0.47
+Nodes (5): GET(), POST(), createTag(), listTags(), createTagSchema
+
 ## Knowledge Gaps
-- **181 isolated node(s):** `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style`, `rsc`, `tsx` (+176 more)
+- **197 isolated node(s):** `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style`, `rsc`, `tsx` (+192 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `cn` to `security-settings.tsx`, `utils.ts`, `user-menu.tsx`, `sidebar.tsx`, `tabs.tsx`, `dialog.tsx`, `dashboard-shell.tsx`, `sheet.tsx`, `header.tsx`?**
-  _High betweenness centrality (0.221) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `dependencies` to `dashboard-shell.tsx`, `scripts`?**
-  _High betweenness centrality (0.129) - this node is a cross-community bridge._
-- **Why does `react` connect `dashboard-shell.tsx` to `dependencies`, `sidebar.tsx`?**
-  _High betweenness centrality (0.119) - this node is a cross-community bridge._
+- **Why does `cn()` connect `cn` to `security-settings.tsx`, `utils.ts`, `react`, `user-menu.tsx`, `sidebar.tsx`, `app-sidebar.tsx`, `button.tsx`?**
+  _High betweenness centrality (0.197) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `dependencies` to `react`, `scripts`?**
+  _High betweenness centrality (0.114) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `dependencies`, `sidebar.tsx`?**
+  _High betweenness centrality (0.106) - this node is a cross-community bridge._
 - **What connects `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style` to the rest of the system?**
-  _181 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _197 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `security-settings.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.05515832482124617 - nodes in this community are weakly interconnected._
-- **Should `service.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.050673854447439354 - nodes in this community are weakly interconnected._
-- **Should `utils.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.08888888888888889 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.053989488772097464 - nodes in this community are weakly interconnected._
+- **Should `validations/notes.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.1032258064516129 - nodes in this community are weakly interconnected._
+- **Should `auth/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.11264367816091954 - nodes in this community are weakly interconnected._

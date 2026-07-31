@@ -1,7 +1,8 @@
 import { and, asc, desc, eq, max } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
-import { db, notes, tasks } from "@/lib/db";
+import { db, tasks } from "@/lib/db";
+import { requireNoteAccess } from "@/lib/notes/access";
 import type {
   CreateTaskValues,
   UpdateTaskValues,
@@ -15,36 +16,27 @@ function serializeTask(row: typeof tasks.$inferSelect) {
   };
 }
 
-async function assertNoteOwned(userId: string, noteId: string) {
-  const [note] = await db
-    .select({ id: notes.id })
-    .from(notes)
-    .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-    .limit(1);
-  return Boolean(note);
-}
-
 export async function listTasksForNote(userId: string, noteId: string) {
-  const owned = await assertNoteOwned(userId, noteId);
-  if (!owned) return null;
+  const access = await requireNoteAccess(userId, noteId, "read");
+  if (!access) return null;
 
   const rows = await db
     .select()
     .from(tasks)
-    .where(and(eq(tasks.noteId, noteId), eq(tasks.userId, userId)))
+    .where(eq(tasks.noteId, noteId))
     .orderBy(asc(tasks.sortOrder), asc(tasks.createdAt));
 
   return rows.map(serializeTask);
 }
 
 export async function createTask(userId: string, input: CreateTaskValues) {
-  const owned = await assertNoteOwned(userId, input.noteId);
-  if (!owned) throw new Error("Note not found");
+  const access = await requireNoteAccess(userId, input.noteId, "edit");
+  if (!access) throw new Error("Note not found");
 
   const [agg] = await db
     .select({ maxOrder: max(tasks.sortOrder) })
     .from(tasks)
-    .where(and(eq(tasks.noteId, input.noteId), eq(tasks.userId, userId)));
+    .where(eq(tasks.noteId, input.noteId));
 
   const id = randomUUID();
   const now = new Date();
@@ -71,9 +63,12 @@ export async function updateTask(
   const [existing] = await db
     .select()
     .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+    .where(eq(tasks.id, taskId))
     .limit(1);
   if (!existing) return null;
+
+  const access = await requireNoteAccess(userId, existing.noteId, "edit");
+  if (!access) return null;
 
   await db
     .update(tasks)
@@ -95,9 +90,12 @@ export async function deleteTask(userId: string, taskId: string) {
   const [existing] = await db
     .select()
     .from(tasks)
-    .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+    .where(eq(tasks.id, taskId))
     .limit(1);
   if (!existing) return false;
+
+  const access = await requireNoteAccess(userId, existing.noteId, "edit");
+  if (!access) return false;
 
   await db.delete(tasks).where(eq(tasks.id, taskId));
   return true;

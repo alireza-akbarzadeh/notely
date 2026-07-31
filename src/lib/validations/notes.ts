@@ -60,6 +60,24 @@ export const createLinkAttachmentSchema = z.object({
   mimeType: z.string().trim().max(120).optional().default("application/octet-stream"),
 });
 
+export const inviteShareSchema = z.object({
+  noteId: z.string().min(1),
+  email: z.string().trim().email(),
+  role: z.enum(["editor", "viewer"]).optional().default("editor"),
+});
+
+export const respondShareSchema = z.object({
+  action: z.enum(["accept", "decline"]),
+});
+
+export const createEventSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  startTime: z.string().datetime(),
+  endTime: z.string().datetime().optional().nullable(),
+  link: z.string().url().optional().nullable(),
+  noteId: z.string().min(1).optional().nullable(),
+});
+
 export type CreateSpaceValues = z.infer<typeof createSpaceSchema>;
 export type UpdateSpaceValues = z.infer<typeof updateSpaceSchema>;
 export type CreateNoteValues = z.infer<typeof createNoteSchema>;
@@ -68,4 +86,6 @@ export type CreateTagValues = z.infer<typeof createTagSchema>;
 export type CreateTaskValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskValues = z.infer<typeof updateTaskSchema>;
 export type CreateLinkAttachmentValues = z.infer<typeof createLinkAttachmentSchema>;
+export type InviteShareValues = z.infer<typeof inviteShareSchema>;
+export type CreateEventValues = z.infer<typeof createEventSchema>;
  

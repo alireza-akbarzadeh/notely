@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 
+import { InboxPanel } from "@/components/notes/inbox-panel";
 import { NotesList } from "@/components/notes/notes-list";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,10 +30,12 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
 
   const notesQuery = useQuery({
     queryKey: ["notes", spaceId, view],
+    enabled: view !== "inbox",
     queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
       const params = new URLSearchParams();
       if (spaceId) params.set("spaceId", spaceId);
       if (view === "favorites") params.set("favorites", "1");
+      if (view === "shared") params.set("shared", "1");
       const response = await fetch(`/api/notes?${params.toString()}`);
       if (!response.ok) throw new Error("Failed to load notes");
       return response.json();
@@ -71,15 +74,20 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         );
       });
     }
-    if (view === "inbox") return [] as NoteSummary[];
     return rows;
   }, [notesQuery.data?.notes, view]);
 
   const spaceName =
-    spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
-      ?.name ??
-    spacesQuery.data?.spaces[0]?.name ??
-    "Notes";
+    view === "shared"
+      ? "Shared with me"
+      : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
+          ?.name ??
+        spacesQuery.data?.spaces[0]?.name ??
+        "Notes";
+
+  if (view === "inbox") {
+    return <InboxPanel />;
+  }
 
   const showEditor = Boolean(noteId);
   const note = noteQuery.data?.note;

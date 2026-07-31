@@ -4,6 +4,54 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --background: oklch(0.985 0.004 250);
+  --foreground: oklch(0.22 0.02 260);
+  --electric: oklch(0.55 0.16 250);
+  --emerald-glow: oklch(0.62 0.15 160);
+  --cyan-glow: oklch(0.7 0.12 210);
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.62 0.14 175),
+    oklch(0.55 0.14 230)
+  );
+  --gradient-hero: radial-gradient(
+    ellipse 80% 60% at 50% -10%,
+    oklch(0.72 0.12 175 / 0.2),
+    transparent 70%
+  );
+  --shadow-elevated: 0 24px 80px -12px oklch(0.35 0.02 260 / 0.18);
+  --shadow-glow: 0 0 60px -12px oklch(0.62 0.14 175 / 0.28);
+  --shadow-glow-emerald: 0 0 40px -8px oklch(0.62 0.15 160 / 0.25);
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #0d9488;
+  --primary-foreground: #f0fdfa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f0fdfa;
+  --accent-foreground: #134e4a;
+  --destructive: #dc2626;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #0d9488;
+  --buy: #16a34a;
+  --sell: #dc2626;
+  --radius: 0.5rem;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #f0fdfa;
+  --sidebar-accent: #f0fdfa;
+  --sidebar-accent-foreground: #134e4a;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #0d9488;
+}
+
+.dark {
   --background: oklch(0.14 0.01 265);
   --foreground: oklch(0.98 0.005 260);
   --electric: oklch(0.72 0.19 250);
@@ -40,7 +88,6 @@
   --ring: #2dd4bf;
   --buy: #22c55e;
   --sell: #ef4444;
-  --radius: 0.5rem;
   --sidebar: #0a0a0a;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #2dd4bf;
@@ -180,23 +227,45 @@
   }
 
   .glass {
-    background: oklch(1 0 0 / 0.03);
-    border: 1px solid oklch(1 0 0 / 0.06);
+    background: oklch(0.22 0.02 260 / 0.03);
+    border: 1px solid oklch(0.22 0.02 260 / 0.08);
     backdrop-filter: blur(12px);
   }
 
+  .dark .glass {
+    background: oklch(1 0 0 / 0.03);
+    border: 1px solid oklch(1 0 0 / 0.06);
+  }
+
   .glass-strong {
-    background: oklch(1 0 0 / 0.06);
-    border: 1px solid oklch(1 0 0 / 0.1);
+    background: oklch(0.22 0.02 260 / 0.05);
+    border: 1px solid oklch(0.22 0.02 260 / 0.1);
     backdrop-filter: blur(16px);
   }
 
+  .dark .glass-strong {
+    background: oklch(1 0 0 / 0.06);
+    border: 1px solid oklch(1 0 0 / 0.1);
+  }
+
   .card-elevated {
+    background: oklch(1 0 0);
+    border: 1px solid oklch(0.22 0.02 260 / 0.08);
+  }
+
+  .dark .card-elevated {
     background: oklch(0.18 0.012 265);
     border: 1px solid oklch(1 0 0 / 0.06);
   }
 
   .grid-bg {
+    background-image:
+      linear-gradient(oklch(0.22 0.02 260 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.22 0.02 260 / 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .dark .grid-bg {
     background-image:
       linear-gradient(oklch(1 0 0 / 0.03) 1px, transparent 1px),
       linear-gradient(90deg, oklch(1 0 0 / 0.03) 1px, transparent 1px);

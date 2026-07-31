@@ -28,7 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type UserMenuProps = {
-  variant?: "header" | "sidebar";
+  variant?: "header" | "sidebar" | "appbar";
   className?: string;
 };
 
@@ -56,6 +56,8 @@ export function UserMenu({ variant = "header", className }: UserMenuProps) {
       </div>
     );
   }
+
+  const isAppBar = variant === "appbar";
 
   const initials = getUserInitials(user?.name, user?.email);
   const memberSince = formatMemberSince(user?.createdAt);
@@ -87,6 +89,21 @@ export function UserMenu({ variant = "header", className }: UserMenuProps) {
                   {user?.email ?? "Not signed in"}
                 </p>
               </div>
+            </Button>
+          ) : isAppBar ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn("size-9 rounded-full", className)}
+              aria-label="Account menu"
+            >
+              <UserAvatar
+                name={user?.name}
+                email={user?.email}
+                image={user?.image}
+                initials={initials}
+                size="sm"
+              />
             </Button>
           ) : (
             <Button

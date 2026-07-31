@@ -11,9 +11,10 @@ import type { NoteTask } from "@/types/notes";
 
 type NoteChecklistProps = {
   noteId: string;
+  canEdit?: boolean;
 };
 
-export function NoteChecklist({ noteId }: NoteChecklistProps) {
+export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState("");
 
@@ -106,6 +107,7 @@ export function NoteChecklist({ noteId }: NoteChecklistProps) {
           <li key={task.id} className="group flex items-center gap-2">
             <button
               type="button"
+              disabled={!canEdit}
               onClick={() =>
                 updateMutation.mutate({
                   id: task.id,
@@ -117,6 +119,7 @@ export function NoteChecklist({ noteId }: NoteChecklistProps) {
                 task.isCompleted
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-transparent hover:border-primary/60",
+                !canEdit && "cursor-default opacity-80",
               )}
               aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"}
             >
@@ -124,7 +127,9 @@ export function NoteChecklist({ noteId }: NoteChecklistProps) {
             </button>
             <Input
               defaultValue={task.text}
+              readOnly={!canEdit}
               onBlur={(event) => {
+                if (!canEdit) return;
                 const next = event.target.value.trim();
                 if (next !== task.text) {
                   updateMutation.mutate({ id: task.id, text: next });
@@ -141,43 +146,47 @@ export function NoteChecklist({ noteId }: NoteChecklistProps) {
               )}
               placeholder="Task"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8 opacity-60 group-hover:opacity-100"
-              onClick={() => deleteMutation.mutate(task.id)}
-              aria-label="Delete task"
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {canEdit ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 opacity-60 group-hover:opacity-100"
+                onClick={() => deleteMutation.mutate(task.id)}
+                aria-label="Delete task"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            ) : null}
           </li>
         ))}
       </ul>
 
-      <form
-        className="mt-3 flex items-center gap-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          submitDraft();
-        }}
-      >
-        <Input
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="Add a task"
-          className="h-10"
-        />
-        <Button
-          type="submit"
-          size="icon"
-          className="size-10 shrink-0"
-          disabled={!draft.trim() || createMutation.isPending}
-          aria-label="Add task"
+      {canEdit ? (
+        <form
+          className="mt-3 flex items-center gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitDraft();
+          }}
         >
-          <Plus className="size-4" />
-        </Button>
-      </form>
+          <Input
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Add a task"
+            className="h-10"
+          />
+          <Button
+            type="submit"
+            size="icon"
+            className="size-10 shrink-0"
+            disabled={!draft.trim() || createMutation.isPending}
+            aria-label="Add task"
+          >
+            <Plus className="size-4" />
+          </Button>
+        </form>
+      ) : null}
     </section>
   );
 }

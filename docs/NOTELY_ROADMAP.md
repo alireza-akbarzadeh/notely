@@ -119,14 +119,20 @@ API pattern (same as old exchange routes):
 
 ### Calendar / meetings sidebar
 
-- [ ] `events` table: `id`, `userId`, `title`, `startTime`, `endTime`, `link`
-- [ ] Right utility column: mini-calendar + Upcoming + meeting card
-- [ ] Can ship UI stubs before backend
+- [x] `events` table: `id`, `userId`, `title`, `startTime`, `endTime`, `link`
+- [x] Right utility column: mini-calendar + Upcoming + meeting card
+- [x] Can ship UI stubs before backend
 
 ### Inbox / global search
 
-- [ ] Cmd+K search across notes
-- [ ] Inbox for mentions / shared notes (when collaboration exists)
+- [x] Cmd+K search across notes
+- [x] Inbox for mentions / shared notes (when collaboration exists)
+
+### Sharing / collaboration
+
+- [x] `note_shares` table + invite by email (registered users)
+- [x] Accept/decline in Inbox; Shared with me list
+- [x] Editors can update note body + checklist todos
 
 ---
 

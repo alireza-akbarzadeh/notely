@@ -2,6 +2,8 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 import { db, noteTags, notes, spaces, tags } from "@/lib/db";
+import { requireNoteAccess } from "@/lib/notes/access";
+import { listSharedWithMe } from "@/lib/notes/shares";
 import type {
   CreateNoteValues,
   CreateSpaceValues,
@@ -102,7 +104,9 @@ export async function deleteSpace(userId: string, spaceId: string) {
 }
 
 async function tagsForNotes(noteIds: string[]) {
-  if (noteIds.length === 0) return new Map<string, Array<typeof tags.$inferSelect>>();
+  if (noteIds.length === 0) {
+    return new Map<string, Array<typeof tags.$inferSelect>>();
+  }
 
   const rows = await db
     .select({
@@ -122,10 +126,36 @@ async function tagsForNotes(noteIds: string[]) {
   return map;
 }
 
+function serializeNote(
+  row: typeof notes.$inferSelect,
+  noteTagList: Array<typeof tags.$inferSelect>,
+  extras?: { isShared?: boolean; sharedRole?: string | null; accessRole?: string },
+) {
+  return {
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    tags: noteTagList,
+    isShared: extras?.isShared ?? false,
+    sharedRole: extras?.sharedRole ?? null,
+    accessRole: extras?.accessRole ?? "owner",
+  };
+}
+
 export async function listNotes(
   userId: string,
-  options?: { spaceId?: string; favoritesOnly?: boolean },
+  options?: { spaceId?: string; favoritesOnly?: boolean; sharedOnly?: boolean },
 ) {
+  if (options?.sharedOnly) {
+    const shared = await listSharedWithMe(userId);
+    const tagMap = await tagsForNotes(shared.map((row) => row.id));
+    return shared.map((row) => ({
+      ...row,
+      tags: tagMap.get(row.id) ?? [],
+      accessRole: row.sharedRole === "viewer" ? "viewer" : "editor",
+    }));
+  }
+
   const conditions = [eq(notes.userId, userId)];
   if (options?.spaceId) conditions.push(eq(notes.spaceId, options.spaceId));
   if (options?.favoritesOnly) conditions.push(eq(notes.isFavorite, true));
@@ -137,29 +167,27 @@ export async function listNotes(
     .orderBy(desc(notes.isPinned), desc(notes.updatedAt));
 
   const tagMap = await tagsForNotes(rows.map((row) => row.id));
-  return rows.map((row) => ({
-    ...row,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-    tags: tagMap.get(row.id) ?? [],
-  }));
+  return rows.map((row) =>
+    serializeNote(row, tagMap.get(row.id) ?? [], {
+      isShared: false,
+      accessRole: "owner",
+    }),
+  );
 }
 
 export async function getNote(userId: string, noteId: string) {
-  const [row] = await db
-    .select()
-    .from(notes)
-    .where(and(eq(notes.id, noteId), eq(notes.userId, userId)))
-    .limit(1);
+  const access = await requireNoteAccess(userId, noteId, "read");
+  if (!access) return null;
+
+  const [row] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
   if (!row) return null;
 
   const tagMap = await tagsForNotes([row.id]);
-  return {
-    ...row,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-    tags: tagMap.get(row.id) ?? [],
-  };
+  return serializeNote(row, tagMap.get(row.id) ?? [], {
+    isShared: access.role !== "owner",
+    sharedRole: access.role === "owner" ? null : access.role,
+    accessRole: access.role,
+  });
 }
 
 async function assertSpaceOwned(userId: string, spaceId: string) {
@@ -171,12 +199,12 @@ async function assertSpaceOwned(userId: string, spaceId: string) {
   return space ?? null;
 }
 
-async function syncNoteTags(userId: string, noteId: string, tagIds: string[]) {
+async function syncNoteTags(ownerUserId: string, noteId: string, tagIds: string[]) {
   if (tagIds.length > 0) {
     const owned = await db
       .select({ id: tags.id })
       .from(tags)
-      .where(and(eq(tags.userId, userId), inArray(tags.id, tagIds)));
+      .where(and(eq(tags.userId, ownerUserId), inArray(tags.id, tagIds)));
     if (owned.length !== tagIds.length) {
       throw new Error("One or more tags were not found");
     }
@@ -220,10 +248,16 @@ export async function updateNote(
   noteId: string,
   input: UpdateNoteValues,
 ) {
-  const existing = await getNote(userId, noteId);
+  const access = await requireNoteAccess(userId, noteId, "edit");
+  if (!access) return null;
+
+  const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
   if (!existing) return null;
 
   if (input.spaceId) {
+    if (access.role !== "owner") {
+      throw new Error("Only the owner can move this note");
+    }
     const space = await assertSpaceOwned(userId, input.spaceId);
     if (!space) throw new Error("Space not found");
   }
@@ -242,23 +276,27 @@ export async function updateNote(
       ...(input.title !== undefined ? { title: input.title } : {}),
       ...(input.content !== undefined ? { content: input.content } : {}),
       ...(input.spaceId !== undefined ? { spaceId: input.spaceId } : {}),
-      ...(input.isPinned !== undefined ? { isPinned: input.isPinned } : {}),
-      ...(input.isFavorite !== undefined ? { isFavorite: input.isFavorite } : {}),
+      ...(input.isPinned !== undefined && access.role === "owner"
+        ? { isPinned: input.isPinned }
+        : {}),
+      ...(input.isFavorite !== undefined && access.role === "owner"
+        ? { isFavorite: input.isFavorite }
+        : {}),
       summary: nextSummary,
       updatedAt: new Date(),
     })
     .where(eq(notes.id, noteId));
 
-  if (input.tagIds) {
-    await syncNoteTags(userId, noteId, input.tagIds);
+  if (input.tagIds && access.role === "owner") {
+    await syncNoteTags(access.ownerId, noteId, input.tagIds);
   }
 
   return getNote(userId, noteId);
 }
 
 export async function deleteNote(userId: string, noteId: string) {
-  const existing = await getNote(userId, noteId);
-  if (!existing) return false;
+  const access = await requireNoteAccess(userId, noteId, "share");
+  if (!access || access.role !== "owner") return false;
   await db.delete(notes).where(eq(notes.id, noteId));
   return true;
 }
