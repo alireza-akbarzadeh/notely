@@ -90,7 +90,7 @@ export function SocialAuthButtons({
           type="button"
           onClick={() => void signInWith("google")}
           disabled={pending !== null}
-          className="group glass-strong inline-flex h-11 items-center justify-center gap-2.5 rounded-xl text-sm font-medium transition-all hover:scale-[1.01] hover:bg-white/[0.06] disabled:pointer-events-none disabled:opacity-60"
+          className="group glass-strong inline-flex h-11 touch-manipulation items-center justify-center gap-2.5 rounded-xl text-sm font-medium transition-opacity hover:bg-white/[0.06] disabled:pointer-events-none disabled:opacity-60"
         >
           <GoogleIcon className="size-5 shrink-0" />
           <span>{pending === "google" ? "Connecting…" : "Google"}</span>
@@ -100,7 +100,7 @@ export function SocialAuthButtons({
           type="button"
           onClick={() => void signInWith("apple")}
           disabled={pending !== null}
-          className="group inline-flex h-11 items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-foreground text-sm font-medium text-background transition-all hover:scale-[1.01] hover:bg-foreground/90 disabled:pointer-events-none disabled:opacity-60"
+          className="group inline-flex h-11 touch-manipulation items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-foreground text-sm font-medium text-background transition-opacity hover:bg-foreground/90 disabled:pointer-events-none disabled:opacity-60"
         >
           <AppleIcon className="size-5 shrink-0" />
           <span>{pending === "apple" ? "Connecting…" : "Apple"}</span>

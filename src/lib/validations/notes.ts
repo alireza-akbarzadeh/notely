@@ -93,6 +93,10 @@ export const respondShareSchema = z.object({
   action: z.enum(["accept", "decline"]),
 });
 
+export const updateShareRoleSchema = z.object({
+  role: z.enum(["editor", "viewer"]),
+});
+
 export const createEventSchema = z.object({
   title: z.string().trim().min(1).max(200),
   startTime: z.string().datetime(),

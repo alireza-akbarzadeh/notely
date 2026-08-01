@@ -220,6 +220,34 @@ export async function removeShare(userId: string, shareId: string) {
   return true;
 }
 
+export async function updateShareRole(
+  userId: string,
+  shareId: string,
+  role: "editor" | "viewer",
+) {
+  const [share] = await db
+    .select()
+    .from(noteShares)
+    .where(eq(noteShares.id, shareId))
+    .limit(1);
+  if (!share) return null;
+
+  const access = await requireNoteAccess(userId, share.noteId, "share");
+  if (!access) return null;
+
+  await db
+    .update(noteShares)
+    .set({ role, updatedAt: new Date() })
+    .where(eq(noteShares.id, shareId));
+
+  const [row] = await db
+    .select()
+    .from(noteShares)
+    .where(eq(noteShares.id, shareId))
+    .limit(1);
+  return serializeShare(row!);
+}
+
 export async function listSharedWithMe(userId: string) {
   const rows = await db
     .select({

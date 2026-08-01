@@ -17,6 +17,8 @@ import {
   ListOrdered,
   ListTodo,
   LoaderCircle,
+  Mic,
+  MicOff,
   Paperclip,
   PenLine,
   Plug,
@@ -51,7 +53,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { NoteShareTrigger } from "@/components/notes/note-share-panel";
+import { NoteShareMenu } from "@/components/notes/note-share-panel";
 import { EDITOR_FONTS, type EditorFontOption } from "@/lib/editor-fonts";
 import { cn } from "@/lib/utils";
 
@@ -59,13 +61,12 @@ import { TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE } from "./constants";
 import type { ActiveFormats, BlockTag } from "./types";
 
 type EditorToolbarProps = {
+  noteId: string;
   canEdit: boolean;
   canShare: boolean;
   editorFont: EditorFontOption;
   onSelectFont: (font: EditorFontOption) => void;
   activeFormats: ActiveFormats;
-  shareOpen: boolean;
-  onShareOpenChange: (open: boolean) => void;
   isFavorite: boolean;
   isArchived?: boolean;
   onBack: () => void;
@@ -90,6 +91,10 @@ type EditorToolbarProps = {
   onPrepareInlineImage: () => void;
   onInsertInlineImage: (file: File) => Promise<void>;
   inlineImageUploading: boolean;
+  voiceSupported: boolean;
+  voiceListening: boolean;
+  onPrepareVoice: () => void;
+  onToggleVoice: () => void;
 };
 
 function FormatButton({
@@ -125,13 +130,12 @@ function FormatButton({
 }
 
 export function EditorToolbar({
+  noteId,
   canEdit,
   canShare,
   editorFont,
   onSelectFont,
   activeFormats,
-  shareOpen,
-  onShareOpenChange,
   isFavorite,
   isArchived = false,
   onBack,
@@ -156,6 +160,10 @@ export function EditorToolbar({
   onPrepareInlineImage,
   onInsertInlineImage,
   inlineImageUploading,
+  voiceSupported,
+  voiceListening,
+  onPrepareVoice,
+  onToggleVoice,
 }: EditorToolbarProps) {
   const [colorMenuOpen, setColorMenuOpen] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -256,6 +264,28 @@ export function EditorToolbar({
           >
             <Sparkles className="size-3.5" />
           </FormatButton>
+          <FormatButton
+            active={voiceListening}
+            disabled={!canEdit || !voiceSupported}
+            onClick={() => {
+              onPrepareVoice();
+              onToggleVoice();
+            }}
+            label={voiceListening ? "Stop dictation" : "Dictate with voice"}
+            title={
+              !voiceSupported
+                ? "Voice dictation needs Chrome or Edge"
+                : voiceListening
+                  ? "Stop listening"
+                  : "Dictate into the note (speak to type)"
+            }
+          >
+            {voiceListening ? (
+              <MicOff className="size-3.5 text-destructive" />
+            ) : (
+              <Mic className="size-3.5" />
+            )}
+          </FormatButton>
           <span className="mx-0.5 hidden h-4 w-px bg-border sm:block" />
           <div className="hidden items-center gap-0.5 sm:flex">
             <FormatButton
@@ -276,10 +306,9 @@ export function EditorToolbar({
             </FormatButton>
           </div>
           {!isTrashed ? (
-            <NoteShareTrigger
+            <NoteShareMenu
+              noteId={noteId}
               canShare={canShare}
-              open={shareOpen}
-              onOpenChange={onShareOpenChange}
               className={cn(TOOLBAR_BTN, "hidden shrink-0 sm:inline-flex")}
             />
           ) : null}

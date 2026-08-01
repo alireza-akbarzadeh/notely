@@ -16,6 +16,10 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { FormPasswordField } from "@/components/forms/form-password-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   resetPasswordSchema,
   type ResetPasswordFormValues,
 } from "@/lib/validations/auth";
@@ -62,6 +66,11 @@ function ResetPasswordForm() {
     router.refresh();
   }
 
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
+  }
+
   return (
     <AuthShell
       eyebrow="New credentials"
@@ -79,7 +88,10 @@ function ResetPasswordForm() {
             </p>
           </div>
         ) : (
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form
+            onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+            className="space-y-5"
+          >
             <FieldGroup>
               <FormPasswordField
                 control={form.control}

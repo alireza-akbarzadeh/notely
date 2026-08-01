@@ -18,6 +18,10 @@ import { FormPasswordField } from "@/components/forms/form-password-field";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   loginSchema,
   type LoginFormValues,
 } from "@/lib/validations/auth";
@@ -60,6 +64,11 @@ export default function LoginPage() {
     router.refresh();
   }
 
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
+  }
+
   return (
     <AuthShell
       eyebrow="Welcome back"
@@ -69,7 +78,10 @@ export default function LoginPage() {
       <AuthPanel>
         <SocialAuthButtons callbackURL={callbackUrl} className="mb-5" />
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+          className="space-y-5"
+        >
           <FieldGroup>
             <FormTextField
               control={form.control}

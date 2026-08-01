@@ -41,7 +41,6 @@ export function useRichTextEditor({
   const queryClient = useQueryClient();
   const editorRef = useRef<HTMLDivElement>(null);
   const savedSelectionRef = useRef<Range | null>(null);
-  const [shareOpen, setShareOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("https://");
   const [linkText, setLinkText] = useState("");
@@ -50,7 +49,6 @@ export function useRichTextEditor({
     useState<ActiveFormats>(EMPTY_FORMATS);
 
   useEffect(() => {
-    setShareOpen(false);
     if (editorRef.current) {
       editorRef.current.innerHTML = toEditorHtml(initialContent);
       editorRef.current.dataset.empty =
@@ -392,10 +390,64 @@ export function useRichTextEditor({
     refreshActiveFormats();
   }
 
+  function prepareVoiceDictation() {
+    if (!canEdit) return;
+    saveSelection();
+  }
+
+  function insertDictationText(raw: string) {
+    if (!canEdit) return;
+    const text = raw.trim();
+    if (!text) return;
+
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    if (!restoreSelection()) {
+      const fallback = document.createRange();
+      fallback.selectNodeContents(editor);
+      fallback.collapse(false);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(fallback);
+    }
+
+    let toInsert = text;
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (range.collapsed && range.startContainer.nodeType === Node.TEXT_NODE) {
+        const before =
+          range.startContainer.textContent?.slice(0, range.startOffset) ?? "";
+        if (before && !/\s$/.test(before)) {
+          toInsert = ` ${toInsert}`;
+        }
+      } else if (
+        range.collapsed &&
+        editor.textContent &&
+        editor.textContent.length > 0 &&
+        range.startOffset > 0
+      ) {
+        toInsert = ` ${toInsert}`;
+      }
+    }
+
+    const ok = document.execCommand("insertText", false, toInsert);
+    if (!ok) {
+      document.execCommand(
+        "insertHTML",
+        false,
+        escapeHtmlText(toInsert).replace(/\n/g, "<br>"),
+      );
+    }
+
+    syncContentFromEditor();
+    saveSelection();
+  }
+
   return {
     editorRef,
-    shareOpen,
-    setShareOpen,
     linkOpen,
     setLinkOpen,
     linkUrl,
@@ -418,5 +470,7 @@ export function useRichTextEditor({
     inlineImageUploading,
     prepareTextColor,
     applyTextColor,
+    prepareVoiceDictation,
+    insertDictationText,
   };
 }

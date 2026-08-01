@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { NoteDeleteDialog } from "@/components/notes/note-delete-dialog";
 import { NoteReminderDialog } from "@/components/notes/note-reminder-dialog";
-import { NoteSharePanel } from "@/components/notes/note-share-panel";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { workspacePath } from "@/lib/workspace/paths";
 
 import { applyAppendNoteContent } from "./ai-apply";
@@ -18,6 +18,7 @@ import { EditorToolbar } from "./editor-toolbar";
 import { useEditorFont } from "./hooks/use-editor-font";
 import { useNoteDraft } from "./hooks/use-note-draft";
 import { useRichTextEditor } from "./hooks/use-rich-text-editor";
+import { useVoiceDictation } from "./hooks/use-voice-dictation";
 import type { NoteEditorProps } from "./types";
 import { statusLabel, wordStats } from "./utils";
 
@@ -48,6 +49,15 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
     canEdit,
     setContent: draft.setContent,
   });
+  const voice = useVoiceDictation({
+    enabled: canEdit,
+    onTranscript: editor.insertDictationText,
+  });
+
+  useEffect(() => {
+    voice.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stop when switching notes
+  }, [note.id]);
 
   const stats = useMemo(() => wordStats(draft.content), [draft.content]);
 
@@ -62,13 +72,12 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background">
       <EditorToolbar
+        noteId={note.id}
         canEdit={canEdit}
         canShare={canShare}
         editorFont={editorFont}
         onSelectFont={selectFont}
         activeFormats={editor.activeFormats}
-        shareOpen={editor.shareOpen}
-        onShareOpenChange={editor.setShareOpen}
         isFavorite={note.isFavorite}
         isArchived={isArchived}
         isTrashed={isTrashed}
@@ -101,7 +110,21 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onPrepareInlineImage={editor.prepareInlineImage}
         onInsertInlineImage={editor.insertInlineImage}
         inlineImageUploading={editor.inlineImageUploading}
+        voiceSupported={voice.isSupported}
+        voiceListening={voice.isListening}
+        onPrepareVoice={editor.prepareVoiceDictation}
+        onToggleVoice={voice.toggle}
       />
+
+      {voice.isListening ? (
+        <div className="flex items-center gap-2 border-b border-border bg-destructive/10 px-4 py-2 text-sm text-destructive">
+          <span
+            className="size-2 shrink-0 animate-pulse rounded-full bg-destructive"
+            aria-hidden
+          />
+          <p>Listening… speak to add text to this note. Tap the mic to stop.</p>
+        </div>
+      ) : null}
 
       {isTrashed ? (
         <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-4 py-2 text-sm">
@@ -143,13 +166,6 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         </div>
       ) : null}
 
-      <NoteSharePanel
-        noteId={note.id}
-        canShare={canShare}
-        open={editor.shareOpen}
-        onOpenChange={editor.setShareOpen}
-      />
-
       <NoteDeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
@@ -164,6 +180,18 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
             },
           );
         }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(voice.error)}
+        onOpenChange={(open) => {
+          if (!open) voice.clearError();
+        }}
+        title="Voice dictation"
+        description={voice.error ?? "Something went wrong with voice input."}
+        confirmLabel="OK"
+        cancelLabel="Close"
+        onConfirm={() => voice.clearError()}
       />
 
       <EditorLinkDialog
@@ -248,7 +276,11 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
       <EditorStatusBar
         words={stats.words}
         minutes={stats.minutes}
-        statusLabel={statusLabel(draft.status, canEdit)}
+        statusLabel={
+          voice.isListening
+            ? "Listening…"
+            : statusLabel(draft.status, canEdit)
+        }
       />
     </div>
   );

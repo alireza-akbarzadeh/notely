@@ -25,19 +25,19 @@ export function AuthShell({
   eyebrow = "Secure access",
 }: AuthShellProps) {
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-background">
-      <div className="grid-bg pointer-events-none absolute inset-0 opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_75%)]" />
+    <div className="relative flex min-h-dvh bg-background">
+      <div className="grid-bg pointer-events-none absolute inset-0 z-0 opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_75%)]" />
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 z-0"
         style={{ background: "var(--gradient-hero)" }}
       />
-      <div className="animate-pulse-glow pointer-events-none absolute top-24 left-[-4rem] h-72 w-72 rounded-full bg-[oklch(0.78_0.19_160/0.16)] blur-3xl" />
+      <div className="animate-pulse-glow pointer-events-none absolute top-24 left-[-4rem] z-0 h-72 w-72 rounded-full bg-[oklch(0.78_0.19_160/0.16)] blur-3xl" />
       <div
-        className="animate-pulse-glow pointer-events-none absolute right-[-3rem] bottom-16 h-80 w-80 rounded-full bg-[oklch(0.72_0.19_250/0.12)] blur-3xl"
+        className="animate-pulse-glow pointer-events-none absolute right-[-3rem] bottom-16 z-0 h-80 w-80 rounded-full bg-[oklch(0.72_0.19_250/0.12)] blur-3xl"
         style={{ animationDelay: "1.4s" }}
       />
 
-      <aside className="relative hidden w-[46%] flex-col justify-between border-r border-white/5 p-10 lg:flex xl:p-14">
+      <aside className="relative z-10 hidden w-[46%] flex-col justify-between border-r border-white/5 p-10 lg:flex xl:p-14">
         <NotelyLogo />
 
         <div className="animate-rise max-w-md space-y-8">
@@ -110,15 +110,15 @@ export function AuthShell({
         </p>
       </aside>
 
-      <main className="relative flex flex-1 flex-col">
-        <div className="flex items-center justify-between px-6 pt-6 lg:hidden">
+      <main className="relative z-10 flex flex-1 flex-col">
+        <div className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] lg:hidden">
           <NotelyLogo />
           <span className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
             Auth
           </span>
         </div>
 
-        <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-8">
+        <div className="flex flex-1 items-center justify-center px-6 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8">
           <div className="animate-rise w-full max-w-md space-y-6">
             <div className="space-y-2 lg:hidden">
               <p className="text-xs font-medium tracking-[0.18em] text-primary uppercase">

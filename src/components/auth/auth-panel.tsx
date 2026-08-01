@@ -44,7 +44,7 @@ export function AuthSubmit({
       disabled={disabled || pending}
       aria-busy={pending || undefined}
       className={cn(
-        "gradient-primary glow-primary inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-primary-foreground transition-all hover:scale-[1.01] hover:opacity-95 disabled:pointer-events-none disabled:opacity-70",
+        "gradient-primary glow-primary relative z-10 inline-flex h-11 w-full touch-manipulation items-center justify-center gap-2 rounded-xl text-sm font-medium text-primary-foreground transition-opacity hover:opacity-95 disabled:pointer-events-none disabled:opacity-70",
         className,
       )}
       {...props}

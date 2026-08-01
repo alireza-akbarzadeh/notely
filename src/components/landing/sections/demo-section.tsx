@@ -235,10 +235,10 @@ export function DemoSection() {
         description="Five screens that cover most of a week: writing, finding, planning, sharing, and asking."
       />
 
-      <Tabs defaultValue="write" className="mt-10 gap-6">
+      <Tabs defaultValue="write" className="mt-10 gap-6 flex flex-col">
         <TabsList
           variant="line"
-          className="h-auto flex-wrap justify-start gap-2 p-0"
+          className="h-auto flex-row justify-start gap-2 p-0"
         >
           {TABS.map(({ value, label, icon: Icon }) => (
             <TabsTrigger

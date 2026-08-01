@@ -16,6 +16,10 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   twoFactorCodeSchema,
   type TwoFactorCodeFormValues,
 } from "@/lib/validations/auth";
@@ -58,6 +62,11 @@ export default function TwoFactorPage() {
     router.refresh();
   }
 
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
+  }
+
   return (
     <AuthShell
       eyebrow="Second factor"
@@ -77,7 +86,10 @@ export default function TwoFactorPage() {
           </div>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+          className="space-y-5"
+        >
           <div className="grid grid-cols-2 gap-2 rounded-xl bg-white/[0.03] p-1">
             <button
               type="button"
