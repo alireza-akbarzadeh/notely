@@ -18,19 +18,22 @@ import {
   NoteReminderCountdown,
   useReminderClock,
 } from "@/components/notes/note-reminder-countdown";
+import { NoteListContextMenu } from "@/components/notes/note-list-context-menu";
 import { useNoteReminders } from "@/components/notes/use-note-reminders";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn, formatRelativeDate } from "@/lib/utils";
-import type { NoteSummary, SpaceSummary } from "@/types/notes";
+import type { NoteSummary, NoteTag, SpaceSummary } from "@/types/notes";
 
 type NotesListProps = {
   notes: NoteSummary[];
   activeNoteId?: string;
   isLoading?: boolean;
   spaceName?: string;
+  spaces?: SpaceSummary[];
+  tags?: NoteTag[];
   trashedSpaces?: SpaceSummary[];
   trashedSpacesLoading?: boolean;
   onRestoreSpace?: (spaceId: string) => void;
@@ -125,6 +128,8 @@ export function NotesList({
   activeNoteId,
   isLoading,
   spaceName = "All Notes",
+  spaces = [],
+  tags = [],
   trashedSpaces = [],
   trashedSpacesLoading = false,
   onRestoreSpace,
@@ -349,67 +354,74 @@ export function NotesList({
                       : remindersByNote.get(note.id);
                     return (
                       <li key={note.id}>
-                        <Link
-                          href={href}
-                          className={cn(
-                            "relative mx-2 block rounded-lg px-3 py-3 transition-colors",
-                            active
-                              ? "note-active-rail bg-accent"
-                              : "hover:bg-accent/50",
-                          )}
+                        <NoteListContextMenu
+                          note={note}
+                          spaces={spaces}
+                          tags={tags}
+                          disabled={trashView}
                         >
-                          <div className="mb-1 flex items-start justify-between gap-2">
-                            <p className="truncate text-[13px] font-semibold text-foreground">
-                              {note.title || "Untitled"}
-                            </p>
-                            <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
-                              {noteTimestamp(note, trashView)}
-                            </span>
-                          </div>
-                          <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
-                            {note.summary || "Empty note"}
-                          </p>
-                          {reminder ? (
-                            <NoteReminderCountdown
-                              remindAt={reminder.remindAt}
-                              createdAt={reminder.createdAt}
-                              colorIndex={colorIndexByNote.get(note.id) ?? 0}
-                              now={now}
-                            />
-                          ) : null}
-                          {(note.isFavorite || note.tags.length > 0) && (
-                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                              {note.isFavorite ? (
-                                <Star className="size-3 fill-primary text-primary" />
-                              ) : null}
-                              {note.tags.slice(0, 3).map((tag) => (
-                                <span
-                                  key={tag.id}
-                                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-                                  style={{
-                                    backgroundColor: `${tag.color}22`,
-                                    color: tag.color,
-                                  }}
-                                >
-                                  <span
-                                    className="size-1.5 rounded-full"
-                                    style={{ backgroundColor: tag.color }}
-                                    aria-hidden
-                                  />
-                                  #{tag.name}
-                                </span>
-                              ))}
-                              {note.tags.length > 3 ? (
-                                <span className="text-[10px] text-muted-foreground">
-                                  +{note.tags.length - 3}
-                                </span>
-                              ) : null}
+                          <Link
+                            href={href}
+                            className={cn(
+                              "relative mx-2 block rounded-lg px-3 py-3 transition-colors",
+                              active
+                                ? "note-active-rail bg-accent"
+                                : "hover:bg-accent/50",
+                            )}
+                          >
+                            <div className="mb-1 flex items-start justify-between gap-2">
+                              <p className="truncate text-[13px] font-semibold text-foreground">
+                                {note.title || "Untitled"}
+                              </p>
+                              <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
+                                {noteTimestamp(note, trashView)}
+                              </span>
                             </div>
-                          )}
-                          {active ? (
-                            <span className="absolute top-3.5 right-3 size-1.5 rounded-full bg-primary" />
-                          ) : null}
-                        </Link>
+                            <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                              {note.summary || "Empty note"}
+                            </p>
+                            {reminder ? (
+                              <NoteReminderCountdown
+                                remindAt={reminder.remindAt}
+                                createdAt={reminder.createdAt}
+                                colorIndex={colorIndexByNote.get(note.id) ?? 0}
+                                now={now}
+                              />
+                            ) : null}
+                            {(note.isFavorite || note.tags.length > 0) && (
+                              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                {note.isFavorite ? (
+                                  <Star className="size-3 fill-primary text-primary" />
+                                ) : null}
+                                {note.tags.slice(0, 3).map((tag) => (
+                                  <span
+                                    key={tag.id}
+                                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+                                    style={{
+                                      backgroundColor: `${tag.color}22`,
+                                      color: tag.color,
+                                    }}
+                                  >
+                                    <span
+                                      className="size-1.5 rounded-full"
+                                      style={{ backgroundColor: tag.color }}
+                                      aria-hidden
+                                    />
+                                    #{tag.name}
+                                  </span>
+                                ))}
+                                {note.tags.length > 3 ? (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    +{note.tags.length - 3}
+                                  </span>
+                                ) : null}
+                              </div>
+                            )}
+                            {active ? (
+                              <span className="absolute top-3.5 right-3 size-1.5 rounded-full bg-primary" />
+                            ) : null}
+                          </Link>
+                        </NoteListContextMenu>
                       </li>
                     );
                   })}

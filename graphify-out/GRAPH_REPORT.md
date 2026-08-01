@@ -1,51 +1,51 @@
 # Graph Report - notely  (2026-08-01)
 
 ## Corpus Check
-- 289 files · ~104,078 words
+- 290 files · ~105,005 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2349 nodes · 5014 edges · 152 communities (104 shown, 48 thin omitted)
+- 2352 nodes · 5051 edges · 143 communities (96 shown, 47 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 19 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c9b9a190`
+- Built from commit: `cf9cdfa7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- auth.ts
-- requireNoteAccess
-- app-bar.tsx
+- login-page.tsx
+- tasks.ts
+- lib/utils.ts
 - getEnv
 - dependencies
 - open-in-chat.tsx
 - scripts
-- app-sidebar.tsx
 - cn
+- requireNoteAccess
 - compilerOptions
 - components.json
 - 1. Current product surface
 - Find Skills
-- app/layout.tsx
+- carousel.tsx
 - Nexora
 - shares.ts
 - graphify
 - eslint.config.mjs
 - next.config.ts
 - postcss.config.mjs
-- dialog.tsx
-- note-editor.tsx
+- button.tsx
+- use-rich-text-editor.ts
 - workspacePath
 - prompt-input.tsx
 - Notely Drizzle + Neon
 - Notely Better Auth
 - requireSession
 - service.ts
-- notes-workspace.tsx
+- readJson
 - commit.tsx
-- events.ts
+- notes-empty-state.tsx
 - google-integration.ts
 - inline-citation.tsx
 - queue.tsx
@@ -58,14 +58,14 @@
 - attachments.tsx
 - stack-trace.tsx
 - code-block.tsx
-- task-board.tsx
+- alert-dialog.tsx
 - environment-variables.tsx
 - message.tsx
 - mic-selector.tsx
 - context.tsx
 - package-info.tsx
 - audio-player.tsx
-- security-settings.tsx
+- google-connection-card.tsx
 - snippet.tsx
 - agent.tsx
 - reminders.ts
@@ -82,37 +82,31 @@
 - field.tsx
 - notes-list.tsx
 - artifact.tsx
-- node.tsx
+- task-board.tsx
 - sandbox.tsx
 - tool.tsx
 - web-preview.tsx
-- push.ts
+- note-editor.tsx
 - content.ts
-- demo-section.tsx
-- lib/utils.ts
-- login-page.tsx
+- note-reminder-countdown.tsx
 - landing-page.tsx
+- security-settings.tsx
+- landing-nav.tsx
 - conversation.tsx
 - jsx-preview.tsx
 - collapsible.tsx
-- user-menu.tsx
-- date-time-picker.tsx
+- useMessageBranch
+- button-group.tsx
 - persona.tsx
 - note-chat/route.ts
 - usePromptInputAttachments
-- task.tsx
+- proxy.ts
 - pricing-section.tsx
-- select.tsx
 - transcription.tsx
-- button.tsx
-- section-shell.tsx
 - graphify-run.mjs
 - edge.tsx
-- highlightCode
 - apple-icon.tsx
 - canvas.tsx
-- TokenSpan
-- hover-card.tsx
 - @ai-sdk/google
 - @ai-sdk/react
 - ansi-to-react
@@ -155,22 +149,19 @@
 - zustand
 - sw.js
 - editor-toolbar.tsx
-- types/notes.ts
-- readJson
+- editor-canvas.tsx
 - use-editor-font.ts
-- react
-- app-workspace.tsx
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 599 edges
+1. `cn()` - 601 edges
 2. `requireSession()` - 76 edges
-3. `Button()` - 61 edges
+3. `Button()` - 62 edges
 4. `jsonError()` - 60 edges
-5. `readJson()` - 42 edges
+5. `readJson()` - 44 edges
 6. `workspacePath()` - 26 edges
 7. `requireNoteAccess()` - 24 edges
-8. `getEnv()` - 23 edges
-9. `Input()` - 22 edges
+8. `Input()` - 23 edges
+9. `getEnv()` - 23 edges
 10. `scripts` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -178,53 +169,53 @@
   src/components/ui/carousel.tsx → package.json
 - `useCarousel()` --references--> `react`  [EXTRACTED]
   src/components/ui/carousel.tsx → package.json
-- `useSidebar()` --references--> `react`  [EXTRACTED]
-  src/components/ui/sidebar.tsx → package.json
 - `CalendarDayButton()` --references--> `react`  [EXTRACTED]
   src/components/ui/calendar.tsx → package.json
 - `SidebarMenuSkeleton()` --references--> `react`  [EXTRACTED]
+  src/components/ui/sidebar.tsx → package.json
+- `SidebarProvider()` --references--> `react`  [EXTRACTED]
   src/components/ui/sidebar.tsx → package.json
 
 ## Import Cycles
 - None detected.
 
-## Communities (152 total, 48 thin omitted)
+## Communities (143 total, 47 thin omitted)
 
-### Community 0 - "auth.ts"
-Cohesion: 0.11
-Nodes (27): DevAuthEmail, extractUrl(), ForgotPasswordPage(), TwoFactorPage(), AuthError(), AuthFooterLink(), AuthPanel(), AuthPanelProps (+19 more)
+### Community 0 - "login-page.tsx"
+Cohesion: 0.10
+Nodes (28): DevAuthEmail, extractUrl(), ForgotPasswordPage(), LoginPage(), TwoFactorPage(), AuthError(), AuthFooterLink(), AuthPanel() (+20 more)
 
-### Community 1 - "requireNoteAccess"
-Cohesion: 0.28
-Nodes (12): GET(), POST(), requireNoteAccess(), createTask(), deleteTask(), listIncompleteTasks(), listTasks(), listTasksForNote() (+4 more)
+### Community 1 - "tasks.ts"
+Cohesion: 0.17
+Nodes (17): DELETE(), Params, PATCH(), GET(), POST(), tasks, createTask(), deleteTask() (+9 more)
 
-### Community 2 - "app-bar.tsx"
-Cohesion: 0.15
-Nodes (16): Checkpoint(), CheckpointIcon(), CheckpointIconProps, CheckpointProps, CheckpointTriggerProps, AppBar(), AppBarProps, Header() (+8 more)
+### Community 2 - "lib/utils.ts"
+Cohesion: 0.16
+Nodes (15): Checkpoint(), CheckpointIcon(), CheckpointIconProps, CheckpointProps, CheckpointTriggerProps, AppBarProps, Header(), OPTIONS (+7 more)
 
 ### Community 3 - "getEnv"
-Cohesion: 0.13
-Nodes (22): GET(), env, googleEnabled, resolveAppleEnabled(), Session, generateAppleClientSecret(), isAppleAuthConfigured(), isGoogleAuthConfigured() (+14 more)
+Cohesion: 0.17
+Nodes (18): GET(), env, googleEnabled, resolveAppleEnabled(), Session, generateAppleClientSecret(), isAppleAuthConfigured(), isGoogleAuthConfigured() (+10 more)
 
 ### Community 4 - "dependencies"
 Cohesion: 0.18
 Nodes (11): ai, drizzle-orm, next-themes, dependencies, ai, drizzle-orm, next-themes, @tanstack/react-query (+3 more)
 
 ### Community 5 - "open-in-chat.tsx"
-Cohesion: 0.09
-Nodes (22): OpenInChatGPT(), OpenInChatGPTProps, OpenInClaude(), OpenInClaudeProps, OpenInContent(), OpenInContentProps, OpenInContext, OpenInCursor() (+14 more)
+Cohesion: 0.06
+Nodes (39): OpenInChatGPT(), OpenInChatGPTProps, OpenInClaude(), OpenInClaudeProps, OpenInContent(), OpenInContentProps, OpenInContext, OpenInCursor() (+31 more)
 
 ### Community 6 - "scripts"
 Cohesion: 0.05
 Nodes (40): drizzle-kit, eslint, eslint-config-next, devDependencies, drizzle-kit, eslint, eslint-config-next, tailwindcss (+32 more)
 
-### Community 7 - "app-sidebar.tsx"
-Cohesion: 0.08
-Nodes (36): ContextMenu(), ContextMenuCheckboxItem(), ContextMenuContent(), ContextMenuGroup(), ContextMenuItem(), ContextMenuLabel(), ContextMenuRadioItem(), ContextMenuSeparator() (+28 more)
+### Community 7 - "cn"
+Cohesion: 0.06
+Nodes (56): react, react, Controls(), ControlsProps, Image(), ImageProps, Panel(), PanelProps (+48 more)
 
-### Community 8 - "cn"
-Cohesion: 0.10
-Nodes (27): Controls(), ControlsProps, Image(), ImageProps, Panel(), PanelProps, Toolbar(), ToolbarProps (+19 more)
+### Community 8 - "requireNoteAccess"
+Cohesion: 0.20
+Nodes (16): GET(), Params, DELETE(), Params, GET(), POST(), requireNoteAccess(), createDbFileAttachment() (+8 more)
 
 ### Community 9 - "compilerOptions"
 Cohesion: 0.07
@@ -242,29 +233,29 @@ Nodes (44): 1. Current product surface, 2. Make the current state better (polish
 Cohesion: 0.14
 Nodes (13): Common Skill Categories, Find Skills, How to Help Users Find Skills, Step 1: Understand What They Need, Step 2: Check the Leaderboard First, Step 3: Search for Skills, Step 4: Verify Quality Before Recommending, Step 5: Present Options to the User (+5 more)
 
-### Community 13 - "app/layout.tsx"
-Cohesion: 0.22
-Nodes (7): geistMono, geistSans, metadata, viewport, Providers(), ThemeProvider(), TooltipProvider()
+### Community 13 - "carousel.tsx"
+Cohesion: 0.20
+Nodes (13): Carousel(), CarouselApi, CarouselContent(), CarouselContext, CarouselContextProps, CarouselItem(), CarouselNext(), CarouselOptions (+5 more)
 
 ### Community 14 - "Nexora"
 Cohesion: 0.14
 Nodes (13): 1. Install dependencies, 2. Configure environment, 3. Set up the database, 4. Run the development server, Deploy on Vercel, Features (Phase 1), Getting Started, Nexora (+5 more)
 
 ### Community 15 - "shares.ts"
-Cohesion: 0.07
-Nodes (35): GET(), DELETE(), Params, PATCH(), GET(), POST(), db, sql (+27 more)
+Cohesion: 0.10
+Nodes (23): DELETE(), db, sql, account, attachments, events, googleConnections, googleOAuthCredentials (+15 more)
 
-### Community 24 - "dialog.tsx"
-Cohesion: 0.13
-Nodes (23): CalendarEventDialog(), CalendarEventDialogProps, GoogleCredentialsDialog(), GoogleCredentialsDialogProps, EditorLinkDialog(), EditorLinkDialogProps, EditorPanelsDialog(), EditorPanelsDialogProps (+15 more)
+### Community 24 - "button.tsx"
+Cohesion: 0.14
+Nodes (30): CalendarEventDialogProps, GoogleCredentialsDialogProps, EditorLinkDialogProps, EditorPanelsDialogProps, NoteListContextMenuProps, SearchHit, SpaceDeleteDialog(), SpaceDeleteDialogProps (+22 more)
 
-### Community 25 - "note-editor.tsx"
-Cohesion: 0.15
-Nodes (26): applyAppendNoteContent(), applyReplaceNoteContent(), htmlFromAiContent(), EditorAiSheet(), EditorCanvas(), EditorStatusBar(), EditorStatusBarProps, useNoteDraft() (+18 more)
+### Community 25 - "use-rich-text-editor.ts"
+Cohesion: 0.21
+Nodes (18): applyAppendNoteContent(), applyReplaceNoteContent(), htmlFromAiContent(), EditorAiSheet(), EditorCanvas(), useRichTextEditor(), UseRichTextEditorOptions, decorateEditorLinks() (+10 more)
 
 ### Community 26 - "workspacePath"
-Cohesion: 0.15
-Nodes (18): IntegrationsPage(), IntegrationsPageProps, NotesPage(), NotesPageProps, AppSidebar(), fetchSpaces(), DashboardChrome(), DashboardShell() (+10 more)
+Cohesion: 0.11
+Nodes (25): IntegrationsPage(), IntegrationsPageProps, NotesPage(), NotesPageProps, IntegrationsPanel(), AppBar(), AppSidebar(), fetchSpaces() (+17 more)
 
 ### Community 27 - "prompt-input.tsx"
 Cohesion: 0.03
@@ -280,35 +271,35 @@ Nodes (4): Layout, Notely Better Auth, Pattern (API route), Rules
 
 ### Community 30 - "requireSession"
 Cohesion: 0.08
-Nodes (41): GET(), Params, DELETE(), Params, GET(), POST(), { GET, POST }, DELETE() (+33 more)
+Nodes (45): { GET, POST }, DELETE(), Params, GET(), POST(), GET(), DELETE(), PATCH() (+37 more)
 
 ### Community 31 - "service.ts"
 Cohesion: 0.07
-Nodes (54): DELETE(), GET(), Params, PATCH(), GET(), POST(), DELETE(), Params (+46 more)
+Nodes (56): DELETE(), GET(), Params, PATCH(), GET(), POST(), DELETE(), Params (+48 more)
 
-### Community 32 - "notes-workspace.tsx"
-Cohesion: 0.09
-Nodes (18): Params, InboxPanel(), Invite, copy, IllustrationProps, IllustrationShell(), NotesEmptyState(), NotesEmptyStateProps (+10 more)
+### Community 32 - "readJson"
+Cohesion: 0.13
+Nodes (20): Params, InboxPanel(), Invite, NoteChecklist(), NoteChecklistProps, NoteSharePanel(), NoteSharePanelProps, ShareRow (+12 more)
 
 ### Community 33 - "commit.tsx"
 Cohesion: 0.04
-Nodes (47): Commit(), CommitActions(), CommitActionsProps, CommitAuthor(), CommitAuthorAvatar(), CommitAuthorAvatarProps, CommitAuthorProps, CommitContent() (+39 more)
+Nodes (53): Commit(), CommitActions(), CommitActionsProps, CommitAuthor(), CommitAuthorAvatar(), CommitAuthorAvatarProps, CommitAuthorProps, CommitContent() (+45 more)
 
-### Community 34 - "events.ts"
-Cohesion: 0.24
-Nodes (11): DELETE(), Params, GET(), POST(), events, createEvent(), deleteEvent(), listEvents() (+3 more)
+### Community 34 - "notes-empty-state.tsx"
+Cohesion: 0.15
+Nodes (5): copy, IllustrationProps, IllustrationShell(), NotesEmptyStateProps, NotesEmptyStateVariant
 
 ### Community 35 - "google-integration.ts"
 Cohesion: 0.09
 Nodes (43): callbackRedirect(), GET(), GET(), safeReturnTo(), DELETE(), PUT(), saveCredentialsSchema, GET() (+35 more)
 
 ### Community 36 - "inline-citation.tsx"
-Cohesion: 0.06
-Nodes (41): CarouselApiContext, InlineCitation(), InlineCitationCardBody(), InlineCitationCardBodyProps, InlineCitationCardProps, InlineCitationCardTrigger(), InlineCitationCardTriggerProps, InlineCitationCarousel() (+33 more)
+Cohesion: 0.07
+Nodes (28): CarouselApiContext, InlineCitation(), InlineCitationCardBody(), InlineCitationCardBodyProps, InlineCitationCardProps, InlineCitationCardTrigger(), InlineCitationCardTriggerProps, InlineCitationCarousel() (+20 more)
 
 ### Community 37 - "queue.tsx"
-Cohesion: 0.05
-Nodes (41): Queue(), QueueItem(), QueueItemAction(), QueueItemActionProps, QueueItemActions(), QueueItemActionsProps, QueueItemAttachment(), QueueItemAttachmentProps (+33 more)
+Cohesion: 0.06
+Nodes (33): Queue(), QueueItem(), QueueItemAction(), QueueItemActionProps, QueueItemActions(), QueueItemActionsProps, QueueItemAttachment(), QueueItemAttachmentProps (+25 more)
 
 ### Community 38 - "test-results.tsx"
 Cohesion: 0.05
@@ -320,15 +311,15 @@ Nodes (32): VoiceSelectorAccent(), VoiceSelectorAccentProps, VoiceSelectorAge(),
 
 ### Community 40 - "model-selector.tsx"
 Cohesion: 0.06
-Nodes (28): ModelSelectorContent(), ModelSelectorContentProps, ModelSelectorDialogProps, ModelSelectorEmptyProps, ModelSelectorGroupProps, ModelSelectorInput(), ModelSelectorInputProps, ModelSelectorItemProps (+20 more)
+Nodes (29): ModelSelectorContent(), ModelSelectorContentProps, ModelSelectorDialogProps, ModelSelectorEmptyProps, ModelSelectorGroupProps, ModelSelectorInput(), ModelSelectorInputProps, ModelSelectorItemProps (+21 more)
 
 ### Community 41 - "note-reminder-dialog.tsx"
-Cohesion: 0.12
-Nodes (31): defaultRemindAt(), formatFromNow(), NoteReminderDialog(), NoteReminderDialogProps, QUICK_PRESETS, Reminder, snoozeInOneHour(), snoozeTomorrowMorning() (+23 more)
+Cohesion: 0.07
+Nodes (49): geistMono, geistSans, metadata, viewport, defaultRemindAt(), formatFromNow(), NoteReminderDialog(), NoteReminderDialogProps (+41 more)
 
 ### Community 42 - "calendar-workspace.tsx"
-Cohesion: 0.16
-Nodes (12): metadata, CalendarNavSidebar(), CalendarNavSidebarProps, CalendarUtilityPanel(), CalendarUtilityPanelProps, SHORTCUTS, CalendarWorkspace(), CalendarEvent (+4 more)
+Cohesion: 0.11
+Nodes (20): metadata, Suggestion(), SuggestionProps, Suggestions(), SuggestionsProps, CalendarEventDialog(), CalendarListPanel(), CalendarListPanelProps (+12 more)
 
 ### Community 43 - "schema-display.tsx"
 Cohesion: 0.06
@@ -343,52 +334,52 @@ Cohesion: 0.06
 Nodes (28): FilePathButton, FilePathButtonProps, ParsedStackTrace, parseStackFrame(), parseStackTrace(), StackFrame, StackTrace, StackTraceActions (+20 more)
 
 ### Community 46 - "code-block.tsx"
-Cohesion: 0.06
-Nodes (24): CodeBlockActions(), CodeBlockBody, CodeBlockContainer(), CodeBlockContext, CodeBlockContextType, CodeBlockCopyButton(), CodeBlockCopyButtonProps, CodeBlockFilename() (+16 more)
+Cohesion: 0.05
+Nodes (42): CodeBlockActions(), CodeBlockBody, CodeBlockContainer(), CodeBlockContent(), CodeBlockContext, CodeBlockContextType, CodeBlockCopyButton(), CodeBlockCopyButtonProps (+34 more)
 
-### Community 47 - "task-board.tsx"
-Cohesion: 0.12
-Nodes (22): NoteDeleteDialog(), NoteDeleteDialogProps, columns, endOfTodayLocal(), formatDueLabel(), isSameLocalDay(), notify(), Task (+14 more)
+### Community 47 - "alert-dialog.tsx"
+Cohesion: 0.22
+Nodes (13): NoteDeleteDialog(), NoteDeleteDialogProps, AlertDialog(), AlertDialogAction(), AlertDialogCancel(), AlertDialogContent(), AlertDialogDescription(), AlertDialogFooter() (+5 more)
 
 ### Community 48 - "environment-variables.tsx"
 Cohesion: 0.07
 Nodes (27): EnvironmentVariable(), EnvironmentVariableContext, EnvironmentVariableContextType, EnvironmentVariableCopyButton(), EnvironmentVariableCopyButtonProps, EnvironmentVariableGroup(), EnvironmentVariableGroupProps, EnvironmentVariableName() (+19 more)
 
 ### Community 49 - "message.tsx"
-Cohesion: 0.08
-Nodes (27): Message(), MessageActionProps, MessageActions(), MessageActionsProps, MessageBranch(), MessageBranchContent(), MessageBranchContentProps, MessageBranchContext (+19 more)
+Cohesion: 0.09
+Nodes (21): Message(), MessageActionProps, MessageActions(), MessageActionsProps, MessageBranch(), MessageBranchContentProps, MessageBranchContext, MessageBranchContextType (+13 more)
 
 ### Community 50 - "mic-selector.tsx"
 Cohesion: 0.08
 Nodes (21): MicSelector(), MicSelectorContent(), MicSelectorContentProps, MicSelectorContext, MicSelectorContextType, MicSelectorEmptyProps, MicSelectorInputProps, MicSelectorItemProps (+13 more)
 
 ### Community 51 - "context.tsx"
-Cohesion: 0.10
-Nodes (24): ContextCacheUsage(), ContextCacheUsageProps, ContextContent(), ContextContentBody(), ContextContentBodyProps, ContextContentFooter(), ContextContentFooterProps, ContextContentHeader() (+16 more)
+Cohesion: 0.09
+Nodes (27): ContextCacheUsage(), ContextCacheUsageProps, ContextContent(), ContextContentBody(), ContextContentBodyProps, ContextContentFooter(), ContextContentFooterProps, ContextContentHeader() (+19 more)
 
 ### Community 52 - "package-info.tsx"
 Cohesion: 0.08
-Nodes (25): ChangeType, changeTypeIcons, changeTypeStyles, PackageInfo(), PackageInfoChangeType(), PackageInfoChangeTypeProps, PackageInfoContent(), PackageInfoContentProps (+17 more)
+Nodes (23): ChangeType, changeTypeIcons, changeTypeStyles, PackageInfo(), PackageInfoChangeType(), PackageInfoChangeTypeProps, PackageInfoContent(), PackageInfoContentProps (+15 more)
 
 ### Community 53 - "audio-player.tsx"
-Cohesion: 0.08
-Nodes (20): AudioPlayerControlBarProps, AudioPlayerDurationDisplay(), AudioPlayerDurationDisplayProps, AudioPlayerElementProps, AudioPlayerMuteButton(), AudioPlayerMuteButtonProps, AudioPlayerPlayButton(), AudioPlayerPlayButtonProps (+12 more)
+Cohesion: 0.09
+Nodes (17): AudioPlayerControlBarProps, AudioPlayerDurationDisplay(), AudioPlayerDurationDisplayProps, AudioPlayerElementProps, AudioPlayerMuteButton(), AudioPlayerMuteButtonProps, AudioPlayerPlayButton(), AudioPlayerPlayButtonProps (+9 more)
 
-### Community 54 - "security-settings.tsx"
-Cohesion: 0.19
-Nodes (17): SCOPES, AccountSettings(), AppearanceSettings(), emptySubscribe(), THEME_OPTIONS, formatDate(), SecuritySettings(), SessionRow (+9 more)
+### Community 54 - "google-connection-card.tsx"
+Cohesion: 0.11
+Nodes (24): Node(), NodeActionProps, NodeContent(), NodeContentProps, NodeDescriptionProps, NodeFooter(), NodeFooterProps, NodeHeader() (+16 more)
 
 ### Community 55 - "snippet.tsx"
 Cohesion: 0.11
 Nodes (19): Snippet(), SnippetAddonProps, SnippetContext, SnippetContextType, SnippetCopyButtonProps, SnippetInput(), SnippetInputProps, SnippetProps (+11 more)
 
 ### Community 56 - "agent.tsx"
-Cohesion: 0.12
-Nodes (20): Agent, AgentContent, AgentContentProps, AgentHeader, AgentHeaderProps, AgentInstructions, AgentInstructionsProps, AgentOutput (+12 more)
+Cohesion: 0.13
+Nodes (19): Agent, AgentContent, AgentContentProps, AgentHeader, AgentHeaderProps, AgentInstructions, AgentInstructionsProps, AgentOutput (+11 more)
 
 ### Community 57 - "reminders.ts"
-Cohesion: 0.20
-Nodes (18): hasCronAuth(), POST(), GET(), POST(), createReminder(), getRemindersForNote(), listDueReminders(), listReminders() (+10 more)
+Cohesion: 0.13
+Nodes (27): DELETE(), GET(), POST(), hasCronAuth(), POST(), pushSubscriptions, getRemindersForNote(), listDueReminders() (+19 more)
 
 ### Community 58 - "editor-ai-sheet.tsx"
 Cohesion: 0.11
@@ -407,12 +398,12 @@ Cohesion: 0.11
 Nodes (16): Plan(), PlanActionProps, PlanContentProps, PlanContext, PlanContextValue, PlanDescription(), PlanDescriptionProps, PlanFooterProps (+8 more)
 
 ### Community 62 - "chain-of-thought.tsx"
-Cohesion: 0.11
-Nodes (17): ChainOfThought, ChainOfThoughtContent, ChainOfThoughtContentProps, ChainOfThoughtContext, ChainOfThoughtContextValue, ChainOfThoughtHeader, ChainOfThoughtHeaderProps, ChainOfThoughtImage (+9 more)
+Cohesion: 0.10
+Nodes (19): ChainOfThought, ChainOfThoughtContent, ChainOfThoughtContentProps, ChainOfThoughtContext, ChainOfThoughtContextValue, ChainOfThoughtHeader, ChainOfThoughtHeaderProps, ChainOfThoughtImage (+11 more)
 
 ### Community 63 - "confirmation.tsx"
-Cohesion: 0.13
-Nodes (17): Confirmation(), ConfirmationAccepted(), ConfirmationAcceptedProps, ConfirmationActionProps, ConfirmationActions(), ConfirmationActionsProps, ConfirmationContext, ConfirmationContextValue (+9 more)
+Cohesion: 0.10
+Nodes (22): Confirmation(), ConfirmationAccepted(), ConfirmationAcceptedProps, ConfirmationActionProps, ConfirmationActions(), ConfirmationActionsProps, ConfirmationContext, ConfirmationContextValue (+14 more)
 
 ### Community 64 - "reasoning.tsx"
 Cohesion: 0.12
@@ -423,32 +414,32 @@ Cohesion: 0.11
 Nodes (18): Terminal(), TerminalActions(), TerminalActionsProps, TerminalClearButton(), TerminalClearButtonProps, TerminalContent(), TerminalContentProps, TerminalContext (+10 more)
 
 ### Community 66 - "note-integrations.tsx"
-Cohesion: 0.18
-Nodes (16): GoogleConnectionCard(), googleConnectionKey, GoogleConnectionStatus, GoogleCredentialSource, GoogleIntegrationItem, googleItemsKey, useCallbackError(), useGoogleConnection() (+8 more)
+Cohesion: 0.26
+Nodes (11): GoogleConnectionCard(), googleConnectionKey, GoogleConnectionStatus, GoogleCredentialSource, GoogleIntegrationItem, googleItemsKey, useCallbackError(), useGoogleConnection() (+3 more)
 
 ### Community 67 - "speech-input.tsx"
 Cohesion: 0.14
 Nodes (12): detectSpeechInputMode(), SpeechInput(), SpeechInputMode, SpeechInputProps, SpeechRecognition, SpeechRecognitionAlternative, SpeechRecognitionErrorEvent, SpeechRecognitionEvent (+4 more)
 
 ### Community 68 - "field.tsx"
-Cohesion: 0.16
-Nodes (14): FormPasswordField(), FormPasswordFieldProps, FormTextField(), Field(), FieldContent(), FieldDescription(), FieldError(), FieldLabel() (+6 more)
+Cohesion: 0.20
+Nodes (12): FormPasswordFieldProps, FormFieldProps, Field(), FieldContent(), FieldDescription(), FieldError(), FieldLabel(), FieldLegend() (+4 more)
 
 ### Community 69 - "notes-list.tsx"
-Cohesion: 0.19
-Nodes (15): formatCountdown(), formatTarget(), NoteReminderCountdown(), NoteReminderCountdownProps, REMINDER_ACCENTS, reminderAccent(), useReminderClock(), groupNotes() (+7 more)
+Cohesion: 0.27
+Nodes (10): NoteListContextMenu(), useReminderClock(), groupNotes(), NoteGroup, NotesList(), NotesListProps, noteTimestamp(), spaceTimestamp() (+2 more)
 
 ### Community 70 - "artifact.tsx"
 Cohesion: 0.12
 Nodes (16): Artifact(), ArtifactAction(), ArtifactActionProps, ArtifactActions(), ArtifactActionsProps, ArtifactClose(), ArtifactCloseProps, ArtifactContent() (+8 more)
 
-### Community 71 - "node.tsx"
-Cohesion: 0.12
-Nodes (12): Node(), NodeActionProps, NodeContent(), NodeContentProps, NodeDescriptionProps, NodeFooter(), NodeFooterProps, NodeHeader() (+4 more)
+### Community 71 - "task-board.tsx"
+Cohesion: 0.26
+Nodes (9): columns, endOfTodayLocal(), formatDueLabel(), isSameLocalDay(), notify(), Task, TaskBoard(), TaskStatus (+1 more)
 
 ### Community 72 - "sandbox.tsx"
-Cohesion: 0.12
-Nodes (15): Sandbox(), SandboxContent(), SandboxContentProps, SandboxHeaderProps, SandboxRootProps, SandboxTabContent(), SandboxTabContentProps, SandboxTabs() (+7 more)
+Cohesion: 0.09
+Nodes (22): Sandbox(), SandboxContent(), SandboxContentProps, SandboxHeaderProps, SandboxRootProps, SandboxTabContent(), SandboxTabContentProps, SandboxTabs() (+14 more)
 
 ### Community 73 - "tool.tsx"
 Cohesion: 0.13
@@ -458,29 +449,29 @@ Nodes (15): SandboxHeader(), getStatusBadge(), statusIcons, statusLabels, Tool()
 Cohesion: 0.15
 Nodes (14): useWebPreview(), WebPreview(), WebPreviewBody(), WebPreviewBodyProps, WebPreviewConsole(), WebPreviewConsoleProps, WebPreviewContext, WebPreviewContextValue (+6 more)
 
-### Community 75 - "push.ts"
-Cohesion: 0.23
-Nodes (13): DELETE(), GET(), POST(), pushSubscriptions, configureWebPush(), isPushConfigured(), listUserPushSubscriptions(), PushSubscriptionInput (+5 more)
+### Community 75 - "note-editor.tsx"
+Cohesion: 0.25
+Nodes (8): EditorLinkDialog(), EditorPanelsDialog(), EditorStatusBar(), EditorStatusBarProps, EditorToolbar(), NoteEditor(), NoteEditorProps, statusLabel()
 
 ### Community 76 - "content.ts"
-Cohesion: 0.15
-Nodes (13): COMPARISON_ROWS, ComparisonRow, FeatureKey, FEATURES, FOOTER_LINKS, HERO_STATS, NAV_LINKS, PRICING_PLANS (+5 more)
+Cohesion: 0.14
+Nodes (17): COMPARISON_ROWS, ComparisonRow, FAQS, FeatureKey, FEATURES, PRICING_PLANS, PricingPlan, TESTIMONIALS (+9 more)
 
-### Community 77 - "demo-section.tsx"
-Cohesion: 0.18
-Nodes (8): DemoSection(), TABS, WriteScreen(), Tabs(), TabsContent(), TabsList(), tabsListVariants, TabsTrigger()
+### Community 77 - "note-reminder-countdown.tsx"
+Cohesion: 0.43
+Nodes (6): formatCountdown(), formatTarget(), NoteReminderCountdown(), NoteReminderCountdownProps, REMINDER_ACCENTS, reminderAccent()
 
-### Community 78 - "lib/utils.ts"
-Cohesion: 0.17
-Nodes (9): PROOF_POINTS, NotelyLogo(), NotelyLogoProps, NOTES, SPACES, TASKS, WorkspacePreview(), ButtonGroupSeparator() (+1 more)
+### Community 78 - "landing-page.tsx"
+Cohesion: 0.16
+Nodes (14): HERO_STATS, CtaSection(), DemoSection(), FaqSection(), HeroSection(), PROOF_POINTS, LandingNav(), PricingSection() (+6 more)
 
-### Community 79 - "login-page.tsx"
+### Community 79 - "security-settings.tsx"
+Cohesion: 0.19
+Nodes (13): formatDate(), SecuritySettings(), SessionRow, truncateUa(), ChangePasswordFormValues, changePasswordSchema, LoginFormValues, loginSchema (+5 more)
+
+### Community 80 - "landing-nav.tsx"
 Cohesion: 0.21
-Nodes (6): LoginPage(), SocialAuthButtons(), SocialAuthButtonsProps, authClient, LoginFormValues, loginSchema
-
-### Community 80 - "landing-page.tsx"
-Cohesion: 0.18
-Nodes (9): metadata, LandingPage(), CtaSection(), FaqSection(), HeroSection(), LandingFooter(), PricingSection(), TestimonialsSection() (+1 more)
+Nodes (7): metadata, FOOTER_LINKS, NAV_LINKS, LandingPage(), LandingFooter(), NotelyLogo(), NotelyLogoProps
 
 ### Community 81 - "conversation.tsx"
 Cohesion: 0.16
@@ -491,16 +482,16 @@ Cohesion: 0.16
 Nodes (11): completeJsxTag(), JSXPreview, JSXPreviewContent, JSXPreviewContentProps, JSXPreviewContext, JSXPreviewContextValue, JSXPreviewError, JSXPreviewErrorProps (+3 more)
 
 ### Community 83 - "collapsible.tsx"
-Cohesion: 0.19
-Nodes (10): SourceProps, Sources(), SourcesContent(), SourcesContentProps, SourcesProps, SourcesTrigger(), SourcesTriggerProps, Collapsible() (+2 more)
+Cohesion: 0.11
+Nodes (20): SourceProps, Sources(), SourcesContent(), SourcesContentProps, SourcesProps, SourcesTrigger(), SourcesTriggerProps, Task() (+12 more)
 
-### Community 84 - "user-menu.tsx"
-Cohesion: 0.13
-Nodes (17): UserAvatar(), UserMenu(), UserMenuProps, DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem() (+9 more)
+### Community 84 - "useMessageBranch"
+Cohesion: 0.33
+Nodes (6): MessageBranchContent(), MessageBranchNext(), MessageBranchPage(), MessageBranchPrevious(), MessageBranchSelector(), useMessageBranch()
 
-### Community 85 - "date-time-picker.tsx"
-Cohesion: 0.26
-Nodes (12): DateTimePicker(), DateTimePickerProps, getHour12(), getPeriod(), HOURS, pad(), Period, PERIODS (+4 more)
+### Community 85 - "button-group.tsx"
+Cohesion: 0.50
+Nodes (4): ButtonGroup(), ButtonGroupSeparator(), ButtonGroupText(), buttonGroupVariants
 
 ### Community 86 - "persona.tsx"
 Cohesion: 0.18
@@ -514,29 +505,17 @@ Nodes (8): maxDuration, POST(), buildNoteSystemPrompt(), createGeminiModel(), cr
 Cohesion: 0.18
 Nodes (11): captureScreenshot(), convertBlobUrlToDataUrl(), PromptInput(), PromptInputActionAddAttachments(), PromptInputActionAddScreenshot(), PromptInputTextarea(), useOptionalPromptInputController(), useOptionalProviderAttachments() (+3 more)
 
-### Community 89 - "task.tsx"
-Cohesion: 0.18
-Nodes (10): Task(), TaskContent(), TaskContentProps, TaskItem(), TaskItemFile(), TaskItemFileProps, TaskItemProps, TaskProps (+2 more)
+### Community 89 - "proxy.ts"
+Cohesion: 0.50
+Nodes (4): config, exactPublicRoutes, isPublicPath(), proxy()
 
 ### Community 90 - "pricing-section.tsx"
 Cohesion: 0.29
 Nodes (8): Table(), TableBody(), TableCaption(), TableCell(), TableFooter(), TableHead(), TableHeader(), TableRow()
 
-### Community 91 - "select.tsx"
-Cohesion: 0.22
-Nodes (8): SelectContent(), SelectGroup(), SelectLabel(), SelectScrollDownButton(), SelectScrollUpButton(), SelectSeparator(), SelectTrigger(), SelectValue()
-
 ### Community 92 - "transcription.tsx"
 Cohesion: 0.29
 Nodes (7): Transcription(), TranscriptionContext, TranscriptionContextValue, TranscriptionProps, TranscriptionSegment, TranscriptionSegmentProps, useTranscription()
-
-### Community 93 - "button.tsx"
-Cohesion: 0.62
-Nodes (4): LandingNav(), Button(), buttonVariants, Calendar()
-
-### Community 94 - "section-shell.tsx"
-Cohesion: 0.48
-Nodes (4): Section(), SectionHeading(), SectionHeadingProps, SectionProps
 
 ### Community 95 - "graphify-run.mjs"
 Cohesion: 0.33
@@ -546,57 +525,37 @@ Nodes (5): args, bin, env, home, result
 Cohesion: 0.47
 Nodes (4): Animated(), Edge, getEdgeParams(), getHandleCoordsByPosition()
 
-### Community 97 - "highlightCode"
-Cohesion: 0.40
-Nodes (5): CodeBlockContent(), createRawTokens(), getHighlighter(), getTokensCacheKey(), highlightCode()
-
-### Community 100 - "TokenSpan"
-Cohesion: 0.50
-Nodes (4): isBold(), isItalic(), isUnderline(), TokenSpan()
-
-### Community 101 - "hover-card.tsx"
-Cohesion: 0.50
-Nodes (3): HoverCard(), HoverCardContent(), HoverCardTrigger()
-
 ### Community 146 - "editor-toolbar.tsx"
-Cohesion: 0.14
-Nodes (17): EDITOR_FONT_STORAGE_KEY, EMPTY_FORMATS, TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE, EditorToolbar(), EditorToolbarProps, FormatButton() (+9 more)
+Cohesion: 0.12
+Nodes (20): EDITOR_FONT_STORAGE_KEY, EMPTY_FORMATS, TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE, EditorToolbarProps, FormatButton(), ActiveFormats (+12 more)
 
-### Community 147 - "types/notes.ts"
-Cohesion: 0.19
+### Community 147 - "editor-canvas.tsx"
+Cohesion: 0.16
 Nodes (14): EditorCanvasProps, EditorNoteExtras(), EditorNoteExtrasProps, formatReminderAt(), isImageAttachment(), PendingReminder, EditorTags(), EditorTagsProps (+6 more)
-
-### Community 148 - "readJson"
-Cohesion: 0.19
-Nodes (12): NoteChecklist(), NoteChecklistProps, formatBytes(), isImageAttachment(), NoteResources(), NoteResourcesProps, NoteSharePanel(), NoteSharePanelProps (+4 more)
 
 ### Community 149 - "use-editor-font.ts"
 Cohesion: 0.44
 Nodes (7): readStoredFont(), useEditorFont(), EDITOR_FONTS, EditorFontOption, ensureEditorFontLoaded(), getEditorFont(), loadedGoogleFonts
 
-### Community 150 - "react"
-Cohesion: 0.33
-Nodes (6): react, react, CalendarDayButton(), SidebarMenuSkeleton(), SidebarProvider(), useIsMobile()
-
 ## Knowledge Gaps
-- **860 isolated node(s):** `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style`, `rsc`, `tsx` (+855 more)
+- **861 isolated node(s):** `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style`, `rsc`, `tsx` (+856 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **48 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **47 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `cn` to `auth.ts`, `app-bar.tsx`, `open-in-chat.tsx`, `app-sidebar.tsx`, `editor-toolbar.tsx`, `types/notes.ts`, `readJson`, `react`, `dialog.tsx`, `note-editor.tsx`, `workspacePath`, `prompt-input.tsx`, `notes-workspace.tsx`, `commit.tsx`, `inline-citation.tsx`, `queue.tsx`, `test-results.tsx`, `voice-selector.tsx`, `model-selector.tsx`, `note-reminder-dialog.tsx`, `calendar-workspace.tsx`, `schema-display.tsx`, `attachments.tsx`, `stack-trace.tsx`, `code-block.tsx`, `task-board.tsx`, `environment-variables.tsx`, `message.tsx`, `mic-selector.tsx`, `context.tsx`, `package-info.tsx`, `audio-player.tsx`, `security-settings.tsx`, `snippet.tsx`, `agent.tsx`, `editor-ai-sheet.tsx`, `calendar-week-view.tsx`, `file-tree.tsx`, `plan.tsx`, `chain-of-thought.tsx`, `confirmation.tsx`, `reasoning.tsx`, `terminal.tsx`, `note-integrations.tsx`, `speech-input.tsx`, `field.tsx`, `notes-list.tsx`, `artifact.tsx`, `node.tsx`, `sandbox.tsx`, `tool.tsx`, `web-preview.tsx`, `demo-section.tsx`, `lib/utils.ts`, `login-page.tsx`, `landing-page.tsx`, `conversation.tsx`, `jsx-preview.tsx`, `collapsible.tsx`, `user-menu.tsx`, `date-time-picker.tsx`, `persona.tsx`, `usePromptInputAttachments`, `task.tsx`, `pricing-section.tsx`, `select.tsx`, `transcription.tsx`, `button.tsx`, `section-shell.tsx`, `hover-card.tsx`?**
-  _High betweenness centrality (0.534) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `dependencies` to `shadcn`, `shiki`, `streamdown`, `@streamdown/cjk`, `@streamdown/code`, `@streamdown/math`, `scripts`, `@streamdown/mermaid`, `tailwind-merge`, `tokenlens`, `tw-animate-css`, `use-stick-to-bottom`, `@xyflow/react`, `zod`, `zustand`, `react`, `@ai-sdk/google`, `@ai-sdk/react`, `ansi-to-react`, `@base-ui/react`, `better-auth`, `@better-auth/infra`, `class-variance-authority`, `clsx`, `cmdk`, `date-fns`, `embla-carousel-react`, `@hookform/resolvers`, `jose`, `lucide-react`, `media-chrome`, `motion`, `nanoid`, `@neondatabase/serverless`, `next`, `@radix-ui/react-use-controllable-state`, `react-day-picker`, `react-dom`, `react-hook-form`, `react-jsx-parser`, `react-qr-code`, `@rive-app/react-webgl2`?**
+- **Why does `cn()` connect `cn` to `login-page.tsx`, `lib/utils.ts`, `open-in-chat.tsx`, `carousel.tsx`, `editor-toolbar.tsx`, `editor-canvas.tsx`, `button.tsx`, `use-rich-text-editor.ts`, `workspacePath`, `prompt-input.tsx`, `readJson`, `commit.tsx`, `notes-empty-state.tsx`, `inline-citation.tsx`, `queue.tsx`, `test-results.tsx`, `voice-selector.tsx`, `model-selector.tsx`, `note-reminder-dialog.tsx`, `calendar-workspace.tsx`, `schema-display.tsx`, `attachments.tsx`, `stack-trace.tsx`, `code-block.tsx`, `alert-dialog.tsx`, `environment-variables.tsx`, `message.tsx`, `mic-selector.tsx`, `context.tsx`, `package-info.tsx`, `audio-player.tsx`, `google-connection-card.tsx`, `snippet.tsx`, `agent.tsx`, `editor-ai-sheet.tsx`, `calendar-week-view.tsx`, `file-tree.tsx`, `plan.tsx`, `chain-of-thought.tsx`, `confirmation.tsx`, `reasoning.tsx`, `terminal.tsx`, `speech-input.tsx`, `field.tsx`, `notes-list.tsx`, `artifact.tsx`, `task-board.tsx`, `sandbox.tsx`, `tool.tsx`, `web-preview.tsx`, `note-editor.tsx`, `content.ts`, `note-reminder-countdown.tsx`, `landing-page.tsx`, `landing-nav.tsx`, `conversation.tsx`, `jsx-preview.tsx`, `collapsible.tsx`, `useMessageBranch`, `button-group.tsx`, `persona.tsx`, `usePromptInputAttachments`, `pricing-section.tsx`, `transcription.tsx`?**
+  _High betweenness centrality (0.518) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `dependencies` to `shadcn`, `shiki`, `streamdown`, `@streamdown/cjk`, `@streamdown/code`, `@streamdown/math`, `scripts`, `cn`, `@streamdown/mermaid`, `tailwind-merge`, `tokenlens`, `tw-animate-css`, `use-stick-to-bottom`, `@xyflow/react`, `zod`, `zustand`, `@ai-sdk/google`, `@ai-sdk/react`, `ansi-to-react`, `@base-ui/react`, `better-auth`, `@better-auth/infra`, `class-variance-authority`, `clsx`, `cmdk`, `date-fns`, `embla-carousel-react`, `@hookform/resolvers`, `jose`, `lucide-react`, `media-chrome`, `motion`, `nanoid`, `@neondatabase/serverless`, `next`, `@radix-ui/react-use-controllable-state`, `react-day-picker`, `react-dom`, `react-hook-form`, `react-jsx-parser`, `react-qr-code`, `@rive-app/react-webgl2`?**
   _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `dependencies`, `inline-citation.tsx`, `app-sidebar.tsx`?**
+- **Why does `react` connect `cn` to `dependencies`, `carousel.tsx`?**
   _High betweenness centrality (0.093) - this node is a cross-community bridge._
 - **What connects `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style` to the rest of the system?**
-  _860 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `auth.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.10668563300142248 - nodes in this community are weakly interconnected._
-- **Should `getEnv` be split into smaller, more focused modules?**
-  _Cohesion score 0.12807881773399016 - nodes in this community are weakly interconnected._
+  _861 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `login-page.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.10101010101010101 - nodes in this community are weakly interconnected._
 - **Should `open-in-chat.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.0873015873015873 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05725490196078432 - nodes in this community are weakly interconnected._
+- **Should `scripts` be split into smaller, more focused modules?**
+  _Cohesion score 0.04878048780487805 - nodes in this community are weakly interconnected._

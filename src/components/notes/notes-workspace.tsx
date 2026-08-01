@@ -275,6 +275,8 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
           activeNoteId={noteId}
           isLoading={notesQuery.isLoading}
           spaceName={spaceName}
+          spaces={spacesQuery.data?.spaces ?? []}
+          tags={tagsQuery.data?.tags ?? []}
           trashedSpaces={view === "trash" ? trashedSpaces : undefined}
           trashedSpacesLoading={
             view === "trash" ? trashedSpacesQuery.isLoading : false

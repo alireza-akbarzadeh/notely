@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/app-sidebar.tsx": {
-    "mtime": 1785580639.298442,
-    "ast_hash": "023dfc8166d3ffed0260d6c9a498ed1b",
+    "mtime": 1785581508.483171,
+    "ast_hash": "7830e2ecd48ace4c617d32b0c40d832c",
     "semantic_hash": ""
   },
   "src/components/layout/dashboard-shell.tsx": {
@@ -270,13 +270,13 @@
     "semantic_hash": ""
   },
   "src/components/notes/notes-list.tsx": {
-    "mtime": 1785580557.4529245,
-    "ast_hash": "719da2445c9554972b76f0802a34a008",
+    "mtime": 1785581469.5097945,
+    "ast_hash": "cc19eb0a91fd31790a0f6e6bde576f19",
     "semantic_hash": ""
   },
   "src/components/notes/notes-workspace.tsx": {
-    "mtime": 1785580664.9449923,
-    "ast_hash": "7088e48c47f2e7a24850b49ef86d588b",
+    "mtime": 1785581455.4281332,
+    "ast_hash": "a59a236a07333422a4e3dc3de24de3fe",
     "semantic_hash": ""
   },
   "src/components/providers.tsx": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/sidebar.tsx": {
-    "mtime": 1785563837.646694,
-    "ast_hash": "b2bd586e9fa59e58a92716be476be6d2",
+    "mtime": 1785580952.7447932,
+    "ast_hash": "7922ea02a6e021b4e91d20b34bce459c",
     "semantic_hash": ""
   },
   "src/components/ui/skeleton.tsx": {
@@ -1140,8 +1140,8 @@
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/editor-canvas.tsx": {
-    "mtime": 1785574933.2488754,
-    "ast_hash": "892e46e9d5503f95753a85753af4ec4f",
+    "mtime": 1785581481.893643,
+    "ast_hash": "829472b128d8cd5444e95e273ec1022b",
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/editor-link-dialog.tsx": {
@@ -1165,8 +1165,8 @@
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/editor-tags.tsx": {
-    "mtime": 1785568190.3544104,
-    "ast_hash": "82a793e6fec666447da8dff3c635969c",
+    "mtime": 1785581469.5167992,
+    "ast_hash": "f3b5f3d59608379d5a4937abf3da8ff8",
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/editor-toolbar.tsx": {
@@ -1180,8 +1180,8 @@
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/hooks/use-note-draft.ts": {
-    "mtime": 1785580589.8533835,
-    "ast_hash": "fa4c0674cc5625186152068af47aeb9d",
+    "mtime": 1785581483.0806715,
+    "ast_hash": "1867289ffb997abd9adb0c3f5b0785ae",
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/hooks/use-rich-text-editor.ts": {
@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/note-editor.tsx": {
-    "mtime": 1785580589.8533835,
-    "ast_hash": "02161b58a7be653b61ebf13056a94296",
+    "mtime": 1785581482.8953674,
+    "ast_hash": "e7ac95ed37e3ba5af13d5fc0ffea7e12",
     "semantic_hash": ""
   },
   "src/components/notes/note-editor/types.ts": {
