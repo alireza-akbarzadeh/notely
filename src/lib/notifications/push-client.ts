@@ -11,18 +11,21 @@ function urlBase64ToUint8Array(base64String: string) {
   return output;
 }
 
+export function serviceWorkerSupported() {
+  return typeof window !== "undefined" && "serviceWorker" in navigator;
+}
+
 export function pushSupported() {
   return (
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
+    serviceWorkerSupported() &&
     "PushManager" in window &&
     "Notification" in window
   );
 }
 
 export async function registerNotelyServiceWorker() {
-  if (!pushSupported()) return null;
-  return navigator.serviceWorker.register(SW_PATH);
+  if (!serviceWorkerSupported()) return null;
+  return navigator.serviceWorker.register(SW_PATH, { scope: "/" });
 }
 
 export async function ensureNotificationPermission() {

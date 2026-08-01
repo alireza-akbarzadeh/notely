@@ -6,13 +6,17 @@ import { Menu, X } from "lucide-react";
 
 import { NAV_LINKS } from "@/components/landing/content";
 import { NotelyLogo } from "@/components/landing/shared/notely-logo";
+import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeModeButton } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { authClient } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
 export function LandingNav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = Boolean(session?.user);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -58,21 +62,40 @@ export function LandingNav() {
 
         <div className="flex items-center gap-2">
           <ThemeModeButton className="hidden sm:inline-flex" />
-          <Link
-            href="/login"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "lg" }),
-              "hidden sm:inline-flex",
-            )}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className={cn(buttonVariants({ size: "lg" }), "px-3.5")}
-          >
-            Get started
-          </Link>
+          {isPending ? (
+            <div className="size-9 animate-pulse rounded-full bg-muted" />
+          ) : isLoggedIn ? (
+            <>
+              <Link
+                href="/notes"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "hidden px-3.5 sm:inline-flex",
+                )}
+              >
+                Open notes
+              </Link>
+              <UserMenu variant="appbar" />
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "lg" }),
+                  "hidden sm:inline-flex",
+                )}
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className={cn(buttonVariants({ size: "lg" }), "px-3.5")}
+              >
+                Get started
+              </Link>
+            </>
+          )}
           <Button
             type="button"
             variant="ghost"
@@ -105,12 +128,29 @@ export function LandingNav() {
               </a>
             ))}
             <div className="mt-2 flex items-center justify-between gap-3 border-t border-border/60 pt-4">
-              <Link
-                href="/login"
-                className={cn(buttonVariants({ variant: "outline", size: "lg" }), "flex-1")}
-              >
-                Sign in
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/notes"
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "flex-1",
+                  )}
+                >
+                  Open notes
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "flex-1",
+                  )}
+                >
+                  Sign in
+                </Link>
+              )}
               <ThemeModeButton />
             </div>
           </div>

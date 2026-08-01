@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing";
 
 export const metadata: Metadata = {
-  title: "Notely — Think. Note. Plan.",
+  title: "Think. Note. Plan.",
   description:
-    "A calm workspace for notes, spaces, and tags — built to feel native on mobile.",
+    "A calm workspace for notes, spaces, reminders, and tags — built to feel native on mobile.",
   openGraph: {
     title: "Notely — Think. Note. Plan.",
     description:
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
   },
 };
 

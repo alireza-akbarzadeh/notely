@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 
 import { HERO_STATS } from "@/components/landing/content";
 import { WorkspacePreview } from "@/components/landing/shared/workspace-preview";
 import { buttonVariants } from "@/components/ui/button";
+import { authClient } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
 const PROOF_POINTS = [
@@ -13,6 +16,9 @@ const PROOF_POINTS = [
 ];
 
 export function HeroSection() {
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = Boolean(session?.user);
+
   return (
     <section id="top" className="relative overflow-hidden border-b border-border/60">
       <div
@@ -41,13 +47,25 @@ export function HeroSection() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/register"
-              className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-5 text-sm")}
-            >
-              Start writing free
-              <ArrowRight className="size-4" />
-            </Link>
+            {isPending ? (
+              <div className="h-11 w-40 animate-pulse rounded-lg bg-muted" />
+            ) : isLoggedIn ? (
+              <Link
+                href="/notes"
+                className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-5 text-sm")}
+              >
+                Continue to notes
+                <ArrowRight className="size-4" />
+              </Link>
+            ) : (
+              <Link
+                href="/register"
+                className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-5 text-sm")}
+              >
+                Start writing free
+                <ArrowRight className="size-4" />
+              </Link>
+            )}
             <a
               href="#demo"
               className={cn(

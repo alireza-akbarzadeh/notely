@@ -1,11 +1,84 @@
-/* Notely service worker — Web Push + notification click routing */
+/* Notely service worker — PWA shell cache + Web Push */
+
+const CACHE_VERSION = "notely-v1";
+const PRECACHE = [
+  "/",
+  "/favicon.svg",
+  "/icons/icon.svg",
+  "/manifest.webmanifest",
+];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    caches
+      .open(CACHE_VERSION)
+      .then((cache) => cache.addAll(PRECACHE))
+      .then(() => self.skipWaiting())
+      .catch(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_VERSION)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // Never cache authenticated API traffic.
+  if (url.pathname.startsWith("/api/")) return;
+
+  // Navigation: network-first, fall back to cached home shell.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          void caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() =>
+          caches
+            .match(request)
+            .then((cached) => cached || caches.match("/") || Response.error()),
+        ),
+    );
+    return;
+  }
+
+  // Static assets: cache-first.
+  if (
+    url.pathname.startsWith("/_next/static/") ||
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.endsWith(".svg") ||
+    url.pathname.endsWith(".webmanifest")
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          const copy = response.clone();
+          void caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+          return response;
+        });
+      }),
+    );
+  }
 });
 
 self.addEventListener("push", (event) => {
@@ -27,8 +100,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: "/window.svg",
-    badge: "/window.svg",
+    icon: "/icons/icon.svg",
+    badge: "/icons/icon.svg",
     tag: data.reminderId ? `reminder-${data.reminderId}` : "notely-reminder",
     renotify: true,
     data: {
@@ -41,9 +114,8 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil(
     self.registration.showNotification(data.title || "Notely", options).then(
-      () => {
-        // Notify open clients so they can play Web Audio (SW cannot reliably play custom tones).
-        return self.clients
+      () =>
+        self.clients
           .matchAll({ type: "window", includeUncontrolled: true })
           .then((clients) => {
             for (const client of clients) {
@@ -52,8 +124,7 @@ self.addEventListener("push", (event) => {
                 payload: data,
               });
             }
-          });
-      },
+          }),
     ),
   );
 });

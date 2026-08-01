@@ -15,9 +15,9 @@
     "db:studio": "drizzle-kit studio",
     "graphify:open": "open graphify-out/graph.html",
     "graphify:report": "open graphify-out/GRAPH_REPORT.md",
-    "graphify:update": "GRAPHIFY_MAX_WORKERS=1 $HOME/.local/bin/graphify update .",
-    "graphify:query": "$HOME/.local/bin/graphify query",
-    "graphify:mcp": "$HOME/.local/bin/graphify-mcp graphify-out/graph.json"
+    "graphify:update": "node ./scripts/graphify-run.mjs update .",
+    "graphify:query": "node ./scripts/graphify-run.mjs query",
+    "graphify:mcp": "node ./scripts/graphify-run.mjs mcp"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.29",
