@@ -43,19 +43,27 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterFormValues) {
     setServerError(null);
 
-    const result = await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const result = await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
-    if (result.error) {
-      setServerError(result.error.message ?? "Unable to create account");
-      return;
+      if (result.error) {
+        setServerError(result.error.message ?? "Unable to create account");
+        return;
+      }
+
+      router.push("/workspace");
+      router.refresh();
+    } catch (error) {
+      setServerError(
+        error instanceof Error
+          ? error.message
+          : "Unable to reach the sign-up service. Check your connection and try again.",
+      );
     }
-
-    router.push("/workspace");
-    router.refresh();
   }
 
   function onInvalid() {

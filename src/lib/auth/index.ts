@@ -42,6 +42,23 @@ function normalizeBaseUrl(url: string) {
   return url.replace(/\/+$/, "");
 }
 
+function resolveAuthBaseUrl() {
+  const configured = env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL;
+  if (configured && !configured.includes("localhost")) {
+    return normalizeBaseUrl(configured);
+  }
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    const host = vercelUrl.replace(/^https?:\/\//, "");
+    return normalizeBaseUrl(`https://${host}`);
+  }
+
+  return normalizeBaseUrl(configured ?? "http://localhost:3000");
+}
+
+const authBaseUrl = resolveAuthBaseUrl();
+
 export const auth = betterAuth({
   appName: "Notely",
   database: drizzleAdapter(db, {
@@ -55,7 +72,7 @@ export const auth = betterAuth({
     },
   }),
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: normalizeBaseUrl(env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL),
+  baseURL: authBaseUrl,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -107,7 +124,10 @@ export const auth = betterAuth({
         }
       : {}),
   },
-  trustedOrigins: appleEnabled ? ["https://appleid.apple.com"] : [],
+  trustedOrigins: [
+    authBaseUrl,
+    ...(appleEnabled ? ["https://appleid.apple.com"] : []),
+  ],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,

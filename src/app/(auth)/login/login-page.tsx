@@ -44,24 +44,32 @@ export default function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     setServerError(null);
 
-    const result = await authClient.signIn.email(values);
+    try {
+      const result = await authClient.signIn.email(values);
 
-    if (result.error) {
-      setServerError(result.error.message ?? "Unable to sign in");
-      return;
+      if (result.error) {
+        setServerError(result.error.message ?? "Unable to sign in");
+        return;
+      }
+
+      if (
+        result.data &&
+        "twoFactorRedirect" in result.data &&
+        result.data.twoFactorRedirect
+      ) {
+        router.push("/two-factor");
+        return;
+      }
+
+      router.push(callbackUrl);
+      router.refresh();
+    } catch (error) {
+      setServerError(
+        error instanceof Error
+          ? error.message
+          : "Unable to reach the sign-in service. Check your connection and try again.",
+      );
     }
-
-    if (
-      result.data &&
-      "twoFactorRedirect" in result.data &&
-      result.data.twoFactorRedirect
-    ) {
-      router.push("/two-factor");
-      return;
-    }
-
-    router.push(callbackUrl);
-    router.refresh();
   }
 
   function onInvalid() {

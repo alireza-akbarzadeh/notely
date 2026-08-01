@@ -72,14 +72,23 @@ export function SocialAuthButtons({
     setError(null);
     setPending(provider);
 
-    const result = await authClient.signIn.social({
-      provider,
-      callbackURL,
-    });
+    try {
+      const result = await authClient.signIn.social({
+        provider,
+        callbackURL,
+      });
 
-    if (result.error) {
+      if (result.error) {
+        setPending(null);
+        setError(result.error.message ?? `Unable to continue with ${provider}`);
+      }
+    } catch (socialError) {
       setPending(null);
-      setError(result.error.message ?? `Unable to continue with ${provider}`);
+      setError(
+        socialError instanceof Error
+          ? socialError.message
+          : `Unable to continue with ${provider}`,
+      );
     }
   }
 

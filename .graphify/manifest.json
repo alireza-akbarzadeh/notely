@@ -40,36 +40,36 @@
     "hash": "481fac0fdecd70e1821cc30b86030c1a"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/forgot-password/page.tsx": {
-    "mtime": 1785563837613.2034,
-    "hash": "df95dbcc3a7603867fac5cf50d40213e"
+    "mtime": 1785583288024.8025,
+    "hash": "d5d31c6560ddd5fb3d303b81947ec25f"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/layout.tsx": {
     "mtime": 1785563837614.4702,
     "hash": "86e60c2556a434284a009b4b0135dbf8"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/login/login-page.tsx": {
-    "mtime": 1785563837614.4702,
-    "hash": "0410c90f8fcde4299b78fd82ea2343d8"
+    "mtime": 1785583283569.6006,
+    "hash": "606aaa4790caca74a0cd21fa82c0f7bd"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/login/page.tsx": {
     "mtime": 1785563837614.4702,
     "hash": "29884f78a0efbb946a15c185ff4cff43"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/register/page.tsx": {
-    "mtime": 1785563837615.4688,
-    "hash": "60f3300aa280945854ad896705a6d9f2"
+    "mtime": 1785583284887.0984,
+    "hash": "89cf49d3e84e3af301c429499a0f5041"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/reset-password/page.tsx": {
-    "mtime": 1785563837616.483,
-    "hash": "e5c6f737aeaefb0d1dfeb6958b071b30"
+    "mtime": 1785583291645.5288,
+    "hash": "a9f0829e485aee0549067cbeeeb479d3"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(auth)/two-factor/page.tsx": {
-    "mtime": 1785563837616.483,
-    "hash": "416a1fd05d192477e3f17b9dec6bff7d"
+    "mtime": 1785583328685.9116,
+    "hash": "f36760cd6febbf17470c7017f1ad0288"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/dashboard/page.tsx": {
-    "mtime": 1785563837617.6665,
-    "hash": "ac088549834d33d44287855834ad9fe9"
+    "mtime": 1785575450779.8228,
+    "hash": "0b6e2601e06eb91da0c96005c9819eed"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/layout.tsx": {
     "mtime": 1785563837617.6665,
@@ -80,20 +80,20 @@
     "hash": "973da537f7b3670b272c5885a185a810"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/notes/page.tsx": {
-    "mtime": 1785563837618.6667,
-    "hash": "1bb212b2e1de4e32125c0ef25845bded"
+    "mtime": 1785575285815.1042,
+    "hash": "3debc6358238594e822de7517ed1ce08"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/settings/page.tsx": {
-    "mtime": 1785563837619.674,
-    "hash": "569e921bf6a8d8382efcbdefaa8d27b5"
+    "mtime": 1785571881427.8848,
+    "hash": "0ba4b4af5d60d682f17c81a6d8d02a0f"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(marketing)/layout.tsx": {
     "mtime": 1785563837619.674,
     "hash": "8a24d3702344ec06cd0a43704939f132"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(marketing)/page.tsx": {
-    "mtime": 1785563837619.674,
-    "hash": "fff54bbbd2e2af7aa73c82d4b5936ebc"
+    "mtime": 1785572882601.4412,
+    "hash": "197415a45d58b9d00a05dd31bfd08053"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/attachments/[id]/file/route.ts": {
     "mtime": 1785563837620.667,
@@ -120,44 +120,44 @@
     "hash": "9069582bb0c4c9437da8f0279d268a9b"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/events/route.ts": {
-    "mtime": 1785563837623.6633,
-    "hash": "fc138688f7916958a647ee6def3c615a"
+    "mtime": 1785571820635.7075,
+    "hash": "5cfb4f34a103fa8a3d6b10f0f12f1cb3"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/inbox/route.ts": {
     "mtime": 1785563837623.6633,
     "hash": "959e50508c985f8221ac7b640e5d52c8"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/notes/[id]/route.ts": {
-    "mtime": 1785563837624.6646,
-    "hash": "dea5b3c5d84db9ca049646dbf3fe4735"
+    "mtime": 1785572560287.3997,
+    "hash": "e0b5f21a1b6f4296f3999ea8e1240d58"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/notes/route.ts": {
-    "mtime": 1785563837624.6646,
-    "hash": "697812566ba69df36d63543cc221ed60"
+    "mtime": 1785580517404.684,
+    "hash": "0a6f330138bc003e05f6eed2cef3118d"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/search/route.ts": {
     "mtime": 1785563837625.6638,
     "hash": "95c6b232ad4d58004ad864e67ae10af0"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/shares/[id]/route.ts": {
-    "mtime": 1785563837626.682,
-    "hash": "c618b57548f4058cb92f341f5de0df76"
+    "mtime": 1785582854817.603,
+    "hash": "2057933e8382f93df3f28c54f22bd5cf"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/shares/route.ts": {
     "mtime": 1785563837626.682,
     "hash": "d468093a60238b7c7c0d82a556878ff8"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/spaces/[id]/route.ts": {
-    "mtime": 1785563837627.666,
-    "hash": "82555d6d0be5f44077951abc6db96fab"
+    "mtime": 1785576870113.1978,
+    "hash": "4eb648af2903573e7e08e4d3b9b9a40c"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/spaces/route.ts": {
-    "mtime": 1785563837627.666,
-    "hash": "566b489b173e2ad1a205ba87f67eb43b"
+    "mtime": 1785574723292.409,
+    "hash": "41d759b6d1f3d939a71783d93077a0c7"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/tags/[id]/route.ts": {
-    "mtime": 1785563837628.668,
-    "hash": "9bcb5c9856aaf6d1620f84e4666612bb"
+    "mtime": 1785580518092.6472,
+    "hash": "99e41d694606c3545b704f377e2ae5ad"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/tags/route.ts": {
     "mtime": 1785563837628.668,
@@ -168,116 +168,112 @@
     "hash": "e53a3a6243a0b0486d13d8401d954f5b"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/tasks/route.ts": {
-    "mtime": 1785563837629.6316,
-    "hash": "0ba9f86a430b0b93b82d7e588daa7a9b"
+    "mtime": 1785574831788.3694,
+    "hash": "b9d530da182378ecd4a251445b6ada2b"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/layout.tsx": {
-    "mtime": 1785567023386.2676,
-    "hash": "12faa709fb0f86318ef91e06bdc07d2c"
+    "mtime": 1785572894332.8518,
+    "hash": "38bb7edd578127b4bb1467abdcc0f9ee"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/auth/auth-panel.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "25922bea69708378538667b79cfa875e"
+    "mtime": 1785583265205.2126,
+    "hash": "52688daf35c5ead5529f9004884d729f"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/auth/auth-shell.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "61316984610668ae69fb4368e0e63147"
+    "mtime": 1785583268610.5813,
+    "hash": "6259e6048e065ad139ac4b3276c9efc2"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/auth/social-auth.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "5a401e5a456e721e5fad15cd56deaf13"
+    "mtime": 1785583300075.331,
+    "hash": "c23e60392e461ed78b40855fdb2f9aee"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/forms/form-text-field.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "7fa0a9069d681ef62f0a46cc91a49caa"
+    "mtime": 1785583261468.2085,
+    "hash": "7a36ad84737ddbadb88f06901f0c8302"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/index.ts": {
-    "mtime": 1785563837629.6316,
-    "hash": "ff5a91f929ecf69a7588811b3be998c7"
+    "mtime": 1785572136613.7583,
+    "hash": "74bb39c95a89c30f9176430e6da58d54"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/landing-page.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "7df54abc42a4a684b34c964ba870ed19"
+    "mtime": 1785572135431.3523,
+    "hash": "29465050b73a6b121b8e400470940238"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/shared/notely-logo.tsx": {
     "mtime": 1785563837629.6316,
     "hash": "caca3130b660359007119cc4ec36e5e7"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/app-bar.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "207869013961003e9e71e2f42eec3d2b"
+    "mtime": 1785580398327.5308,
+    "hash": "29aa9070fa4508d65566eaf3b4302904"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/app-sidebar.tsx": {
-    "mtime": 1785567377628.0088,
-    "hash": "b4180468fce2a2eecd735313b6a99ff5"
+    "mtime": 1785581508483.171,
+    "hash": "7830e2ecd48ace4c617d32b0c40d832c"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/dashboard-shell.tsx": {
-    "mtime": 1785566660993.1045,
-    "hash": "1895b542b9deae888571578f259b0a7f"
+    "mtime": 1785580658541.8904,
+    "hash": "a4b0b19dfb757a222688913408893214"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/header.tsx": {
     "mtime": 1785563837629.6316,
     "hash": "8fd097b8c9955ce11d2fdc90192b0eb7"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/mobile-bottom-nav.tsx": {
-    "mtime": 1785566753961.9963,
-    "hash": "6b13c575d69073b122d86a9ac0e333ee"
+    "mtime": 1785580652036.3208,
+    "hash": "5446878a5092592bb9402fe73040a645"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/user-menu.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "a96b33091245722648a610fd3715f010"
-  },
-  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/layout/utility-sidebar.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "589655d2ff7275557439842d87bfc9fa"
+    "mtime": 1785575462869.5437,
+    "hash": "d302d670013a0930b7fb0ef937c61a3e"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/inbox-panel.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "dabdb153d58e6d5209f4705883407ca0"
+    "mtime": 1785580142723.6584,
+    "hash": "e59151117eda713772212ae699e6da7b"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-checklist.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "cade3328b8e5db1fcad0c3f3bdf0e795"
+    "mtime": 1785580157353.7915,
+    "hash": "6564757e9271cd49b272c1947492ce37"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-resources.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "22af3d93274d53aadd40204e57d7ccba"
+    "mtime": 1785580165761.177,
+    "hash": "8096d40c89fc544868636fe37db02317"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-search-dialog.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "f377d1317c01a5e3cedd44e8a323270e"
+    "mtime": 1785580166996.0544,
+    "hash": "973cc5348ccc2734a7a8d15774be3a7b"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-share-panel.tsx": {
-    "mtime": 1785567002075.1802,
-    "hash": "b0642c16cb59e52dc127b1bdff0a5fff"
+    "mtime": 1785583654643.1602,
+    "hash": "07d1eaca8fef89a8ae58b5f8fccc1a48"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/notes-empty-state.tsx": {
-    "mtime": 1785567332979.5488,
-    "hash": "f0cd639e477a66b4a06ff5bfbaf198b3"
+    "mtime": 1785580665538.6533,
+    "hash": "bf2a9da93feb243b1701f32e4c121052"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/notes-list.tsx": {
-    "mtime": 1785566784087.144,
-    "hash": "b953c57348a86de81b15d1f302b5d2dd"
+    "mtime": 1785581777104.8286,
+    "hash": "4a24d25ee045f10b001ca407059212a6"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/notes-workspace.tsx": {
-    "mtime": 1785567450888.3896,
-    "hash": "4612cc6ed08a8efecdb8316b5f4bf1e1"
+    "mtime": 1785581791312.1355,
+    "hash": "56ab3e396771c1f72673f711d0686bfb"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/providers.tsx": {
     "mtime": 1785563837629.6316,
     "hash": "cf0eb06d19880ae491574445fdf2e86f"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/settings/account-settings.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "04f3ea2b73d61de63db0fd9d1acbcd1a"
+    "mtime": 1785571063728.2957,
+    "hash": "5be5a22d2505e4832db926b5aa3285ec"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/settings/appearance-settings.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "d21dfb782e844b6d8c65d3d867dd9e3d"
+    "mtime": 1785571077139.594,
+    "hash": "1f6c243f39be3b93485968115876e474"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/settings/security-settings.tsx": {
-    "mtime": 1785563837629.6316,
-    "hash": "ed26978f2a3f197a7ea0b26559524afa"
+    "mtime": 1785571069014.7456,
+    "hash": "a51da0e30d3374518fa1750759836c79"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/theme-provider.tsx": {
     "mtime": 1785566686412.8357,
@@ -328,8 +324,8 @@
     "hash": "2dae64581cff7d3a4d138cab216af010"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/input.tsx": {
-    "mtime": 1785563837646.694,
-    "hash": "16719e293086441079cac7995ce63a49"
+    "mtime": 1785583352028.3987,
+    "hash": "340eb0228050711cb59bd403876f6b19"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/label.tsx": {
     "mtime": 1785563837646.694,
@@ -348,8 +344,8 @@
     "hash": "16cbe3e1f0a47862d4035756c6b16b64"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/sidebar.tsx": {
-    "mtime": 1785563837646.694,
-    "hash": "b2bd586e9fa59e58a92716be476be6d2"
+    "mtime": 1785580952744.7932,
+    "hash": "7922ea02a6e021b4e91d20b34bce459c"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/skeleton.tsx": {
     "mtime": 1785563837646.694,
@@ -364,8 +360,8 @@
     "hash": "7424f42ca135637e99ac19646cbb6625"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/tabs.tsx": {
-    "mtime": 1785563837646.694,
-    "hash": "aa67dc7b086fe22106b124f2c5a7fd3b"
+    "mtime": 1785583350800.3838,
+    "hash": "dbd05c3e0fa5c110b46e41d7603c6fb3"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/tooltip.tsx": {
     "mtime": 1785563837646.694,
@@ -396,8 +392,8 @@
     "hash": "e480c8806c63b90a5b55be6318ff08fb"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/db/schema.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "06d53278470fee37f19fd31831ee02e3"
+    "mtime": 1785580524457.8357,
+    "hash": "43ba3f037af04220d838f77aa4a2546d"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/editor-fonts.ts": {
     "mtime": 1785567743823.5652,
@@ -408,32 +404,32 @@
     "hash": "ce467206e07b1b72430c49af085ecc81"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/env.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "fdbfb0359ad1e89ac506c22cfbc9cdf3"
+    "mtime": 1785571810009.92,
+    "hash": "3318bf197f497181f9699fc19755da51"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/access.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "db543f35fcf2a573971b7cd3e250490d"
+    "mtime": 1785570584333.6726,
+    "hash": "596ee16acff5d303b5bb29d7d5731e87"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/attachments.ts": {
     "mtime": 1785563837646.694,
     "hash": "acfbb2a98b4cfc15763ee4c7f07c5f62"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/events.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "7bf577481fe1507708013cc50f291ae7"
+    "mtime": 1785571819036.952,
+    "hash": "a5ceccc5e5b4c566a5bee6d377f909ee"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/service.ts": {
-    "mtime": 1785566974242.4414,
-    "hash": "16f8328588ee4839128006e2f7d94d02"
+    "mtime": 1785580546624.596,
+    "hash": "7ab0b4fcd7c3ea21c5366e13eb822776"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/shares.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "a9c7233ce4693b3f492dba6e5cc7a250"
+    "mtime": 1785582854657.0222,
+    "hash": "b461c2be904a572d6067f8869210acac"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/tasks.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "8b64853efca549d4353232b0f77abc17"
+    "mtime": 1785580629066.464,
+    "hash": "119c4ecee397430c6c5f5e09d2afb1ae"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/user-display.ts": {
     "mtime": 1785563837646.694,
@@ -448,20 +444,20 @@
     "hash": "d83d1b2e40c26586896067939eedd152"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/validations/notes.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "3884f11a5ca2f5fcb41d0083496f6dc8"
+    "mtime": 1785582852618.2705,
+    "hash": "42e3bf945ab4912a0e6752c1082730ee"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/proxy.ts": {
-    "mtime": 1785563837646.694,
-    "hash": "b41ea5ad83c3c1b48ee546bdd3894a44"
+    "mtime": 1785575450302.2173,
+    "hash": "d3f95174e3713527720ca59a07dc5a22"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/stores/focus-mode.ts": {
     "mtime": 1785566646638.4463,
     "hash": "5ca24eb9a19d2536b66532ce431c3a08"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/src/types/notes.ts": {
-    "mtime": 1785563837660.7983,
-    "hash": "3cdc08b595efb02ad48c960a37e5b434"
+    "mtime": 1785580493153.6216,
+    "hash": "9db6d7c3e5df753c3b234141642bfcd0"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/.cursor/skills/better-auth/SKILL.md": {
     "mtime": 1785563837582.337,
@@ -480,23 +476,679 @@
     "hash": "6c6f8ff650729ec14df93e7a38a4bcb1"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/docs/NOTELY_ROADMAP.md": {
-    "mtime": 1785563837582.337,
-    "hash": "f26fcb616fc6e8bb5b3f595581f0f221"
+    "mtime": 1785579887074.335,
+    "hash": "be7ebd33239de4ddfc4423703e805d80"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/graphify-out/2026-07-31/GRAPH_REPORT.md": {
     "mtime": 1785563837596.5864,
     "hash": "0ee2ee35afa3a9e149fdf6b9b6466645"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/graphify-out/GRAPH_REPORT.md": {
-    "mtime": 1785563837596.5864,
-    "hash": "1ce13c2e2743e220487b70831335391c"
+    "mtime": 1785583386511.2815,
+    "hash": "7c738b821d03b071f623251f98b80d57"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/graphify-out/graph.html": {
-    "mtime": 1785563837596.5864,
-    "hash": "4cc12fc33feb2ee9d6782038d7bcd468"
+    "mtime": 1785583386720.986,
+    "hash": "0a22c11cb64cda3c094239bcc0aacd7e"
   },
   "C:/Users/akbarzadeh.ali/Desktop/notely/pnpm-lock.yaml": {
-    "mtime": 1785564020891.653,
-    "hash": "e1258113cd6eb53cbd254b2e7a1e1ddf"
+    "mtime": 1785577683539.8948,
+    "hash": "4629ceb67d4ab45c7df45bb5e722796d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0006_note_trash.sql": {
+    "mtime": 1785570577808.6582,
+    "hash": "1133dbc7b278093d31ef8c56c65f704d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0007_reminders_push.sql": {
+    "mtime": 1785571746459.7434,
+    "hash": "8d7f2e754528fe365bcbb761f8e3ef32"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0008_google_connections.sql": {
+    "mtime": 1785572345158.235,
+    "hash": "4b6aa1b393df1dc6f4222b2bef2db25a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0009_space_trash.sql": {
+    "mtime": 1785574601652.4924,
+    "hash": "83170258ac2b21a48c59d0175fe9cb56"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0010_task_workflow.sql": {
+    "mtime": 1785574909620.4875,
+    "hash": "347776751dcd1258b7c78f5683bca8cc"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0012_note_archive.sql": {
+    "mtime": 1785580519096.5908,
+    "hash": "be80af7372166b3d912915d4a8848c89"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/drizzle/0013_task_due_at.sql": {
+    "mtime": 1785580597398.2869,
+    "hash": "502e1385c924c20076eb915708bfee5b"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/public/sw.js": {
+    "mtime": 1785579987360.862,
+    "hash": "f4fd834b1830f703fab6f3a3e1cc9fc6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/scripts/graphify-run.mjs": {
+    "mtime": 1785573020940.8042,
+    "hash": "2534f8401919291d4306fde843371536"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/calendar/page.tsx": {
+    "mtime": 1785580647678.0232,
+    "hash": "7202f69b13a1b53c0280befe9ea798af"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/integrations/page.tsx": {
+    "mtime": 1785575290265.0864,
+    "hash": "f454b9b738fa28f6b4da1d0f770e9ca9"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/plans/page.tsx": {
+    "mtime": 1785580645903.0286,
+    "hash": "6b13cab50a5aa7d7df98ed73eaee4202"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/tasks/page.tsx": {
+    "mtime": 1785574877949.4685,
+    "hash": "2d4e3b15d7ebf9dc16ac55ffdccbedfb"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/(dashboard)/workspace/page.tsx": {
+    "mtime": 1785575281540.3513,
+    "hash": "42935f0dcfc5019e2fa160d30215f53a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/ai/note-chat/route.ts": {
+    "mtime": 1785570446125.1191,
+    "hash": "be1c72042a531f96baf8e3b226399aca"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/integrations/google/callback/route.ts": {
+    "mtime": 1785575357269.8257,
+    "hash": "eb696daf2f689260c90b2dafbd78f0e4"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/integrations/google/connect/route.ts": {
+    "mtime": 1785575462469.5066,
+    "hash": "37679f52a048447650b32d36099764a7"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/integrations/google/credentials/route.ts": {
+    "mtime": 1785575397130.1777,
+    "hash": "3d2db4cfa3f2d6ef7d1efc2c9c54fad9"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/integrations/google/items/route.ts": {
+    "mtime": 1785572251249.4163,
+    "hash": "3fcaead0ad4071ff3635a6dd7ea8b2b2"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/integrations/google/route.ts": {
+    "mtime": 1785572236722.226,
+    "hash": "f574699ced7332dffe980c6e5073c5af"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/push/subscribe/route.ts": {
+    "mtime": 1785571831030.6504,
+    "hash": "010540bbd86c0396cd3ec0578bde77c6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/reminders/[id]/route.ts": {
+    "mtime": 1785571825220.938,
+    "hash": "171c7f609022dd18ace3509f64f7b587"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/reminders/dispatch/route.ts": {
+    "mtime": 1785571837622.1638,
+    "hash": "395b19bd4aaa0c973cf6d3039cbbc24f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/reminders/route.ts": {
+    "mtime": 1785571823571.0415,
+    "hash": "d17aa553428a46c66d565af2d78cfa31"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/api/trash/route.ts": {
+    "mtime": 1785580470439.9478,
+    "hash": "f1f3758cc7ff34070482e15647f4e546"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/apple-icon.tsx": {
+    "mtime": 1785572894226.3755,
+    "hash": "b935dcce9100eeee4a4d74d32898023a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/manifest.ts": {
+    "mtime": 1785575450303.3896,
+    "hash": "a67d1a5e6f3ddea3612cc652232e9636"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/agent.tsx": {
+    "mtime": 1785582509133.9614,
+    "hash": "1417c7c84dabaa726f3b8acca865a857"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/artifact.tsx": {
+    "mtime": 1785569871529.648,
+    "hash": "1ec8e17a6bd38e9ca511f3b2c3110ecc"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/attachments.tsx": {
+    "mtime": 1785582510433.3987,
+    "hash": "96e057183965a286c7f976a9622586b4"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/audio-player.tsx": {
+    "mtime": 1785569871919.9507,
+    "hash": "fea2b96830834e7fda1c8ec9289f39d5"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/canvas.tsx": {
+    "mtime": 1785569872122.0962,
+    "hash": "d529bdb3219b0ea8977bf47401b4cbd4"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/chain-of-thought.tsx": {
+    "mtime": 1785569872311.4941,
+    "hash": "d25f747749f23273bdc36059bafac4de"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/checkpoint.tsx": {
+    "mtime": 1785569872506.1045,
+    "hash": "0aac87ac1bd7100a68b2409860c699d3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/code-block.tsx": {
+    "mtime": 1785569872766.193,
+    "hash": "0bde4160e0b6d1120375b1cbec73a23d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/commit.tsx": {
+    "mtime": 1785569873023.9756,
+    "hash": "f0c24ef8d3b71fc272362f3824a9ab79"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/confirmation.tsx": {
+    "mtime": 1785569873265.2212,
+    "hash": "a5a6c7fcc57137311a62d126161f37ba"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/connection.tsx": {
+    "mtime": 1785569873540.8877,
+    "hash": "a4e46911b71783bc82f2b0ff61700917"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/context.tsx": {
+    "mtime": 1785582512408.473,
+    "hash": "76c883d1e6daa9bff801291bbe16dd72"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/controls.tsx": {
+    "mtime": 1785569874183.8777,
+    "hash": "104447f7ab7ca25f3fb60dbb0e82ae2f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/conversation.tsx": {
+    "mtime": 1785569874431.8018,
+    "hash": "51f053cb2c206062ef0c61a819281b0f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/edge.tsx": {
+    "mtime": 1785569874647.7932,
+    "hash": "92f0764b93f278fb3b8a38b434781bda"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/environment-variables.tsx": {
+    "mtime": 1785569874945.74,
+    "hash": "14bb718c6c782ed2c1207cdb5e626922"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/file-tree.tsx": {
+    "mtime": 1785569875233.3054,
+    "hash": "f889dfd80b194738a286b6d1bfdfa31d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/image.tsx": {
+    "mtime": 1785569875485.641,
+    "hash": "3770ae3442750668efaed81b28f8fb2d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/inline-citation.tsx": {
+    "mtime": 1785582512872.2952,
+    "hash": "b26369e5760f4a29a358499371de3182"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/jsx-preview.tsx": {
+    "mtime": 1785569876029.2676,
+    "hash": "f1debc7eb419283b9dc11c0653298324"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/message.tsx": {
+    "mtime": 1785569876296.1978,
+    "hash": "d7306d5e01889cf7572bbfa8680054e6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/mic-selector.tsx": {
+    "mtime": 1785569876536.4675,
+    "hash": "f0b468a4ba123fefa6041b3ac4ba774c"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/model-selector.tsx": {
+    "mtime": 1785569876733.0637,
+    "hash": "b0cdb3646785c87b4edf170927c017bb"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/node.tsx": {
+    "mtime": 1785569876923.3154,
+    "hash": "52b718e7582cdf69936d5671dcbb2072"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/open-in-chat.tsx": {
+    "mtime": 1785569877212.7869,
+    "hash": "c01c1cd30269f10c71ccb7ffdf224036"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/package-info.tsx": {
+    "mtime": 1785569877477.1677,
+    "hash": "d16c02753e6525e43e67182fb1a601f8"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/panel.tsx": {
+    "mtime": 1785569877696.247,
+    "hash": "2a2244a857867768bb1a6a82e4b27e06"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/persona.tsx": {
+    "mtime": 1785569878021.8843,
+    "hash": "61517c412ba80e4d0961249c6cb92a84"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/plan.tsx": {
+    "mtime": 1785582514588.9517,
+    "hash": "0694a8154913dc5f60d269bdddf79c79"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/prompt-input.tsx": {
+    "mtime": 1785582526990.2192,
+    "hash": "d3b59a1686c006dc428f5645b83ced96"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/queue.tsx": {
+    "mtime": 1785569879040.106,
+    "hash": "89d04c044961e2a24c9c8e90d9090136"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/reasoning.tsx": {
+    "mtime": 1785569879366.0256,
+    "hash": "95bb7c2e45a446676ffb32ab6ff357b0"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/sandbox.tsx": {
+    "mtime": 1785569879585.786,
+    "hash": "e3e4f41dc503ca592f7e70a523c7c190"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/schema-display.tsx": {
+    "mtime": 1785569879912.8445,
+    "hash": "6315099c501828c3c6ad38f1bba952a5"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/shimmer.tsx": {
+    "mtime": 1785569880232.76,
+    "hash": "218f121c5cb479a8385525541830c3b8"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/snippet.tsx": {
+    "mtime": 1785569880496.5083,
+    "hash": "446581f8f1b466d7b8284c5df1572a6d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/sources.tsx": {
+    "mtime": 1785569880816.5461,
+    "hash": "e81fc573e33e808873968a47839fe9a9"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/speech-input.tsx": {
+    "mtime": 1785569881085.3254,
+    "hash": "695d9f1abcffaf0d7f88545cef1a0237"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/stack-trace.tsx": {
+    "mtime": 1785569881464.2407,
+    "hash": "453d898d9bd2479518e468683b479421"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/suggestion.tsx": {
+    "mtime": 1785569881823.943,
+    "hash": "876f143e0f41d0348de1f55e279915b3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/task.tsx": {
+    "mtime": 1785569882166.5452,
+    "hash": "3dbbd86b3a4111ba2032fef683a9caf2"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/terminal.tsx": {
+    "mtime": 1785569882486.3074,
+    "hash": "27bad85f8136d332e006771b4765fb34"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/test-results.tsx": {
+    "mtime": 1785569882890.8135,
+    "hash": "bf3645c2920d4411afde2156f7dca77e"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/tool.tsx": {
+    "mtime": 1785569883274.1387,
+    "hash": "7f13561e31f091806224f9e782dd6f78"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/toolbar.tsx": {
+    "mtime": 1785569883639.9685,
+    "hash": "0731c3ad5318f596a2459d8e6fd12fe9"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/transcription.tsx": {
+    "mtime": 1785569884082.5767,
+    "hash": "7f90bc7e026c86975f65d99ae170252d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/voice-selector.tsx": {
+    "mtime": 1785582525283.4275,
+    "hash": "6252ed425882e0bc6a8989ca3269368e"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ai-elements/web-preview.tsx": {
+    "mtime": 1785569885325.1475,
+    "hash": "8873c0670d6180517b40ca65dc1469c3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-event-dialog.tsx": {
+    "mtime": 1785572146812.039,
+    "hash": "a10805502cdf2367a297aeac9c001c02"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-list-panel.tsx": {
+    "mtime": 1785570538713.744,
+    "hash": "42adbe3846c3756efdef71a9153190af"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-mini-month.tsx": {
+    "mtime": 1785570489079.458,
+    "hash": "8b31df75f104750d3210bbab5f3cb56e"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-nav-sidebar.tsx": {
+    "mtime": 1785580659489.7947,
+    "hash": "1ff4e6d11cbd5647be479e2de0328815"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-utility-panel.tsx": {
+    "mtime": 1785580660396.703,
+    "hash": "28025d7fe0c4f13d5bdfadad06ee7bb5"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-week-view.tsx": {
+    "mtime": 1785572167717.3137,
+    "hash": "7be18c0a6cfd8fa3f5419243f6f27132"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/calendar-workspace.tsx": {
+    "mtime": 1785580133946.2642,
+    "hash": "6d50354574b234ce0db83dfb2813a25e"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/types.ts": {
+    "mtime": 1785570479664.9583,
+    "hash": "44da5eec37fb9af424411512a30dc0e8"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/calendar/utils.ts": {
+    "mtime": 1785570489078.4521,
+    "hash": "06c964e18f6ff2b7fede76de4cff3fc7"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/integrations/google-connection-card.tsx": {
+    "mtime": 1785580512481.581,
+    "hash": "e4e01674d97e27c1004b2af30592be4a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/integrations/integrations-panel.tsx": {
+    "mtime": 1785575281540.3513,
+    "hash": "adfe0e75447fa4c456ab797bbc6ae627"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/integrations/use-google-connection.ts": {
+    "mtime": 1785580218923.4795,
+    "hash": "1ae301c2eba7bae9a8fe99968f59bae6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/content.ts": {
+    "mtime": 1785575462930.1045,
+    "hash": "ce617daec9c6a1e85be57dcf02c3f789"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/cta-section.tsx": {
+    "mtime": 1785575462933.115,
+    "hash": "ee31ad509949ce8f71a309920db54d3f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/demo-section.tsx": {
+    "mtime": 1785583225331.804,
+    "hash": "44dee94b416e092e505763ba24f3fc68"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/faq-section.tsx": {
+    "mtime": 1785572228410.6892,
+    "hash": "c904a08ae0f2d70c351e48a9b9764424"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/features-section.tsx": {
+    "mtime": 1785572044212.0354,
+    "hash": "d4fc030c6b754bca0bd5a4b03513c094"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/hero-section.tsx": {
+    "mtime": 1785575463051.6565,
+    "hash": "3b1c2d92074e930fc1acf0925326b928"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/landing-footer.tsx": {
+    "mtime": 1785572129328.8523,
+    "hash": "8aa010c60f18f467616f75c635a077d0"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/landing-nav.tsx": {
+    "mtime": 1785575469191.3108,
+    "hash": "897aa6e3090820ba05d7fc634c545f9f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/pricing-section.tsx": {
+    "mtime": 1785572075552.2744,
+    "hash": "665d4608178156dd2be8f573ffd5ac9d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/testimonials-section.tsx": {
+    "mtime": 1785572057547.604,
+    "hash": "bb9f9b88bc4aef8d5742fb8bfffba86a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/sections/workflow-section.tsx": {
+    "mtime": 1785572053364.545,
+    "hash": "54640beb6111d27f4c546a67ca010bc8"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/shared/section-shell.tsx": {
+    "mtime": 1785571919957.6365,
+    "hash": "4d7109acf85fde47f6fd181eaf2c8f05"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/landing/shared/workspace-preview.tsx": {
+    "mtime": 1785571961327.1726,
+    "hash": "dda21898cc2564447c133cf21383bbdb"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-delete-dialog.tsx": {
+    "mtime": 1785570888089.7903,
+    "hash": "106a4353b14c3dac8e2ec091d30c2d01"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/ai-apply.ts": {
+    "mtime": 1785570266076.1985,
+    "hash": "2b85fb4a6cfe81c325024bd60fe8d0a3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/constants.ts": {
+    "mtime": 1785569295586.5994,
+    "hash": "5846073d29aa66f6003b10e30f623f2b"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-ai-sheet.tsx": {
+    "mtime": 1785570548550.9192,
+    "hash": "b8cae7216a43a6adaad690a107cbeab2"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-canvas.tsx": {
+    "mtime": 1785581481893.6428,
+    "hash": "829472b128d8cd5444e95e273ec1022b"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-link-dialog.tsx": {
+    "mtime": 1785568185076.9956,
+    "hash": "87bc5d6936b4369b909b74e959c88b80"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-note-extras.tsx": {
+    "mtime": 1785580179349.0728,
+    "hash": "30403e14a0e889f43388930d0f1b7404"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-panels-dialog.tsx": {
+    "mtime": 1785572286944.088,
+    "hash": "618ebfdabc045a414f89a2be0acd4bed"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-status-bar.tsx": {
+    "mtime": 1785568191623.0803,
+    "hash": "61b5072d02fc14decfa09454ce22ad8f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-tags.tsx": {
+    "mtime": 1785581469516.7993,
+    "hash": "f3b5f3d59608379d5a4937abf3da8ff8"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/editor-toolbar.tsx": {
+    "mtime": 1785582903395.388,
+    "hash": "581458f20e6568820b2fe56c5b88a313"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/hooks/use-editor-font.ts": {
+    "mtime": 1785568250990.0515,
+    "hash": "2fb7b3be212b96d3bf05344c19e7368b"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/hooks/use-note-draft.ts": {
+    "mtime": 1785581483080.6714,
+    "hash": "1867289ffb997abd9adb0c3f5b0785ae"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/hooks/use-rich-text-editor.ts": {
+    "mtime": 1785583006239.3118,
+    "hash": "29bc4ab4e6ea1e015dfd40078697fe43"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/hooks/use-voice-dictation.ts": {
+    "mtime": 1785583101079.2837,
+    "hash": "65cd6940425ed57cabdd2cb0ab2c1a5c"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/index.ts": {
+    "mtime": 1785568199685.926,
+    "hash": "d6e9dd8beec0141628109299e0c14e89"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/note-editor.tsx": {
+    "mtime": 1785583056419.2068,
+    "hash": "a1b65f14ee7d723fba73ba8afd574f26"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/types.ts": {
+    "mtime": 1785569293010.073,
+    "hash": "4e4dc075cbdc007646d8d682451aecb6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-editor/utils.ts": {
+    "mtime": 1785569296524.1238,
+    "hash": "3ee71a6cbdb537a92bc84963dd13936f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-integrations.tsx": {
+    "mtime": 1785580222011.7012,
+    "hash": "bedc7ca8cc3c5eb73b26e3e3d6795e9f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-list-context-menu.tsx": {
+    "mtime": 1785581763910.7183,
+    "hash": "70d4a075854047b55c6b76dac2f34707"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-reminder-countdown.tsx": {
+    "mtime": 1785578975944.8818,
+    "hash": "ad16565eaa06c467fa37e935f7677d17"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/note-reminder-dialog.tsx": {
+    "mtime": 1785580342110.2153,
+    "hash": "831805b1f1022b97c6cd8fa32ba627a6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/space-delete-dialog.tsx": {
+    "mtime": 1785580169439.8672,
+    "hash": "edf3261f267269ac2bdc44b9b399c375"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/tag-manage-dialog.tsx": {
+    "mtime": 1785580667161.224,
+    "hash": "c6b4baf8bb61282a3c4c5d003a10899f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notes/use-note-reminders.ts": {
+    "mtime": 1785580424002.1345,
+    "hash": "0d260f8859636c8014c5a6581723eff1"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/notifications/reminder-runtime.tsx": {
+    "mtime": 1785580659140.3591,
+    "hash": "bee4a97f197e0ce83ba5507df4f8b317"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/pwa-register.tsx": {
+    "mtime": 1785572877303.5708,
+    "hash": "b132682cb1f0a5a922ab468445a5674d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/settings/notification-settings.tsx": {
+    "mtime": 1785580215361.5437,
+    "hash": "fea558e030a809713092714eee03aaa3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/tasks/task-board.tsx": {
+    "mtime": 1785580658613.918,
+    "hash": "01372fe673d669aee0833ae449bd7735"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/accordion.tsx": {
+    "mtime": 1785569844723.0774,
+    "hash": "f04f5e2a04ec1972b53225e4c694cbd9"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/alert-dialog.tsx": {
+    "mtime": 1785570572015.7976,
+    "hash": "ee1a69f2377bb98b456afa407a8898d6"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/alert.tsx": {
+    "mtime": 1785569847018.3723,
+    "hash": "739c28799fae98b4fa01132494788e85"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/button-group.tsx": {
+    "mtime": 1785569870786.1433,
+    "hash": "70b97c8a79dab95a172db08472cf70e1"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/calendar.tsx": {
+    "mtime": 1785577687741.2012,
+    "hash": "8db8919d51d1e8a55e246d9d374dc6d3"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/carousel.tsx": {
+    "mtime": 1785569870486.0493,
+    "hash": "d8a4e6e65bcc9367c87f03876434012a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/collapsible.tsx": {
+    "mtime": 1785569846232.0605,
+    "hash": "bc00817a4471ae1d76774aa4c50a7c31"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/command.tsx": {
+    "mtime": 1785569871155.5515,
+    "hash": "a25ff237f1693d4196bd45681996572a"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/confirm-dialog.tsx": {
+    "mtime": 1785572109768.6375,
+    "hash": "9f2a5731df6b4f599842abc8d14b9237"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/date-time-picker.tsx": {
+    "mtime": 1785578782521.799,
+    "hash": "1c6e0eb667ad76cfc020bd1d66fa06c2"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/hover-card.tsx": {
+    "mtime": 1785569845781.4277,
+    "hash": "a3bbb202115c25c801ee2f455e93ca4d"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/input-group.tsx": {
+    "mtime": 1785569870970.695,
+    "hash": "e416a1443c87bacbba5ac124ee292dd5"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/popover.tsx": {
+    "mtime": 1785569869630.2217,
+    "hash": "3cb9c412624579717c4ad67965d80a1c"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/progress.tsx": {
+    "mtime": 1785569847281.8916,
+    "hash": "aa71e8ceb68b33af5ed5799f42cd873e"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/scroll-area.tsx": {
+    "mtime": 1785569870175.3713,
+    "hash": "ac8fc719d0fd13c77c933474827337da"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/spinner.tsx": {
+    "mtime": 1785569870059.303,
+    "hash": "9014b12e7fc3678b4b04696640650d96"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/ui/textarea.tsx": {
+    "mtime": 1785569869465.9707,
+    "hash": "d448d2a90e48542e51b93a1189127bf2"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/components/workspace/app-workspace.tsx": {
+    "mtime": 1785575281540.3513,
+    "hash": "46cb00eb185936bdfcffdcbd573509dd"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/ai/note-chat.ts": {
+    "mtime": 1785570403527.14,
+    "hash": "f7e4cd6c796987dc9bf38e8188c91c28"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/api/read-json.ts": {
+    "mtime": 1785576501103.5383,
+    "hash": "5335007c8dd6aa0891bf696f6a56f342"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/forms/autofill-submit.ts": {
+    "mtime": 1785583328685.9116,
+    "hash": "5404337c1368d952bb0a6d545d4a4dfc"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/google-integration.ts": {
+    "mtime": 1785575396805.1572,
+    "hash": "c70cc49ebf3a1456d5c281131e8cef0b"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notes/reminders.ts": {
+    "mtime": 1785580361732.0515,
+    "hash": "b9a0b3c6d4d88e79ea8300dd1a1327ab"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notifications/dispatch.ts": {
+    "mtime": 1785571835868.2827,
+    "hash": "61fe71bc279280d7924a14e4b467aa02"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notifications/push-client.ts": {
+    "mtime": 1785572882601.4412,
+    "hash": "853e3183e724dccf60139e6fed33bf9f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notifications/push.ts": {
+    "mtime": 1785580659141.3606,
+    "hash": "a6191a7e9a4e2ba83bdcc62f26ad4e71"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notifications/sound-player.ts": {
+    "mtime": 1785571843842.9292,
+    "hash": "d9a102a842b04dffe5b809c2bad8ff7f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/notifications/sounds.ts": {
+    "mtime": 1785571784772.9282,
+    "hash": "f0eb74cd6de164c7832d992e924a63bf"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/validations/ai.ts": {
+    "mtime": 1785570247517.4739,
+    "hash": "c1c58ae266e0cda2397717ed876502a7"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/lib/workspace/paths.ts": {
+    "mtime": 1785580497403.4956,
+    "hash": "43f71aad7c94adc429fb6748e964c7f4"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/.graphify/GRAPH_REPORT.md": {
+    "mtime": 1785568347410.3757,
+    "hash": "1c8252eb953efc350d4ea12100814b87"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/docs/FEATURES.md": {
+    "mtime": 1785580680021.9783,
+    "hash": "10564305ede5f69404c5107fdaa5be3f"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/graphify-out/2026-08-01/GRAPH_REPORT.md": {
+    "mtime": 1785583029532.6162,
+    "hash": "87ae145153a157ef4bf7ef191f2e3042"
+  },
+  "C:/Users/akbarzadeh.ali/Desktop/notely/src/app/icon.svg": {
+    "mtime": 1785573695334.4006,
+    "hash": "23d6e77b318a816179bb36c7a3d430fe"
   }
 }
