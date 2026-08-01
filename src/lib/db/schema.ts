@@ -137,6 +137,7 @@ export const notes = pgTable("notes", {
   summary: text("summary"),
   isPinned: boolean("isPinned").notNull().default(false),
   isFavorite: boolean("isFavorite").notNull().default(false),
+  isArchived: boolean("isArchived").notNull().default(false),
   deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
@@ -175,6 +176,8 @@ export const tasks = pgTable("tasks", {
   text: text("text").notNull().default(""),
   status: text("status").notNull().default("todo"),
   isCompleted: boolean("isCompleted").notNull().default(false),
+  /** Optional due datetime (local intent stored as UTC timestamp). */
+  dueAt: timestamp("dueAt"),
   sortOrder: integer("sortOrder").notNull().default(0),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),

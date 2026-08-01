@@ -35,7 +35,10 @@ type NotesListProps = {
   trashedSpacesLoading?: boolean;
   onRestoreSpace?: (spaceId: string) => void;
   onPermanentlyDeleteSpace?: (spaceId: string) => void;
+  onEmptyTrash?: () => void;
   spaceActionPending?: boolean;
+  emptyTrashPending?: boolean;
+  statusMessage?: string | null;
 };
 
 type NoteGroup = {
@@ -126,28 +129,35 @@ export function NotesList({
   trashedSpacesLoading = false,
   onRestoreSpace,
   onPermanentlyDeleteSpace,
+  onEmptyTrash,
   spaceActionPending = false,
+  emptyTrashPending = false,
+  statusMessage = null,
 }: NotesListProps) {
   const searchParams = useSearchParams();
   const { toggleSidebar } = useSidebar();
   const view = searchParams.get("view");
   const trashView = view === "trash";
   const [spaceToPurge, setSpaceToPurge] = useState<SpaceSummary | null>(null);
+  const [confirmEmpty, setConfirmEmpty] = useState(false);
+  const trashHasItems = notes.length > 0 || trashedSpaces.length > 0;
 
   const title =
     view === "favorites"
-      ? "Tasks"
+      ? "Favorites"
       : view === "today"
-        ? "Journal"
+        ? "Today"
         : view === "inbox"
           ? "Inbox"
-          : view === "archive" || view === "shared"
+          : view === "archive"
             ? "Archive"
-            : trashView
-              ? "Trash"
-              : spaceName === "Notes"
-                ? "All Notes"
-                : spaceName;
+            : view === "shared"
+              ? "Shared with me"
+              : trashView
+                ? "Trash"
+                : spaceName === "Notes"
+                  ? "All Notes"
+                  : spaceName;
 
   const groups = useMemo(
     () => groupNotes(notes, trashView),
@@ -202,14 +212,41 @@ export function NotesList({
         >
           <Search className="size-4" />
         </button>
-        <button
-          type="button"
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          aria-label="Filter notes"
-        >
-          <ListFilter className="size-4" />
-        </button>
+        {trashView && trashHasItems && onEmptyTrash ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 shrink-0 gap-1 px-2 text-xs text-destructive hover:text-destructive"
+            disabled={emptyTrashPending || spaceActionPending}
+            onClick={() => setConfirmEmpty(true)}
+          >
+            <Trash2 className="size-3.5" />
+            Empty
+          </Button>
+        ) : (
+          <button
+            type="button"
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Filter notes"
+          >
+            <ListFilter className="size-4" />
+          </button>
+        )}
       </div>
+
+      {trashView ? (
+        <p className="border-b border-border px-4 py-2 text-[11px] leading-relaxed text-muted-foreground">
+          Items stay here until you restore them or delete forever. Empty trash
+          removes everything permanently.
+        </p>
+      ) : null}
+
+      {statusMessage ? (
+        <p className="border-b border-border bg-primary/5 px-4 py-2 text-xs text-foreground">
+          {statusMessage}
+        </p>
+      ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] scrollbar-thin md:pb-0">
         {isLoading || (trashView && trashedSpacesLoading) ? (
@@ -382,6 +419,21 @@ export function NotesList({
           if (!spaceToPurge) return;
           onPermanentlyDeleteSpace?.(spaceToPurge.id);
           setSpaceToPurge(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmEmpty}
+        onOpenChange={setConfirmEmpty}
+        title="Empty trash?"
+        description="All deleted notes and spaces will be permanently removed. This cannot be undone."
+        confirmLabel="Empty trash"
+        pendingLabel="Emptying…"
+        pending={emptyTrashPending}
+        destructive
+        onConfirm={() => {
+          onEmptyTrash?.();
+          setConfirmEmpty(false);
         }}
       />
     </div>

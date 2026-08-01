@@ -6,6 +6,7 @@ import { ExternalLink, FileText, Link2, Paperclip, Trash2, Upload } from "lucide
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import type { NoteAttachment } from "@/types/notes";
 
@@ -35,13 +36,11 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
 
   const attachmentsQuery = useQuery({
     queryKey: ["attachments", noteId],
-    queryFn: async (): Promise<{ attachments: NoteAttachment[] }> => {
-      const response = await fetch(
-        `/api/attachments?noteId=${encodeURIComponent(noteId)}`,
-      );
-      if (!response.ok) throw new Error("Failed to load attachments");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ attachments: NoteAttachment[] }> =>
+      readJson<{ attachments: NoteAttachment[] }>(
+        await fetch(`/api/attachments?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load attachments",
+      ),
   });
 
   const uploadMutation = useMutation({
@@ -53,9 +52,11 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
         method: "POST",
         body: form,
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Upload failed");
-      return data.attachment as NoteAttachment;
+      const data = await readJson<{ attachment: NoteAttachment }>(
+        response,
+        "Upload failed",
+      );
+      return data.attachment;
     },
     onSuccess: () => {
       setError(null);
@@ -79,9 +80,11 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
           url: linkUrl.trim(),
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to add link");
-      return data.attachment as NoteAttachment;
+      const data = await readJson<{ attachment: NoteAttachment }>(
+        response,
+        "Failed to add link",
+      );
+      return data.attachment;
     },
     onSuccess: () => {
       setLinkName("");
@@ -99,8 +102,7 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/attachments/${id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete");
+      await readJson(response, "Failed to delete");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attachments", noteId] });

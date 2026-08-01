@@ -11,6 +11,7 @@ import { CalendarWeekView } from "@/components/calendar/calendar-week-view";
 import type { CalendarEvent } from "@/components/calendar/types";
 import { startOfMonth, weekRangeIso } from "@/components/calendar/utils";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { readJson } from "@/lib/api/read-json";
 import { authClient } from "@/lib/auth/client";
 import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
@@ -32,11 +33,11 @@ export function CalendarWorkspace() {
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
-    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
-      const response = await fetch("/api/spaces");
-      if (!response.ok) throw new Error("Failed to load spaces");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> =>
+      readJson<{ spaces: SpaceSummary[] }>(
+        await fetch("/api/spaces"),
+        "Failed to load spaces",
+      ),
   });
 
   const notesQuery = useQuery({
@@ -44,21 +45,22 @@ export function CalendarWorkspace() {
     queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
       const params = new URLSearchParams();
       if (activeSpaceId) params.set("spaceId", activeSpaceId);
-      const response = await fetch(`/api/notes?${params.toString()}`);
-      if (!response.ok) throw new Error("Failed to load notes");
-      return response.json();
+      return readJson<{ notes: NoteSummary[] }>(
+        await fetch(`/api/notes?${params.toString()}`),
+        "Failed to load notes",
+      );
     },
   });
 
   const eventsQuery = useQuery({
     queryKey: ["events", range.from, range.to],
-    queryFn: async (): Promise<{ events: CalendarEvent[] }> => {
-      const response = await fetch(
-        `/api/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`,
-      );
-      if (!response.ok) throw new Error("Failed to load events");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ events: CalendarEvent[] }> =>
+      readJson<{ events: CalendarEvent[] }>(
+        await fetch(
+          `/api/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`,
+        ),
+        "Failed to load events",
+      ),
   });
 
   const createMutation = useMutation({
@@ -86,9 +88,11 @@ export function CalendarWorkspace() {
           reminderSound: "chime",
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create event");
-      return data.event as CalendarEvent;
+      const data = await readJson<{ event: CalendarEvent }>(
+        response,
+        "Failed to create event",
+      );
+      return data.event;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
@@ -99,8 +103,7 @@ export function CalendarWorkspace() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/events/${id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete event");
+      await readJson(response, "Failed to delete event");
       return id;
     },
     onSuccess: () => {

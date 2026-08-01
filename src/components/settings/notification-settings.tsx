@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { readJson } from "@/lib/api/read-json";
 import {
   getPushSubscriptionState,
   pushSupported,
@@ -48,10 +49,14 @@ export function NotificationSettings() {
       const state = await getPushSubscriptionState();
       setPermission(state.permission);
       setSubscribed(state.subscribed);
-      const res = await fetch("/api/push/subscribe");
-      if (res.ok) {
-        const data = await res.json();
+      try {
+        const data = await readJson<{ configured?: boolean }>(
+          await fetch("/api/push/subscribe"),
+          "Failed to load push config",
+        );
         setPushConfigured(Boolean(data.configured));
+      } catch {
+        // Keep default when push config is unavailable.
       }
     })();
   }, []);

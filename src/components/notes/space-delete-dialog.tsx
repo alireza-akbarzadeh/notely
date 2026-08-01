@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
@@ -44,9 +45,10 @@ export function SpaceDeleteDialog({
     enabled: Boolean(space?.id),
     queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
       const params = new URLSearchParams({ spaceId: space!.id });
-      const response = await fetch(`/api/notes?${params.toString()}`);
-      if (!response.ok) throw new Error("Failed to load notes");
-      return response.json();
+      return readJson<{ notes: NoteSummary[] }>(
+        await fetch(`/api/notes?${params.toString()}`),
+        "Failed to load notes",
+      );
     },
   });
 

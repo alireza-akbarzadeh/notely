@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { readJson } from "@/lib/api/read-json";
+
 export type PendingReminder = {
   id: string;
   noteId: string | null;
@@ -11,11 +13,20 @@ export type PendingReminder = {
   createdAt: string;
 };
 
+function isSameLocalDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 async function fetchPendingReminders(): Promise<PendingReminder[]> {
-  const response = await fetch("/api/reminders?status=pending");
-  if (!response.ok) throw new Error("Failed to load reminders");
-  const data = await response.json();
-  return data.reminders as PendingReminder[];
+  const data = await readJson<{ reminders: PendingReminder[] }>(
+    await fetch("/api/reminders?status=pending"),
+    "Failed to load reminders",
+  );
+  return data.reminders;
 }
 
 /** Soonest pending reminder per note, keyed by note id. */
@@ -42,3 +53,27 @@ export function useNoteReminders(enabled = true) {
     return byNote;
   }, [query.data]);
 }
+
+/** Note ids with a pending reminder due sometime today (local timezone). */
+export function useNoteIdsWithReminderDueToday(enabled = true) {
+  const query = useQuery({
+    queryKey: ["reminders", "pending", "by-note"],
+    enabled,
+    refetchInterval: 60_000,
+    queryFn: fetchPendingReminders,
+  });
+
+  return useMemo(() => {
+    const ids = new Set<string>();
+    const today = new Date();
+    for (const reminder of query.data ?? []) {
+      if (!reminder.noteId) continue;
+      if (isSameLocalDay(new Date(reminder.remindAt), today)) {
+        ids.add(reminder.noteId);
+      }
+    }
+    return ids;
+  }, [query.data]);
+}
+
+export { isSameLocalDay };

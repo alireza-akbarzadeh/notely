@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -8,7 +8,12 @@ import { InboxPanel } from "@/components/notes/inbox-panel";
 import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { NotesList } from "@/components/notes/notes-list";
 import { NoteEditor } from "@/components/notes/note-editor";
+import {
+  isSameLocalDay,
+  useNoteIdsWithReminderDueToday,
+} from "@/components/notes/use-note-reminders";
 import { Skeleton } from "@/components/ui/skeleton";
+import { readJson } from "@/lib/api/read-json";
 import { useFocusMode } from "@/stores/focus-mode";
 import { normalizeWorkspaceView, notePath, workspacePath } from "@/lib/workspace/paths";
 import type { NoteSummary, NoteTag, SpaceSummary } from "@/types/notes";
@@ -24,14 +29,35 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const spaceId = searchParams.get("spaceId") ?? undefined;
   const view = normalizeWorkspaceView(searchParams.get("view"));
   const focusMode = useFocusMode((state) => state.enabled);
+  const reminderDueTodayIds = useNoteIdsWithReminderDueToday(view === "today");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const tasksForTodayQuery = useQuery({
+    queryKey: ["tasks"],
+    enabled: view === "today",
+    queryFn: async (): Promise<{
+      tasks: Array<{
+        noteId: string | null;
+        dueAt: string | null;
+        isCompleted: boolean;
+      }>;
+    }> =>
+      readJson(await fetch("/api/tasks"), "Failed to load tasks"),
+  });
+
+  useEffect(() => {
+    if (!statusMessage) return;
+    const timer = window.setTimeout(() => setStatusMessage(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [statusMessage]);
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
-    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
-      const response = await fetch("/api/spaces");
-      if (!response.ok) throw new Error("Failed to load spaces");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> =>
+      readJson<{ spaces: SpaceSummary[] }>(
+        await fetch("/api/spaces"),
+        "Failed to load spaces",
+      ),
   });
 
   const notesQuery = useQuery({
@@ -44,22 +70,24 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
       } else {
         if (spaceId) params.set("spaceId", spaceId);
         if (view === "favorites") params.set("favorites", "1");
-        if (view === "archive") params.set("shared", "1");
+        if (view === "shared") params.set("shared", "1");
+        if (view === "archive") params.set("archive", "1");
       }
-      const response = await fetch(`/api/notes?${params.toString()}`);
-      if (!response.ok) throw new Error("Failed to load notes");
-      return response.json();
+      return readJson<{ notes: NoteSummary[] }>(
+        await fetch(`/api/notes?${params.toString()}`),
+        "Failed to load notes",
+      );
     },
   });
 
   const trashedSpacesQuery = useQuery({
     queryKey: ["spaces", "trash"],
     enabled: view === "trash",
-    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
-      const response = await fetch("/api/spaces?trash=1");
-      if (!response.ok) throw new Error("Failed to load trashed spaces");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> =>
+      readJson<{ spaces: SpaceSummary[] }>(
+        await fetch("/api/spaces?trash=1"),
+        "Failed to load trashed spaces",
+      ),
   });
 
   const restoreSpaceMutation = useMutation({
@@ -69,13 +97,16 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ restore: true }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to restore space");
-      return data.space as SpaceSummary;
+      const data = await readJson<{ space: SpaceSummary }>(
+        response,
+        "Failed to restore space",
+      );
+      return data.space;
     },
     onSuccess: (space) => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      setStatusMessage(`Restored “${space.name}”.`);
       router.push(workspacePath({ spaceId: space.id }));
     },
   });
@@ -85,35 +116,57 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
       const response = await fetch(`/api/spaces/${id}?permanent=1`, {
         method: "DELETE",
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error ?? "Failed to permanently delete space");
-      }
+      await readJson(response, "Failed to permanently delete space");
       return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      setStatusMessage("Space deleted forever.");
+    },
+  });
+
+  const emptyTrashMutation = useMutation({
+    mutationFn: async () => {
+      const data = await readJson<{
+        notesDeleted: number;
+        spacesDeleted: number;
+      }>(await fetch("/api/trash", { method: "DELETE" }), "Failed to empty trash");
+      return data;
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["spaces"] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      const parts = [
+        result.notesDeleted > 0
+          ? `${result.notesDeleted} note${result.notesDeleted === 1 ? "" : "s"}`
+          : null,
+        result.spacesDeleted > 0
+          ? `${result.spacesDeleted} space${result.spacesDeleted === 1 ? "" : "s"}`
+          : null,
+      ].filter(Boolean);
+      setStatusMessage(
+        parts.length > 0
+          ? `Emptied trash (${parts.join(", ")}).`
+          : "Trash was already empty.",
+      );
     },
   });
 
   const tagsQuery = useQuery({
     queryKey: ["tags"],
-    queryFn: async (): Promise<{ tags: NoteTag[] }> => {
-      const response = await fetch("/api/tags");
-      if (!response.ok) throw new Error("Failed to load tags");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ tags: NoteTag[] }> =>
+      readJson<{ tags: NoteTag[] }>(await fetch("/api/tags"), "Failed to load tags"),
   });
 
   const noteQuery = useQuery({
     queryKey: ["note", noteId],
     enabled: Boolean(noteId),
-    queryFn: async (): Promise<{ note: NoteSummary }> => {
-      const response = await fetch(`/api/notes/${noteId}`);
-      if (!response.ok) throw new Error("Failed to load note");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ note: NoteSummary }> =>
+      readJson<{ note: NoteSummary }>(
+        await fetch(`/api/notes/${noteId}`),
+        "Failed to load note",
+      ),
   });
 
   const createNoteMutation = useMutation({
@@ -123,9 +176,11 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spaceId: targetSpaceId, title: "Untitled" }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create note");
-      return data.note as { id: string };
+      const data = await readJson<{ note: { id: string } }>(
+        response,
+        "Failed to create note",
+      );
+      return data.note;
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -133,35 +188,46 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
     },
   });
 
+  // Today = edited today, reminder due today, or incomplete task due today.
   const notes = useMemo(() => {
     const rows: NoteSummary[] = notesQuery.data?.notes ?? [];
-    if (view === "today") {
-      const today = new Date();
-      return rows.filter((note: NoteSummary) => {
-        const updated = new Date(note.updatedAt);
-        return (
-          updated.getFullYear() === today.getFullYear() &&
-          updated.getMonth() === today.getMonth() &&
-          updated.getDate() === today.getDate()
-        );
-      });
+    if (view !== "today") return rows;
+    const today = new Date();
+    const taskDueTodayIds = new Set<string>();
+    for (const task of tasksForTodayQuery.data?.tasks ?? []) {
+      if (!task.noteId || task.isCompleted || !task.dueAt) continue;
+      if (isSameLocalDay(new Date(task.dueAt), today)) {
+        taskDueTodayIds.add(task.noteId);
+      }
     }
-    return rows;
-  }, [notesQuery.data?.notes, view]);
+    return rows.filter(
+      (note: NoteSummary) =>
+        isSameLocalDay(new Date(note.updatedAt), today) ||
+        reminderDueTodayIds.has(note.id) ||
+        taskDueTodayIds.has(note.id),
+    );
+  }, [
+    notesQuery.data?.notes,
+    reminderDueTodayIds,
+    tasksForTodayQuery.data?.tasks,
+    view,
+  ]);
 
   const spaceName =
-    view === "archive"
-      ? "Archive"
-      : view === "favorites"
-        ? "Tasks"
-        : view === "today"
-          ? "Journal"
-          : view === "trash"
-            ? "Trash"
-            : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
-                ?.name ??
-              spacesQuery.data?.spaces[0]?.name ??
-              "All Notes";
+    view === "shared"
+      ? "Shared with me"
+      : view === "archive"
+        ? "Archive"
+        : view === "favorites"
+          ? "Favorites"
+          : view === "today"
+            ? "Today"
+            : view === "trash"
+              ? "Trash"
+              : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
+                  ?.name ??
+                spacesQuery.data?.spaces[0]?.name ??
+                "All Notes";
 
   if (view === "inbox") {
     return <InboxPanel />;
@@ -206,7 +272,12 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
           onPermanentlyDeleteSpace={(id) =>
             permanentlyDeleteSpaceMutation.mutate(id)
           }
+          onEmptyTrash={
+            view === "trash" ? () => emptyTrashMutation.mutate() : undefined
+          }
           spaceActionPending={spaceActionPending}
+          emptyTrashPending={emptyTrashMutation.isPending}
+          statusMessage={statusMessage}
         />
       </div>
 
@@ -237,17 +308,22 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
               isEmptyList
                 ? view === "trash"
                   ? "trash"
-                  : view === "archive"
-                    ? "archive"
-                    : view === "favorites"
-                      ? "task"
-                      : "empty"
+                  : view === "shared"
+                    ? "shared"
+                    : view === "archive"
+                      ? "archive"
+                      : view === "today"
+                        ? "today"
+                        : view === "favorites"
+                          ? "favorites"
+                          : "empty"
                 : "select"
             }
             createPending={createNoteMutation.isPending}
             onCreateNote={
               isEmptyList &&
               view !== "trash" &&
+              view !== "shared" &&
               view !== "archive" &&
               view !== "favorites" &&
               defaultSpaceId

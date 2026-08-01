@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, CheckSquare, NotebookPen, Plus, Settings } from "lucide-react";
 
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import { notePath, workspacePath } from "@/lib/workspace/paths";
 import type { SpaceSummary } from "@/types/notes";
@@ -20,11 +21,11 @@ export function MobileBottomNav() {
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
     enabled: !isNoteEditor,
-    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
-      const response = await fetch("/api/spaces");
-      if (!response.ok) throw new Error("Failed to load spaces");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> =>
+      readJson<{ spaces: SpaceSummary[] }>(
+        await fetch("/api/spaces"),
+        "Failed to load spaces",
+      ),
   });
 
   const createNoteMutation = useMutation({
@@ -34,9 +35,11 @@ export function MobileBottomNav() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spaceId, title: "Untitled" }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create note");
-      return data.note as { id: string };
+      const data = await readJson<{ note: { id: string } }>(
+        response,
+        "Failed to create note",
+      );
+      return data.note;
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -55,13 +58,15 @@ export function MobileBottomNav() {
       active:
         (pathname.startsWith("/workspace") || pathname.startsWith("/notes")) &&
         view !== "favorites" &&
+        view !== "archive" &&
+        view !== "shared" &&
         view !== "integration",
     },
     {
-      href: "/calendar",
-      label: "Calendar",
+      href: "/plans",
+      label: "Plans",
       icon: CalendarDays,
-      active: pathname.startsWith("/calendar"),
+      active: pathname.startsWith("/plans") || pathname.startsWith("/calendar"),
     },
     {
       href: "/tasks",

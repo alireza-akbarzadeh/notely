@@ -108,6 +108,12 @@ export async function updateReminder(
 
   const now = new Date();
   const nextStatus = input.status ?? existing.status;
+  const nextFiredAt =
+    nextStatus === "fired"
+      ? existing.firedAt ?? now
+      : nextStatus === "pending"
+        ? null
+        : existing.firedAt;
   await db
     .update(reminders)
     .set({
@@ -116,10 +122,7 @@ export async function updateReminder(
       remindAt: input.remindAt ?? existing.remindAt,
       sound: input.sound ?? existing.sound,
       status: nextStatus,
-      firedAt:
-        nextStatus === "fired" && !existing.firedAt
-          ? now
-          : existing.firedAt,
+      firedAt: nextFiredAt,
       updatedAt: now,
     })
     .where(eq(reminders.id, reminderId));

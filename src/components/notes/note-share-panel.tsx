@@ -6,6 +6,7 @@ import { Share2, Trash2, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 
 type ShareRow = {
@@ -68,13 +69,11 @@ export function NoteSharePanel({
   const sharesQuery = useQuery({
     queryKey: ["shares", noteId],
     enabled: canShare && open,
-    queryFn: async (): Promise<{ shares: ShareRow[] }> => {
-      const response = await fetch(
-        `/api/shares?noteId=${encodeURIComponent(noteId)}`,
-      );
-      if (!response.ok) throw new Error("Failed to load shares");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ shares: ShareRow[] }> =>
+      readJson<{ shares: ShareRow[] }>(
+        await fetch(`/api/shares?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load shares",
+      ),
   });
 
   const inviteMutation = useMutation({
@@ -84,9 +83,8 @@ export function NoteSharePanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ noteId, email, role: "editor" }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Invite failed");
-      return data.share as ShareRow;
+      const data = await readJson<{ share: ShareRow }>(response, "Invite failed");
+      return data.share;
     },
     onSuccess: () => {
       setEmail("");
@@ -103,8 +101,7 @@ export function NoteSharePanel({
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/shares/${id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to remove");
+      await readJson(response, "Failed to remove");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shares", noteId] });

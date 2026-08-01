@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { readJson } from "@/lib/api/read-json";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 import { notePath, workspacePath } from "@/lib/workspace/paths";
 
@@ -54,15 +55,18 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
       content: string;
       tagIds: string[];
       isFavorite?: boolean;
+      isArchived?: boolean;
     }) => {
       const response = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to save");
-      return { note: data.note as NoteSummary, payload };
+      const data = await readJson<{ note: NoteSummary }>(
+        response,
+        "Failed to save",
+      );
+      return { note: data.note, payload };
     },
     onMutate: () => setStatus("saving"),
     onSuccess: ({ note: updated, payload }) => {
@@ -101,9 +105,10 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
         ? `/api/notes/${note.id}?permanent=1`
         : `/api/notes/${note.id}`;
       const response = await fetch(url, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete");
-      return data as { success: boolean; permanent?: boolean };
+      return readJson<{ success: boolean; permanent?: boolean }>(
+        response,
+        "Failed to delete",
+      );
     },
     onSuccess: async () => {
       queryClient.removeQueries({ queryKey: ["note", note.id] });
@@ -120,9 +125,11 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ restore: true }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to restore");
-      return data.note as NoteSummary;
+      const data = await readJson<{ note: NoteSummary }>(
+        response,
+        "Failed to restore",
+      );
+      return data.note;
     },
     onSuccess: (restored) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -160,7 +167,7 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
     );
   }
 
-  function saveNow(overrides?: { isFavorite?: boolean }) {
+  function saveNow(overrides?: { isFavorite?: boolean; isArchived?: boolean }) {
     saveMutation.mutate({
       title: title.trim() || "Untitled",
       content,

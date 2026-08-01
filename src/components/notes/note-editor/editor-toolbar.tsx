@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import {
   ArrowLeft,
+  Archive,
   Bell,
   Bold,
   CheckSquare,
@@ -66,6 +67,7 @@ type EditorToolbarProps = {
   shareOpen: boolean;
   onShareOpenChange: (open: boolean) => void;
   isFavorite: boolean;
+  isArchived?: boolean;
   onBack: () => void;
   onToggleBlock: (tag: BlockTag) => void;
   onInlineCommand: (command: string) => void;
@@ -74,6 +76,7 @@ type EditorToolbarProps = {
   onOpenLink: () => void;
   onToggleCode: () => void;
   onToggleFavorite: () => void;
+  onToggleArchive?: () => void;
   onDelete: () => void;
   onRestore?: () => void;
   isTrashed?: boolean;
@@ -130,6 +133,7 @@ export function EditorToolbar({
   shareOpen,
   onShareOpenChange,
   isFavorite,
+  isArchived = false,
   onBack,
   onToggleBlock,
   onInlineCommand,
@@ -138,6 +142,7 @@ export function EditorToolbar({
   onOpenLink,
   onToggleCode,
   onToggleFavorite,
+  onToggleArchive,
   onDelete,
   onRestore,
   isTrashed = false,
@@ -282,6 +287,17 @@ export function EditorToolbar({
             <FormatButton onClick={onToggleFavorite} label="Toggle favorite">
               <Star
                 className={`size-3.5 ${isFavorite ? "fill-primary text-primary" : ""}`}
+              />
+            </FormatButton>
+          ) : null}
+          {canShare && !isTrashed && onToggleArchive ? (
+            <FormatButton
+              onClick={onToggleArchive}
+              label={isArchived ? "Unarchive note" : "Archive note"}
+              title={isArchived ? "Unarchive note" : "Archive note"}
+            >
+              <Archive
+                className={`size-3.5 ${isArchived ? "text-primary" : ""}`}
               />
             </FormatButton>
           ) : null}

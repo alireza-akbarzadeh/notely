@@ -124,7 +124,7 @@ export function CalendarNavSidebar({
           </Link>
           <div className="mt-2 flex items-center gap-2 px-2 text-[11px] text-muted-foreground">
             <CalendarDays className="size-3.5 text-primary" />
-            Notely Calendar
+            Plans
           </div>
         </div>
       </div>

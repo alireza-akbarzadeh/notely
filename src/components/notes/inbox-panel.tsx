@@ -6,6 +6,7 @@ import { Check, Inbox, X } from "lucide-react";
 
 import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { Button } from "@/components/ui/button";
+import { readJson } from "@/lib/api/read-json";
 
 type Invite = {
   id: string;
@@ -22,11 +23,11 @@ export function InboxPanel() {
 
   const inboxQuery = useQuery({
     queryKey: ["inbox"],
-    queryFn: async (): Promise<{ invites: Invite[] }> => {
-      const response = await fetch("/api/inbox");
-      if (!response.ok) throw new Error("Failed to load inbox");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ invites: Invite[] }> =>
+      readJson<{ invites: Invite[] }>(
+        await fetch("/api/inbox"),
+        "Failed to load inbox",
+      ),
   });
 
   const respondMutation = useMutation({
@@ -36,8 +37,10 @@ export function InboxPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: input.action }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed");
+      const data = await readJson<{ share?: { noteId?: string } }>(
+        response,
+        "Failed",
+      );
       return { ...data, action: input.action, noteId: data.share?.noteId as string | undefined };
     },
     onSuccess: (result) => {

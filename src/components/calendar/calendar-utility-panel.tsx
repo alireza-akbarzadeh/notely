@@ -86,7 +86,7 @@ export function CalendarUtilityPanel({
 
           <section>
             <p className="mb-2 text-sm font-semibold tracking-tight">
-              Welcome to Notely Calendar
+              Welcome to Plans
             </p>
             <ul className="space-y-2">
               {(

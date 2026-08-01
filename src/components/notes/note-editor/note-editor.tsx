@@ -27,6 +27,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isTrashed = Boolean(note.deletedAt);
+  const isArchived = Boolean(note.isArchived) && !isTrashed;
   const canEdit = !isTrashed && note.accessRole !== "viewer";
   const canShare = !isTrashed && note.accessRole === "owner";
   const [checklistOpen, setChecklistOpen] = useState(false);
@@ -50,6 +51,14 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
 
   const stats = useMemo(() => wordStats(draft.content), [draft.content]);
 
+  function toggleArchive() {
+    const next = !note.isArchived;
+    draft.saveNow({ isArchived: next });
+    if (next) {
+      router.push(workspacePath({ view: "archive" }));
+    }
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background">
       <EditorToolbar
@@ -61,10 +70,15 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         shareOpen={editor.shareOpen}
         onShareOpenChange={editor.setShareOpen}
         isFavorite={note.isFavorite}
+        isArchived={isArchived}
         isTrashed={isTrashed}
         onBack={() =>
           router.push(
-            isTrashed ? workspacePath({ view: "trash" }) : workspacePath(),
+            isTrashed
+              ? workspacePath({ view: "trash" })
+              : isArchived
+                ? workspacePath({ view: "archive" })
+                : workspacePath(),
           )
         }
         onToggleBlock={editor.toggleBlock}
@@ -74,6 +88,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onOpenLink={editor.openLinkDialog}
         onToggleCode={editor.toggleCode}
         onToggleFavorite={() => draft.saveNow({ isFavorite: !note.isFavorite })}
+        onToggleArchive={toggleArchive}
         onDelete={() => setDeleteOpen(true)}
         onRestore={() => draft.restoreMutation.mutate()}
         onOpenChecklist={() => setChecklistOpen(true)}
@@ -110,6 +125,21 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
               Delete forever
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {isArchived ? (
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-4 py-2 text-sm">
+          <p className="text-muted-foreground">
+            This note is archived. Unarchive it to return it to your main list.
+          </p>
+          <button
+            type="button"
+            className="rounded-md px-2 py-1 text-xs font-medium text-foreground hover:bg-accent"
+            onClick={() => draft.saveNow({ isArchived: false })}
+          >
+            Unarchive
+          </button>
         </div>
       ) : null}
 

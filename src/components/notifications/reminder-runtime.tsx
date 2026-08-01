@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
+import { readJson } from "@/lib/api/read-json";
 import { authClient } from "@/lib/auth/client";
 import { playReminderSound } from "@/lib/notifications/sound-player";
 import { registerNotelyServiceWorker } from "@/lib/notifications/push-client";
@@ -24,7 +25,7 @@ const firedLocally = new Set<string>();
 
 function reminderUrl(reminder: Reminder) {
   if (reminder.noteId) return `/notes/${reminder.noteId}`;
-  if (reminder.eventId) return "/calendar";
+  if (reminder.eventId) return "/plans";
   return "/workspace";
 }
 
@@ -67,6 +68,7 @@ export function ReminderRuntime() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const timersRef = useRef<Map<string, number>>(new Map());
+  const dueAtRef = useRef<Map<string, number>>(new Map());
 
   const remindersQuery = useQuery({
     queryKey: ["reminders", "pending", "runtime"],
@@ -75,12 +77,13 @@ export function ReminderRuntime() {
     queryFn: async (): Promise<Reminder[]> => {
       const from = new Date(Date.now() - 60_000).toISOString();
       const to = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-      const response = await fetch(
-        `/api/reminders?status=pending&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      const data = await readJson<{ reminders: Reminder[] }>(
+        await fetch(
+          `/api/reminders?status=pending&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+        ),
+        "Failed to load reminders",
       );
-      if (!response.ok) throw new Error("Failed to load reminders");
-      const data = await response.json();
-      return data.reminders as Reminder[];
+      return data.reminders;
     },
   });
 
@@ -113,17 +116,26 @@ export function ReminderRuntime() {
   useEffect(() => {
     const reminders = remindersQuery.data ?? [];
     const timers = timersRef.current;
+    const dueAt = dueAtRef.current;
 
     for (const [id, handle] of timers) {
-      if (!reminders.some((r) => r.id === id)) {
+      const stillPending = reminders.find((r) => r.id === id);
+      const nextDue = stillPending
+        ? new Date(stillPending.remindAt).getTime()
+        : null;
+      if (!stillPending || dueAt.get(id) !== nextDue) {
         window.clearTimeout(handle);
         timers.delete(id);
+        dueAt.delete(id);
       }
     }
 
     for (const reminder of reminders) {
-      if (timers.has(reminder.id) || firedLocally.has(reminder.id)) continue;
-      const delay = new Date(reminder.remindAt).getTime() - Date.now();
+      if (firedLocally.has(reminder.id)) continue;
+      const due = new Date(reminder.remindAt).getTime();
+      if (timers.has(reminder.id)) continue;
+
+      const delay = due - Date.now();
       if (delay <= 0) {
         void presentReminder(reminder);
         continue;
@@ -131,21 +143,21 @@ export function ReminderRuntime() {
       if (delay > 24 * 60 * 60 * 1000) continue;
       const handle = window.setTimeout(() => {
         timers.delete(reminder.id);
+        dueAt.delete(reminder.id);
         void presentReminder(reminder);
       }, delay);
       timers.set(reminder.id, handle);
+      dueAt.set(reminder.id, due);
     }
-
-    return () => {
-      // Keep timers across refreshes of this effect; cleared when unmounting below.
-    };
   }, [remindersQuery.data]);
 
   useEffect(() => {
     const timers = timersRef.current;
+    const dueAt = dueAtRef.current;
     return () => {
       for (const handle of timers.values()) window.clearTimeout(handle);
       timers.clear();
+      dueAt.clear();
     };
   }, []);
 

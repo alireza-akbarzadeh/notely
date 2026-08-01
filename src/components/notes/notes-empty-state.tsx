@@ -11,7 +11,10 @@ export type NotesEmptyStateVariant =
   | "empty"
   | "trash"
   | "inbox"
+  | "shared"
   | "archive"
+  | "today"
+  | "favorites"
   | "task";
 
 type NotesEmptyStateProps = {
@@ -386,15 +389,31 @@ const copy: Record<
   },
   trash: {
     title: "Trash is empty",
-    description: "Deleted notes and spaces land here. Restore them or delete forever.",
+    description:
+      "Deleted notes and spaces land here until you restore them or empty trash permanently.",
   },
   inbox: {
     title: "You're all caught up",
     description: "Shared note invites will show up here when someone sends one.",
   },
+  shared: {
+    title: "Nothing shared with you yet",
+    description:
+      "When someone invites you to a note, it shows up here after you accept it in Inbox.",
+  },
   archive: {
     title: "Archive is empty",
-    description: "Shared and archived notes live here so your main list stays focused.",
+    description:
+      "File notes away to keep your main list focused. Unarchive anytime to bring them back.",
+  },
+  today: {
+    title: "Nothing for today",
+    description:
+      "Notes you edit today, or that have a reminder or task due today, appear in this list.",
+  },
+  favorites: {
+    title: "No favorites yet",
+    description: "Star a note to pin it here for quick access.",
   },
   task: {
     title: "No tasks yet",
@@ -414,8 +433,12 @@ function EmptyIllustration({
       return <TrashIllustration className={className} />;
     case "inbox":
       return <InboxIllustration className={className} />;
+    case "shared":
+      return <ArchiveIllustration className={className} />;
     case "archive":
       return <ArchiveIllustration className={className} />;
+    case "today":
+    case "favorites":
     case "task":
       return <TaskIllustration className={className} />;
     default:

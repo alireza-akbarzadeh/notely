@@ -30,10 +30,38 @@ type Task = {
   text: string;
   status: TaskStatus;
   isCompleted: boolean;
+  dueAt: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
 };
+
+function isSameLocalDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function endOfTodayLocal() {
+  const d = new Date();
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
+function formatDueLabel(dueAt: string) {
+  const due = new Date(dueAt);
+  const today = new Date();
+  if (isSameLocalDay(due, today)) return "Due today";
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (isSameLocalDay(due, tomorrow)) return "Due tomorrow";
+  return due.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 const columns: Array<{
   status: TaskStatus;
@@ -82,6 +110,8 @@ function notify(message: string) {
 export function TaskBoard() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState("");
+  const [draftDueAt, setDraftDueAt] = useState("");
+  const [dueTodayOnly, setDueTodayOnly] = useState(false);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Task | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -104,17 +134,22 @@ export function TaskBoard() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (text: string) => {
+    mutationFn: async (input: { text: string; dueAt: string | null }) => {
       const response = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, status: "todo" }),
+        body: JSON.stringify({
+          text: input.text,
+          status: "todo",
+          dueAt: input.dueAt,
+        }),
       });
       const data = await readJson<{ task: Task }>(response, "Failed to create task");
       return data.task;
     },
     onSuccess: (task) => {
       setDraft("");
+      setDraftDueAt("");
       // A refetch that lands between the POST and here already holds the new
       // row, so replace by id rather than appending a second copy.
       queryClient.setQueryData<{ tasks: Task[] }>(["tasks"], (current) => ({
@@ -125,6 +160,26 @@ export function TaskBoard() {
       }));
       setMessage("Task added to To do");
       void playReminderSound("soft");
+    },
+    onError: (error) => setMessage(error.message),
+  });
+
+  const dueMutation = useMutation({
+    mutationFn: async ({ id, dueAt }: { id: string; dueAt: string | null }) => {
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dueAt }),
+      });
+      const data = await readJson<{ task: Task }>(response, "Failed to update due date");
+      return data.task;
+    },
+    onSuccess: (task) => {
+      queryClient.setQueryData<{ tasks: Task[] }>(["tasks"], (current) => ({
+        tasks:
+          current?.tasks.map((item) => (item.id === task.id ? task : item)) ?? [],
+      }));
+      setMessage(task.dueAt ? `Due ${formatDueLabel(task.dueAt)}` : "Due date cleared");
     },
     onError: (error) => setMessage(error.message),
   });
@@ -185,6 +240,17 @@ export function TaskBoard() {
   });
 
   const tasks = tasksQuery.data?.tasks ?? [];
+  const today = useMemo(() => new Date(), []);
+  const dueTodayCount = useMemo(
+    () =>
+      tasks.filter(
+        (task) =>
+          task.dueAt &&
+          !task.isCompleted &&
+          isSameLocalDay(new Date(task.dueAt), today),
+      ).length,
+    [tasks, today],
+  );
   const grouped = useMemo(() => {
     const result: Record<TaskStatus, Task[]> = {
       todo: [],
@@ -195,6 +261,16 @@ export function TaskBoard() {
     for (const task of tasks) {
       if (seen.has(task.id)) continue;
       seen.add(task.id);
+      if (
+        dueTodayOnly &&
+        !(
+          task.dueAt &&
+          !task.isCompleted &&
+          isSameLocalDay(new Date(task.dueAt), today)
+        )
+      ) {
+        continue;
+      }
       const status: TaskStatus =
         task.status === "in_progress" || task.status === "done" || task.status === "todo"
           ? task.status
@@ -204,12 +280,16 @@ export function TaskBoard() {
       result[status].push({ ...task, status });
     }
     return result;
-  }, [tasks]);
+  }, [dueTodayOnly, tasks, today]);
   const boardEmpty = !tasksQuery.isLoading && !tasksQuery.isError && tasks.length === 0;
 
   const createTask = () => {
     const text = draft.trim();
-    if (text && !createMutation.isPending) createMutation.mutate(text);
+    if (!text || createMutation.isPending) return;
+    const dueAt = draftDueAt
+      ? new Date(`${draftDueAt}T17:00:00`).toISOString()
+      : null;
+    createMutation.mutate({ text, dueAt });
   };
 
   const moveTask = (id: string, status: TaskStatus) => {
@@ -260,21 +340,56 @@ export function TaskBoard() {
           )}
         </header>
 
-        <section className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-3 shadow-sm sm:flex-row">
-          <Input
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") createTask();
-            }}
-            placeholder="What needs to be done?"
-            aria-label="New task"
-            className="h-10 flex-1 border-0 bg-muted/60 px-3 shadow-none"
-          />
-          <Button className="h-10 px-4" onClick={createTask} disabled={!draft.trim() || createMutation.isPending}>
-            <Plus data-icon="inline-start" />
-            {createMutation.isPending ? "Adding…" : "Add task"}
-          </Button>
+        <section className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-3 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") createTask();
+              }}
+              placeholder="What needs to be done?"
+              aria-label="New task"
+              className="h-10 flex-1 border-0 bg-muted/60 px-3 shadow-none"
+            />
+            <Input
+              type="date"
+              value={draftDueAt}
+              onChange={(event) => setDraftDueAt(event.target.value)}
+              aria-label="Due date"
+              className="h-10 w-full border-0 bg-muted/60 px-3 shadow-none sm:w-44"
+            />
+            <Button
+              className="h-10 px-4"
+              onClick={createTask}
+              disabled={!draft.trim() || createMutation.isPending}
+            >
+              <Plus data-icon="inline-start" />
+              {createMutation.isPending ? "Adding…" : "Add task"}
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={dueTodayOnly ? "default" : "outline"}
+              className="h-7"
+              onClick={() => setDueTodayOnly((value) => !value)}
+            >
+              Due today{dueTodayCount > 0 ? ` (${dueTodayCount})` : ""}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="h-7"
+              onClick={() =>
+                setDraftDueAt(new Date().toISOString().slice(0, 10))
+              }
+            >
+              Set due today
+            </Button>
+          </div>
         </section>
 
         {message && (
@@ -356,6 +471,45 @@ export function TaskBoard() {
                           >
                             <Trash2 />
                           </Button>
+                        </div>
+                        <div className="mt-2 flex items-center gap-2 pl-6">
+                          <input
+                            type="date"
+                            aria-label={`Due date for ${task.text || "task"}`}
+                            value={
+                              task.dueAt
+                                ? new Date(task.dueAt).toISOString().slice(0, 10)
+                                : ""
+                            }
+                            disabled={dueMutation.isPending}
+                            onChange={(event) => {
+                              const value = event.target.value;
+                              dueMutation.mutate({
+                                id: task.id,
+                                dueAt: value
+                                  ? new Date(`${value}T17:00:00`).toISOString()
+                                  : null,
+                              });
+                            }}
+                            className="h-7 rounded-md border border-border/70 bg-background px-2 text-[11px] text-muted-foreground"
+                          />
+                          {task.dueAt ? (
+                            <span
+                              className={cn(
+                                "rounded-md px-1.5 py-0.5 text-[10px] font-medium",
+                                !task.isCompleted &&
+                                  isSameLocalDay(new Date(task.dueAt), today)
+                                  ? "bg-primary/15 text-primary"
+                                  : !task.isCompleted &&
+                                      new Date(task.dueAt) < endOfTodayLocal() &&
+                                      !isSameLocalDay(new Date(task.dueAt), today)
+                                    ? "bg-destructive/15 text-destructive"
+                                    : "bg-muted text-muted-foreground",
+                              )}
+                            >
+                              {formatDueLabel(task.dueAt)}
+                            </span>
+                          ) : null}
                         </div>
                         <div className="mt-3 flex gap-1 pl-6">
                           {columns.map((target) => (

@@ -41,6 +41,7 @@ export const updateNoteSchema = z.object({
   spaceId: z.string().min(1).optional(),
   isPinned: z.boolean().optional(),
   isFavorite: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   tagIds: z.array(z.string().min(1)).optional(),
 });
 
@@ -57,10 +58,13 @@ export const createTagSchema = z.object({
     .optional(),
 });
 
+export const updateTagSchema = createTagSchema.partial();
+
 export const createTaskSchema = z.object({
   noteId: z.string().min(1).optional().nullable(),
   text: z.string().trim().max(500).default(""),
   status: z.enum(["todo", "in_progress", "done"]).optional().default("todo"),
+  dueAt: z.string().datetime().nullable().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -68,6 +72,7 @@ export const updateTaskSchema = z.object({
   status: z.enum(["todo", "in_progress", "done"]).optional(),
   isCompleted: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
+  dueAt: z.string().datetime().nullable().optional(),
 });
 
 export const createLinkAttachmentSchema = z.object({
@@ -130,6 +135,7 @@ export type DeleteSpaceValues = z.infer<typeof deleteSpaceSchema>;
 export type CreateNoteValues = z.infer<typeof createNoteSchema>;
 export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;
 export type CreateTagValues = z.infer<typeof createTagSchema>;
+export type UpdateTagValues = z.infer<typeof updateTagSchema>;
 export type CreateTaskValues = z.infer<typeof createTaskSchema>;
 export type UpdateTaskValues = z.infer<typeof updateTaskSchema>;
 export type CreateLinkAttachmentValues = z.infer<typeof createLinkAttachmentSchema>;

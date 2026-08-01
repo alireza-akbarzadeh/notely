@@ -2,6 +2,7 @@ export type WorkspaceView =
   | "notes"
   | "today"
   | "archive"
+  | "shared"
   | "inbox"
   | "trash"
   | "integration"
@@ -11,19 +12,17 @@ const WORKSPACE_VIEWS = new Set<string>([
   "notes",
   "today",
   "archive",
+  "shared",
   "inbox",
   "trash",
   "integration",
   "favorites",
-  // legacy alias used before archive rename
-  "shared",
 ]);
 
 export function normalizeWorkspaceView(
   view: string | null | undefined,
 ): WorkspaceView | null {
   if (!view) return null;
-  if (view === "shared") return "archive";
   if (WORKSPACE_VIEWS.has(view)) return view as WorkspaceView;
   return null;
 }

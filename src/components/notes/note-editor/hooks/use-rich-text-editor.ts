@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { EMPTY_FORMATS } from "../constants";
 import type { ActiveFormats, BlockTag } from "../types";
+import { readJson } from "@/lib/api/read-json";
 import type { NoteAttachment } from "@/types/notes";
 import {
   decorateEditorLinks,
@@ -317,10 +318,12 @@ export function useRichTextEditor({
         method: "POST",
         body: form,
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Image upload failed");
+      const data = await readJson<{ attachment: NoteAttachment }>(
+        response,
+        "Image upload failed",
+      );
 
-      const attachment = data.attachment as NoteAttachment;
+      const attachment = data.attachment;
       if (!attachment.url) throw new Error("Uploaded image is unavailable");
 
       editor.focus();

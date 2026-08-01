@@ -264,6 +264,7 @@ export async function searchNotes(userId: string, query: string) {
       and(
         eq(notes.userId, userId),
         isNull(notes.deletedAt),
+        eq(notes.isArchived, false),
         isNull(spaces.deletedAt),
         or(ilike(notes.title, pattern), ilike(notes.content, pattern)),
       ),

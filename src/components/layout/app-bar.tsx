@@ -14,6 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import { isWorkspacePath, workspacePath } from "@/lib/workspace/paths";
 
@@ -29,11 +30,11 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
 
   const inboxQuery = useQuery({
     queryKey: ["inbox"],
-    queryFn: async (): Promise<{ invites: unknown[] }> => {
-      const response = await fetch("/api/inbox");
-      if (!response.ok) throw new Error("Failed to load inbox");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ invites: unknown[] }> =>
+      readJson<{ invites: unknown[] }>(
+        await fetch("/api/inbox"),
+        "Failed to load inbox",
+      ),
   });
   const pendingInvites = inboxQuery.data?.invites.length ?? 0;
 
@@ -97,8 +98,8 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
                 variant="ghost"
                 size="icon"
                 className="size-9"
-                onClick={() => router.push(workspacePath({ view: "archive" }))}
-                aria-label="Shared notes"
+                onClick={() => router.push(workspacePath({ view: "shared" }))}
+                aria-label="Shared with me"
               />
             }
           >

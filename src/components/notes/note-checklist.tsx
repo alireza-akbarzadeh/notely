@@ -6,6 +6,7 @@ import { Check, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import type { NoteTask } from "@/types/notes";
 
@@ -20,11 +21,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
 
   const tasksQuery = useQuery({
     queryKey: ["tasks", noteId],
-    queryFn: async (): Promise<{ tasks: NoteTask[] }> => {
-      const response = await fetch(`/api/tasks?noteId=${encodeURIComponent(noteId)}`);
-      if (!response.ok) throw new Error("Failed to load tasks");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ tasks: NoteTask[] }> =>
+      readJson<{ tasks: NoteTask[] }>(
+        await fetch(`/api/tasks?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load tasks",
+      ),
   });
 
   const createMutation = useMutation({
@@ -34,9 +35,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ noteId, text }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to add task");
-      return data.task as NoteTask;
+      const data = await readJson<{ task: NoteTask }>(
+        response,
+        "Failed to add task",
+      );
+      return data.task;
     },
     onSuccess: () => {
       setDraft("");
@@ -58,9 +61,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
           isCompleted: input.isCompleted,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to update task");
-      return data.task as NoteTask;
+      const data = await readJson<{ task: NoteTask }>(
+        response,
+        "Failed to update task",
+      );
+      return data.task;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", noteId] });
@@ -70,8 +75,7 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete task");
+      await readJson(response, "Failed to delete task");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", noteId] });

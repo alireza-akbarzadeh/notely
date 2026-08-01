@@ -2,9 +2,11 @@
 
 Step-by-step plan to replace the Nexora trading boilerplate with **Notely** — a notes app with spaces, tags, and a mobile-native shell. Auth (Better Auth) stays the same; only copy and branding change.
 
-**Home route:** `/notes`  
+> **Living backlog:** Phases 1–5 below are largely done. For polish and new features, use [`docs/FEATURES.md`](./FEATURES.md). App home is now `/workspace`.
+
+**Home route:** `/workspace` (legacy `/notes` list redirects)  
 **MVP:** Phases 1–4  
-**Later:** Phase 5+
+**Later:** Phase 5+ (mostly shipped — see FEATURES.md)
 
 ---
 

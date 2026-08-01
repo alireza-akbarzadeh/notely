@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { readJson } from "@/lib/api/read-json";
+
 export type GoogleCredentialSource = "env" | "user" | null;
 
 export type GoogleConnectionStatus = {
@@ -27,14 +29,6 @@ export type GoogleIntegrationItem = {
 export const googleConnectionKey = ["google-integration"] as const;
 export const googleItemsKey = ["google-integration-items"] as const;
 
-export async function readJson<T>(response: Response): Promise<T> {
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error ?? "Request failed");
-  }
-  return data;
-}
-
 export function useGoogleConnection() {
   const queryClient = useQueryClient();
 
@@ -43,6 +37,7 @@ export function useGoogleConnection() {
     queryFn: async () =>
       readJson<GoogleConnectionStatus>(
         await fetch("/api/integrations/google", { cache: "no-store" }),
+        "Failed to load Google connection",
       ),
   });
 
@@ -54,6 +49,7 @@ export function useGoogleConnection() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         }),
+        "Failed to save Google credentials",
       ),
     onSuccess: (status) => {
       queryClient.setQueryData(googleConnectionKey, status);
@@ -66,6 +62,7 @@ export function useGoogleConnection() {
         await fetch("/api/integrations/google/credentials", {
           method: "DELETE",
         }),
+        "Failed to clear Google credentials",
       ),
     onSuccess: (status) => {
       queryClient.setQueryData(googleConnectionKey, status);
@@ -76,6 +73,7 @@ export function useGoogleConnection() {
     mutationFn: async () =>
       readJson<{ success: boolean }>(
         await fetch("/api/integrations/google", { method: "DELETE" }),
+        "Failed to disconnect Google",
       ),
     onSuccess: () => {
       queryClient.setQueryData<GoogleConnectionStatus>(googleConnectionKey, {

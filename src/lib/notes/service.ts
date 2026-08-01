@@ -10,6 +10,7 @@ import type {
   CreateTagValues,
   UpdateNoteValues,
   UpdateSpaceValues,
+  UpdateTagValues,
 } from "@/lib/validations/notes";
 
 function stripHtml(value: string) {
@@ -244,6 +245,42 @@ export async function permanentlyDeleteSpace(userId: string, spaceId: string) {
   return true;
 }
 
+/** Permanently delete every trashed note and space for the user. */
+export async function emptyTrash(userId: string) {
+  const trashedNotes = await db
+    .select({ id: notes.id })
+    .from(notes)
+    .where(and(eq(notes.userId, userId), isNotNull(notes.deletedAt)));
+
+  const trashedSpaces = await db
+    .select({ id: spaces.id })
+    .from(spaces)
+    .where(and(eq(spaces.userId, userId), isNotNull(spaces.deletedAt)));
+
+  if (trashedNotes.length > 0) {
+    await db.delete(notes).where(
+      and(
+        eq(notes.userId, userId),
+        isNotNull(notes.deletedAt),
+      ),
+    );
+  }
+
+  if (trashedSpaces.length > 0) {
+    await db.delete(spaces).where(
+      and(
+        eq(spaces.userId, userId),
+        isNotNull(spaces.deletedAt),
+      ),
+    );
+  }
+
+  return {
+    notesDeleted: trashedNotes.length,
+    spacesDeleted: trashedSpaces.length,
+  };
+}
+
 async function tagsForNotes(noteIds: string[]) {
   if (noteIds.length === 0) {
     return new Map<string, Array<typeof tags.$inferSelect>>();
@@ -290,6 +327,7 @@ export async function listNotes(
     spaceId?: string;
     favoritesOnly?: boolean;
     sharedOnly?: boolean;
+    archiveOnly?: boolean;
     trashOnly?: boolean;
   },
 ) {
@@ -312,6 +350,11 @@ export async function listNotes(
     conditions.push(isNotNull(notes.deletedAt));
   } else {
     conditions.push(isNull(notes.deletedAt));
+    if (options?.archiveOnly) {
+      conditions.push(eq(notes.isArchived, true));
+    } else {
+      conditions.push(eq(notes.isArchived, false));
+    }
   }
   if (options?.spaceId) conditions.push(eq(notes.spaceId, options.spaceId));
   if (options?.favoritesOnly) conditions.push(eq(notes.isFavorite, true));
@@ -453,6 +496,9 @@ export async function updateNote(
       ...(input.isFavorite !== undefined && access.role === "owner"
         ? { isFavorite: input.isFavorite }
         : {}),
+      ...(input.isArchived !== undefined && access.role === "owner"
+        ? { isArchived: input.isArchived }
+        : {}),
       summary: nextSummary,
       updatedAt: new Date(),
     })
@@ -528,6 +574,30 @@ export async function createTag(userId: string, input: CreateTagValues) {
   });
   const [tag] = await db.select().from(tags).where(eq(tags.id, id)).limit(1);
   return tag!;
+}
+
+export async function updateTag(
+  userId: string,
+  tagId: string,
+  input: UpdateTagValues,
+) {
+  const [existing] = await db
+    .select()
+    .from(tags)
+    .where(and(eq(tags.id, tagId), eq(tags.userId, userId)))
+    .limit(1);
+  if (!existing) return null;
+
+  await db
+    .update(tags)
+    .set({
+      ...(input.name !== undefined ? { name: input.name } : {}),
+      ...(input.color !== undefined ? { color: input.color } : {}),
+    })
+    .where(eq(tags.id, tagId));
+
+  const [tag] = await db.select().from(tags).where(eq(tags.id, tagId)).limit(1);
+  return tag ?? null;
 }
 
 export async function deleteTag(userId: string, tagId: string) {

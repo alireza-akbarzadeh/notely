@@ -17,7 +17,9 @@ import {
   Plug,
   Plus,
   Settings,
+  Share2,
   Star,
+  Tags,
   Trash2,
 } from "lucide-react";
 
@@ -43,6 +45,7 @@ import {
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { SpaceDeleteDialog } from "@/components/notes/space-delete-dialog";
+import { TagManageDialog } from "@/components/notes/tag-manage-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -57,6 +60,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import {
   isNotesChromePath,
@@ -68,9 +72,10 @@ import { useFocusMode } from "@/stores/focus-mode";
 import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
 async function fetchSpaces(): Promise<{ spaces: SpaceSummary[] }> {
-  const response = await fetch("/api/spaces");
-  if (!response.ok) throw new Error("Failed to load spaces");
-  return (await response.json()) as { spaces: SpaceSummary[] };
+  return readJson<{ spaces: SpaceSummary[] }>(
+    await fetch("/api/spaces"),
+    "Failed to load spaces",
+  );
 }
 
 export function AppSidebar() {
@@ -86,6 +91,7 @@ export function AppSidebar() {
   const [renameSpace, setRenameSpace] = useState<SpaceSummary | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [renameError, setRenameError] = useState<string | null>(null);
+  const [tagsOpen, setTagsOpen] = useState(false);
   const [spaceToDelete, setSpaceToDelete] = useState<SpaceSummary | null>(null);
   const focusMode = useFocusMode();
 
@@ -96,11 +102,11 @@ export function AppSidebar() {
 
   const notesCountQuery = useQuery({
     queryKey: ["notes", "stats"],
-    queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
-      const response = await fetch("/api/notes");
-      if (!response.ok) throw new Error("Failed to load notes");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ notes: NoteSummary[] }> =>
+      readJson<{ notes: NoteSummary[] }>(
+        await fetch("/api/notes"),
+        "Failed to load notes",
+      ),
   });
 
   const createNoteMutation = useMutation({
@@ -110,9 +116,11 @@ export function AppSidebar() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spaceId, title: "Untitled" }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create note");
-      return data.note as { id: string };
+      const data = await readJson<{ note: { id: string } }>(
+        response,
+        "Failed to create note",
+      );
+      return data.note;
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
@@ -127,9 +135,11 @@ export function AppSidebar() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create space");
-      return data.space as SpaceSummary;
+      const data = await readJson<{ space: SpaceSummary }>(
+        response,
+        "Failed to create space",
+      );
+      return data.space;
     },
     onSuccess: (space) => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
@@ -152,9 +162,11 @@ export function AppSidebar() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to rename space");
-      return data.space as SpaceSummary;
+      const data = await readJson<{ space: SpaceSummary }>(
+        response,
+        "Failed to rename space",
+      );
+      return data.space;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
@@ -182,9 +194,11 @@ export function AppSidebar() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFavorite }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to update space");
-      return data.space as SpaceSummary;
+      const data = await readJson<{ space: SpaceSummary }>(
+        response,
+        "Failed to update space",
+      );
+      return data.space;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
@@ -212,8 +226,7 @@ export function AppSidebar() {
             }
           : {}),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete space");
+      await readJson(response, "Failed to delete space");
       return id;
     },
     onSuccess: (id) => {
@@ -279,6 +292,7 @@ export function AppSidebar() {
     onWorkspace &&
     view !== "today" &&
     view !== "archive" &&
+    view !== "shared" &&
     view !== "inbox" &&
     view !== "trash" &&
     view !== "integration" &&
@@ -295,18 +309,18 @@ export function AppSidebar() {
       tooltip: "Notes",
     },
     {
-      label: "Calendar",
-      href: "/calendar",
+      label: "Plans",
+      href: "/plans",
       icon: CalendarDays,
-      active: pathname.startsWith("/calendar"),
-      tooltip: "Calendar",
+      active: pathname.startsWith("/plans") || pathname.startsWith("/calendar"),
+      tooltip: "Time-based planning",
     },
     {
-      label: "Journal",
+      label: "Today",
       href: workspacePath({ view: "today" }),
       icon: BookOpen,
       active: view === "today",
-      tooltip: "Journal",
+      tooltip: "Notes updated today",
     },
     {
       label: "Tasks",
@@ -316,11 +330,25 @@ export function AppSidebar() {
       tooltip: "Task workflow",
     },
     {
+      label: "Favorites",
+      href: workspacePath({ view: "favorites" }),
+      icon: Star,
+      active: view === "favorites",
+      tooltip: "Starred notes",
+    },
+    {
       label: "Archive",
       href: workspacePath({ view: "archive" }),
       icon: Archive,
       active: view === "archive",
-      tooltip: "Shared archive",
+      tooltip: "Archived notes",
+    },
+    {
+      label: "Shared with me",
+      href: workspacePath({ view: "shared" }),
+      icon: Share2,
+      active: view === "shared",
+      tooltip: "Notes others shared with you",
     },
     {
       label: "Inbox",
@@ -535,6 +563,36 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarSeparator className="mx-3" />
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="flex items-center justify-between gap-2 pr-1 text-[11px] tracking-wide text-muted-foreground uppercase">
+            <span>Tags</span>
+            <button
+              type="button"
+              className="rounded p-1 text-muted-foreground hover:text-foreground"
+              onClick={() => setTagsOpen(true)}
+              aria-label="Manage tags"
+            >
+              <Pencil className="size-3.5" />
+            </button>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Manage tags"
+                  onClick={() => setTagsOpen(true)}
+                  className="h-9 rounded-lg"
+                >
+                  <Tags className="size-4 text-muted-foreground" />
+                  <span>Manage tags</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="gap-3 px-3 pb-4">
@@ -729,6 +787,8 @@ export function AppSidebar() {
           );
         }}
       />
+
+      <TagManageDialog open={tagsOpen} onOpenChange={setTagsOpen} />
     </Sidebar>
   );
 }

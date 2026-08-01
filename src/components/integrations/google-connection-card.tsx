@@ -163,14 +163,48 @@ export function GoogleConnectionCard() {
 
         <CardContent className="space-y-3">
           {!configured ? (
-            <Alert>
-              <AlertTitle>Add your Google OAuth app</AlertTitle>
-              <AlertDescription>
-                Enter a Client ID and Client Secret from Google Cloud Console,
-                enable the Gmail and Calendar APIs, and register the redirect
-                URI shown in the dialog.
-              </AlertDescription>
-            </Alert>
+            <div className="space-y-3 rounded-xl border border-dashed border-border/80 bg-muted/30 p-4">
+              <div>
+                <p className="text-sm font-medium">Set up Google OAuth</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Notely needs a Google Cloud OAuth client before Connect works.
+                  Takes a few minutes in Google Cloud Console.
+                </p>
+              </div>
+              <ol className="list-decimal space-y-1.5 pl-4 text-xs text-muted-foreground">
+                <li>
+                  Create an OAuth client (Web application) in{" "}
+                  <a
+                    href="https://console.cloud.google.com/apis/credentials"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-foreground underline underline-offset-2"
+                  >
+                    Google Cloud Console
+                  </a>
+                  .
+                </li>
+                <li>Enable the Gmail API and Google Calendar API for that project.</li>
+                <li>
+                  Add this redirect URI
+                  {redirectUri ? (
+                    <>
+                      :{" "}
+                      <code className="break-all rounded bg-background px-1 py-0.5 text-[11px] text-foreground">
+                        {redirectUri}
+                      </code>
+                    </>
+                  ) : (
+                    " (shown after you open Add credentials)."
+                  )}
+                </li>
+                <li>Paste the Client ID and Client Secret below.</li>
+              </ol>
+              <Button size="sm" onClick={() => setCredentialsOpen(true)}>
+                <KeyRound />
+                Add credentials
+              </Button>
+            </div>
           ) : (
             <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
               Using{" "}
@@ -211,6 +245,11 @@ export function GoogleConnectionCard() {
             <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
               To pull content in, open a note and choose the plug icon in the
               editor toolbar.
+            </p>
+          ) : configured ? (
+            <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              Credentials are ready. Click Connect to authorize read-only Gmail
+              and Calendar access for your Google account.
             </p>
           ) : null}
         </CardContent>

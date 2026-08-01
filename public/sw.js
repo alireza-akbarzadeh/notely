@@ -1,6 +1,6 @@
 /* Notely service worker — PWA shell cache + Web Push */
 
-const CACHE_VERSION = "notely-v2";
+const CACHE_VERSION = "notely-v3";
 const PRECACHE = [
   "/",
   "/favicon.svg",
@@ -69,9 +69,27 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first.
+  // Next chunks: network-first so deploys aren't stuck on stale module factories.
+  // Hashed URLs still get cached for offline after a successful fetch.
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            void caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(request).then((cached) => cached || Response.error()),
+        ),
+    );
+    return;
+  }
+
+  // Immutable shell assets: cache-first.
   if (
-    url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
     url.pathname.endsWith(".svg") ||
     url.pathname.endsWith(".webmanifest")

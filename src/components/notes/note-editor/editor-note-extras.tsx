@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
 import type { NoteAttachment, NoteTask } from "@/types/notes";
 
@@ -56,35 +57,32 @@ export function EditorNoteExtras({
 }: EditorNoteExtrasProps) {
   const tasksQuery = useQuery({
     queryKey: ["tasks", noteId],
-    queryFn: async (): Promise<{ tasks: NoteTask[] }> => {
-      const response = await fetch(
-        `/api/tasks?noteId=${encodeURIComponent(noteId)}`,
-      );
-      if (!response.ok) throw new Error("Failed to load tasks");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ tasks: NoteTask[] }> =>
+      readJson<{ tasks: NoteTask[] }>(
+        await fetch(`/api/tasks?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load tasks",
+      ),
   });
 
   const attachmentsQuery = useQuery({
     queryKey: ["attachments", noteId],
-    queryFn: async (): Promise<{ attachments: NoteAttachment[] }> => {
-      const response = await fetch(
-        `/api/attachments?noteId=${encodeURIComponent(noteId)}`,
-      );
-      if (!response.ok) throw new Error("Failed to load attachments");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ attachments: NoteAttachment[] }> =>
+      readJson<{ attachments: NoteAttachment[] }>(
+        await fetch(`/api/attachments?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load attachments",
+      ),
   });
 
   const remindersQuery = useQuery({
     queryKey: ["reminders", "note", noteId],
     queryFn: async (): Promise<PendingReminder[]> => {
-      const response = await fetch(
-        `/api/reminders?noteId=${encodeURIComponent(noteId)}&status=pending`,
+      const data = await readJson<{ reminders: PendingReminder[] }>(
+        await fetch(
+          `/api/reminders?noteId=${encodeURIComponent(noteId)}&status=pending`,
+        ),
+        "Failed to load reminders",
       );
-      if (!response.ok) throw new Error("Failed to load reminders");
-      const data = await response.json();
-      return data.reminders as PendingReminder[];
+      return data.reminders;
     },
   });
 

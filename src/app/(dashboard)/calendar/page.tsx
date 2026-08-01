@@ -1,9 +1,6 @@
-import { CalendarWorkspace } from "@/components/calendar/calendar-workspace";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Calendar · Notely",
-};
-
+/** Legacy calendar URL — Plans is the product name for time-based planning. */
 export default function CalendarPage() {
-  return <CalendarWorkspace />;
+  redirect("/plans");
 }

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, max } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, max } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 import { db, tasks } from "@/lib/db";
@@ -11,6 +11,7 @@ import type {
 function serializeTask(row: typeof tasks.$inferSelect) {
   return {
     ...row,
+    dueAt: row.dueAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -59,6 +60,7 @@ export async function createTask(userId: string, input: CreateTaskValues) {
     text: input.text ?? "",
     status: input.status ?? "todo",
     isCompleted: (input.status ?? "todo") === "done",
+    dueAt: input.dueAt ? new Date(input.dueAt) : null,
     sortOrder: (agg?.maxOrder ?? -1) + 1,
     createdAt: now,
     updatedAt: now,
@@ -105,6 +107,9 @@ export async function updateTask(
           ? { isCompleted: input.isCompleted }
           : {}),
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+      ...(input.dueAt !== undefined
+        ? { dueAt: input.dueAt ? new Date(input.dueAt) : null }
+        : {}),
       updatedAt: new Date(),
     })
     .where(eq(tasks.id, taskId));
@@ -141,4 +146,29 @@ export async function listIncompleteTasks(userId: string, limit = 20) {
     .limit(limit);
 
   return rows.map(serializeTask);
+}
+
+/** Note ids that have an incomplete task due sometime today (UTC day window via local bounds). */
+export async function listNoteIdsWithTasksDueBetween(
+  userId: string,
+  from: Date,
+  to: Date,
+) {
+  const rows = await db
+    .select({ noteId: tasks.noteId })
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.userId, userId),
+        eq(tasks.isCompleted, false),
+        gte(tasks.dueAt, from),
+        lte(tasks.dueAt, to),
+      ),
+    );
+
+  const ids = new Set<string>();
+  for (const row of rows) {
+    if (row.noteId) ids.add(row.noteId);
+  }
+  return [...ids];
 }

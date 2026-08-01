@@ -13,6 +13,7 @@ export type NoteSummary = {
   summary: string | null;
   isPinned: boolean;
   isFavorite: boolean;
+  isArchived: boolean;
   deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;

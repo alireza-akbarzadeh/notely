@@ -14,7 +14,6 @@ import {
 
 import {
   googleItemsKey,
-  readJson,
   useCallbackError,
   useGoogleConnection,
   type GoogleIntegrationItem,
@@ -28,6 +27,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { readJson } from "@/lib/api/read-json";
 import { workspacePath } from "@/lib/workspace/paths";
 
 type NoteIntegrationsProps = {
@@ -69,6 +69,7 @@ export function NoteIntegrations({
         await fetch(`/api/integrations/google/items?${params}`, {
           cache: "no-store",
         }),
+        "Failed to load Google items",
       );
     },
   });
