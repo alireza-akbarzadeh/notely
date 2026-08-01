@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import {
   ArrowLeft,
   Bold,
@@ -7,12 +8,15 @@ import {
   Code2,
   Heading1,
   Heading2,
+  ImagePlus,
   Italic,
   Link2,
   List,
   ListOrdered,
   ListTodo,
+  LoaderCircle,
   Paperclip,
+  PenLine,
   Quote,
   Redo2,
   Star,
@@ -34,11 +38,17 @@ import {
   ComboboxList,
   ComboboxTrigger,
 } from "@/components/ui/combobox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { NoteShareTrigger } from "@/components/notes/note-share-panel";
 import { EDITOR_FONTS, type EditorFontOption } from "@/lib/editor-fonts";
 import { cn } from "@/lib/utils";
 
-import { TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE } from "./constants";
+import { TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE } from "./constants";
 import type { ActiveFormats, BlockTag } from "./types";
 
 type EditorToolbarProps = {
@@ -61,6 +71,11 @@ type EditorToolbarProps = {
   onDelete: () => void;
   onOpenChecklist: () => void;
   onOpenResources: () => void;
+  onPrepareTextColor: () => void;
+  onApplyTextColor: (color: string | null) => void;
+  onPrepareInlineImage: () => void;
+  onInsertInlineImage: (file: File) => Promise<void>;
+  inlineImageUploading: boolean;
 };
 
 function FormatButton({
@@ -115,7 +130,15 @@ export function EditorToolbar({
   onDelete,
   onOpenChecklist,
   onOpenResources,
+  onPrepareTextColor,
+  onApplyTextColor,
+  onPrepareInlineImage,
+  onInsertInlineImage,
+  inlineImageUploading,
 }: EditorToolbarProps) {
+  const [colorMenuOpen, setColorMenuOpen] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <header
       className={cn(
@@ -305,6 +328,83 @@ export function EditorToolbar({
               <Strikethrough className="size-3.5" />
             </FormatButton>
 
+            <DropdownMenu
+              open={colorMenuOpen}
+              onOpenChange={(open) => {
+                setColorMenuOpen(open);
+                if (open) onPrepareTextColor();
+              }}
+            >
+              <DropdownMenuTrigger
+                disabled={!canEdit}
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      TOOLBAR_BTN,
+                      "relative shrink-0",
+                      activeFormats.color && TOOLBAR_BTN_ACTIVE,
+                    )}
+                    disabled={!canEdit}
+                    aria-label="Text color"
+                    title="Text color"
+                  >
+                    <PenLine className="size-3.5" />
+                    <span
+                      className="absolute bottom-1 left-1/2 h-0.5 w-3.5 -translate-x-1/2 rounded-full"
+                      style={{
+                        backgroundColor: activeFormats.color ?? "currentColor",
+                      }}
+                      aria-hidden
+                    />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent
+                align="start"
+                className="w-auto min-w-0 p-2"
+              >
+                <DropdownMenuLabel className="px-1 pb-1.5 pt-0">
+                  Text color
+                </DropdownMenuLabel>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {TEXT_COLORS.map((swatch) => {
+                    const isActive =
+                      swatch.value === null
+                        ? activeFormats.color === null
+                        : activeFormats.color === swatch.value;
+                    return (
+                      <button
+                        key={swatch.label}
+                        type="button"
+                        title={swatch.label}
+                        aria-label={swatch.label}
+                        aria-pressed={isActive}
+                        className={cn(
+                          "size-7 rounded-md ring-1 ring-border/80 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          isActive && "ring-2 ring-primary",
+                          swatch.value === null &&
+                            "bg-[linear-gradient(135deg,#f4f4f5_50%,#18181b_50%)]",
+                        )}
+                        style={
+                          swatch.value
+                            ? { backgroundColor: swatch.value }
+                            : undefined
+                        }
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                          onApplyTextColor(swatch.value);
+                          setColorMenuOpen(false);
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <span className="mx-0.5 h-4 w-px shrink-0 bg-border" />
 
             <FormatButton
@@ -338,6 +438,39 @@ export function EditorToolbar({
             >
               <Link2 className="size-3.5" />
             </FormatButton>
+            <FormatButton
+              disabled={!canEdit || inlineImageUploading}
+              onClick={() => {
+                onPrepareInlineImage();
+                imageInputRef.current?.click();
+              }}
+              label="Insert image"
+              title="Upload image at cursor"
+            >
+              {inlineImageUploading ? (
+                <LoaderCircle className="size-3.5 animate-spin" />
+              ) : (
+                <ImagePlus className="size-3.5" />
+              )}
+            </FormatButton>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                void onInsertInlineImage(file).catch((error) => {
+                  window.alert(
+                    error instanceof Error
+                      ? error.message
+                      : "Image upload failed",
+                  );
+                });
+              }}
+            />
             <FormatButton
               active={activeFormats.blockquote}
               disabled={!canEdit}

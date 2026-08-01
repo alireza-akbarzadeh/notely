@@ -21,6 +21,11 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isImageAttachment(item: NoteAttachment) {
+  if (item.mimeType.startsWith("image/")) return true;
+  return /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(item.fileName);
+}
+
 export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -145,50 +150,76 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
       </div>
 
       <ul className="space-y-2">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/40 px-3 py-2.5"
-          >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-muted-foreground">
-              {item.storage === "link" ? (
-                <Link2 className="size-4" />
-              ) : (
-                <FileText className="size-4" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{item.fileName}</p>
-              <p className="text-[11px] text-muted-foreground">
-                {formatBytes(item.fileSize)}
-                {item.storage === "link" ? " · link" : ""}
-              </p>
-            </div>
-            {item.url ? (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noreferrer"
-                className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-8")}
-                aria-label="Open attachment"
-              >
-                <ExternalLink className="size-4" />
-              </a>
-            ) : null}
-            {canEdit ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={() => deleteMutation.mutate(item.id)}
-                aria-label="Delete attachment"
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            ) : null}
-          </li>
-        ))}
+        {items.map((item) => {
+          const showImage = isImageAttachment(item) && item.url;
+          return (
+            <li
+              key={item.id}
+              className="overflow-hidden rounded-xl border border-border/70 bg-background/40"
+            >
+              {showImage ? (
+                <a
+                  href={item.url!}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block bg-black/20"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.url!}
+                    alt={item.fileName}
+                    className="max-h-48 w-full object-contain"
+                    loading="lazy"
+                  />
+                </a>
+              ) : null}
+              <div className="flex items-center gap-3 px-3 py-2.5">
+                {!showImage ? (
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-muted-foreground">
+                    {item.storage === "link" ? (
+                      <Link2 className="size-4" />
+                    ) : (
+                      <FileText className="size-4" />
+                    )}
+                  </div>
+                ) : null}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{item.fileName}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {formatBytes(item.fileSize)}
+                    {item.storage === "link" ? " · link" : ""}
+                  </p>
+                </div>
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "size-8",
+                    )}
+                    aria-label="Open attachment"
+                  >
+                    <ExternalLink className="size-4" />
+                  </a>
+                ) : null}
+                {canEdit ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={() => deleteMutation.mutate(item.id)}
+                    aria-label="Delete attachment"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                ) : null}
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {canEdit ? (

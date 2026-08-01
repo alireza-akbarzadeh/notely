@@ -8,12 +8,15 @@ import {
   type MouseEvent,
   type SetStateAction,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { EMPTY_FORMATS } from "../constants";
 import type { ActiveFormats, BlockTag } from "../types";
+import type { NoteAttachment } from "@/types/notes";
 import {
   decorateEditorLinks,
   escapeHtmlText,
+  normalizeCssColor,
   normalizeEditorHtml,
   normalizeLinkUrl,
   stripHtml,
@@ -34,12 +37,14 @@ export function useRichTextEditor({
   canEdit,
   setContent,
 }: UseRichTextEditorOptions) {
+  const queryClient = useQueryClient();
   const editorRef = useRef<HTMLDivElement>(null);
   const savedSelectionRef = useRef<Range | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("https://");
   const [linkText, setLinkText] = useState("");
+  const [inlineImageUploading, setInlineImageUploading] = useState(false);
   const [activeFormats, setActiveFormats] =
     useState<ActiveFormats>(EMPTY_FORMATS);
 
@@ -94,6 +99,12 @@ export function useRichTextEditor({
 
     const el = getSelectionElement();
     const block = document.queryCommandValue("formatBlock").toLowerCase();
+    const foreColor = normalizeCssColor(
+      document.queryCommandValue("foreColor") || "",
+    );
+    const editorDefault = editor
+      ? normalizeCssColor(getComputedStyle(editor).color)
+      : null;
 
     setActiveFormats({
       bold: document.queryCommandState("bold"),
@@ -107,6 +118,10 @@ export function useRichTextEditor({
       h1: block === "h1",
       h2: block === "h2",
       blockquote: block === "blockquote",
+      color:
+        foreColor && editorDefault && foreColor === editorDefault
+          ? null
+          : foreColor,
     });
   }
 
@@ -280,6 +295,98 @@ export function useRichTextEditor({
     syncContentFromEditor();
   }
 
+  function prepareInlineImage() {
+    if (!canEdit) return;
+    saveSelection();
+  }
+
+  async function insertInlineImage(file: File) {
+    if (!canEdit || !file.type.startsWith("image/")) return;
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    setInlineImageUploading(true);
+    try {
+      const form = new FormData();
+      form.set("noteId", noteId);
+      form.set("file", file);
+
+      const response = await fetch("/api/attachments", {
+        method: "POST",
+        body: form,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Image upload failed");
+
+      const attachment = data.attachment as NoteAttachment;
+      if (!attachment.url) throw new Error("Uploaded image is unavailable");
+
+      editor.focus();
+      if (!restoreSelection()) {
+        const fallback = document.createRange();
+        fallback.selectNodeContents(editor);
+        fallback.collapse(false);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(fallback);
+      }
+
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+
+      const image = document.createElement("img");
+      image.src = attachment.url;
+      image.alt = attachment.fileName;
+      image.dataset.attachmentId = attachment.id;
+
+      const lineBreak = document.createElement("br");
+      const fragment = document.createDocumentFragment();
+      fragment.append(image, lineBreak);
+      range.insertNode(fragment);
+
+      const next = document.createRange();
+      next.setStartAfter(lineBreak);
+      next.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(next);
+
+      syncContentFromEditor();
+      savedSelectionRef.current = null;
+      void queryClient.invalidateQueries({
+        queryKey: ["attachments", noteId],
+      });
+    } finally {
+      setInlineImageUploading(false);
+    }
+  }
+
+  function prepareTextColor() {
+    saveSelection();
+  }
+
+  function applyTextColor(color: string | null) {
+    if (!canEdit) return;
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    restoreSelection();
+
+    const value =
+      color ??
+      normalizeCssColor(getComputedStyle(editor).color) ??
+      "#f4f4f5";
+
+    document.execCommand("styleWithCSS", false, "true");
+    document.execCommand("foreColor", false, value);
+    syncContentFromEditor();
+    savedSelectionRef.current = null;
+    refreshActiveFormats();
+  }
+
   return {
     editorRef,
     shareOpen,
@@ -301,5 +408,10 @@ export function useRichTextEditor({
     applyLinkFromDialog,
     handleEditorClick,
     insertChecklistItem,
+    prepareInlineImage,
+    insertInlineImage,
+    inlineImageUploading,
+    prepareTextColor,
+    applyTextColor,
   };
 }

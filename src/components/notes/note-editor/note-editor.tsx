@@ -60,6 +60,11 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         }}
         onOpenChecklist={() => setChecklistOpen(true)}
         onOpenResources={() => setResourcesOpen(true)}
+        onPrepareTextColor={editor.prepareTextColor}
+        onApplyTextColor={editor.applyTextColor}
+        onPrepareInlineImage={editor.prepareInlineImage}
+        onInsertInlineImage={editor.insertInlineImage}
+        inlineImageUploading={editor.inlineImageUploading}
       />
 
       <NoteSharePanel
@@ -94,12 +99,15 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         selectedTags={draft.selectedTags}
         tagIds={draft.tagIds}
         title={draft.title}
+        content={draft.content}
         canEdit={canEdit}
         canShare={canShare}
         editorFont={editorFont}
         editorRef={editor.editorRef}
         onTitleChange={draft.setTitle}
         onToggleTag={draft.toggleTag}
+        onOpenChecklist={() => setChecklistOpen(true)}
+        onOpenResources={() => setResourcesOpen(true)}
         onInput={() => {
           editor.syncContentFromEditor();
           editor.refreshActiveFormats();

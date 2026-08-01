@@ -1,12 +1,13 @@
 "use client";
 
-import type { MouseEvent, RefObject } from "react";
+import { useState, type MouseEvent, type RefObject } from "react";
 
 import { Input } from "@/components/ui/input";
 import type { EditorFontOption } from "@/lib/editor-fonts";
 import { cn } from "@/lib/utils";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 
+import { EditorNoteExtras } from "./editor-note-extras";
 import { EditorTags } from "./editor-tags";
 import { formatEditedAt, stripHtml } from "./utils";
 
@@ -16,12 +17,15 @@ type EditorCanvasProps = {
   selectedTags: NoteTag[];
   tagIds: string[];
   title: string;
+  content: string;
   canEdit: boolean;
   canShare: boolean;
   editorFont: EditorFontOption;
   editorRef: RefObject<HTMLDivElement | null>;
   onTitleChange: (value: string) => void;
   onToggleTag: (tagId: string) => void;
+  onOpenChecklist: () => void;
+  onOpenResources: () => void;
   onInput: () => void;
   onBlur: () => void;
   onClick: (event: MouseEvent<HTMLDivElement>) => void;
@@ -35,18 +39,23 @@ export function EditorCanvas({
   selectedTags,
   tagIds,
   title,
+  content,
   canEdit,
   canShare,
   editorFont,
   editorRef,
   onTitleChange,
   onToggleTag,
+  onOpenChecklist,
+  onOpenResources,
   onInput,
   onBlur,
   onClick,
   onKeyUp,
   onMouseUp,
 }: EditorCanvasProps) {
+  const [editorFocused, setEditorFocused] = useState(false);
+
   return (
     <div
       className="prose-note min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-5 [-webkit-overflow-scrolling:touch] scrollbar-thin sm:px-5 md:px-12 md:py-8 lg:px-16"
@@ -82,8 +91,12 @@ export function EditorCanvas({
           aria-label="Note content"
           contentEditable={canEdit}
           suppressContentEditableWarning
+          onFocus={() => setEditorFocused(true)}
           onInput={onInput}
-          onBlur={onBlur}
+          onBlur={() => {
+            setEditorFocused(false);
+            onBlur();
+          }}
           onClick={onClick}
           onKeyUp={onKeyUp}
           onMouseUp={onMouseUp}
@@ -93,7 +106,16 @@ export function EditorCanvas({
             !canEdit && "opacity-90",
           )}
           style={{ fontFamily: editorFont.family }}
-          data-empty={stripHtml(note.content) ? "false" : "true"}
+          data-empty={stripHtml(content) ? "false" : "true"}
+        />
+
+        <EditorNoteExtras
+          noteId={note.id}
+          editorContent={content}
+          canEdit={canEdit}
+          editorFocused={editorFocused}
+          onOpenChecklist={onOpenChecklist}
+          onOpenResources={onOpenResources}
         />
       </div>
     </div>

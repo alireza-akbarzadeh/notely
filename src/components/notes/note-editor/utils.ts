@@ -91,6 +91,29 @@ export function escapeHtmlText(value: string) {
     .replace(/>/g, "&gt;");
 }
 
+/** Normalize CSS / queryCommand color values to `#rrggbb`. */
+export function normalizeCssColor(value: string): string | null {
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed || trimmed === "transparent") return null;
+  if (trimmed.startsWith("#")) {
+    if (/^#[0-9a-f]{3}$/.test(trimmed)) {
+      return `#${trimmed[1]}${trimmed[1]}${trimmed[2]}${trimmed[2]}${trimmed[3]}${trimmed[3]}`;
+    }
+    if (/^#[0-9a-f]{6}$/.test(trimmed)) return trimmed;
+    return null;
+  }
+  const rgb = trimmed.match(
+    /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/,
+  );
+  if (!rgb) return null;
+  return (
+    "#" +
+    [rgb[1], rgb[2], rgb[3]]
+      .map((part) => Number(part).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
 export function statusLabel(
   status: "idle" | "saving" | "saved" | "error",
   canEdit: boolean,

@@ -12,6 +12,8 @@ export type ActiveFormats = {
   h1: boolean;
   h2: boolean;
   blockquote: boolean;
+  /** Current text color as `#rrggbb`, or null when default. */
+  color: string | null;
 };
 
 export type NoteEditorProps = {

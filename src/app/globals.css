@@ -296,6 +296,22 @@
     font-size: 0.9em;
   }
 
+  .note-rich-editor img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 32rem;
+    margin: 1rem 0;
+    border-radius: 0.75rem;
+    object-fit: contain;
+    background: color-mix(in oklch, black 18%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--border) 75%, transparent);
+  }
+
+  .note-rich-editor img::selection {
+    background: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+
   .note-rich-editor[data-empty="true"]::before {
     content: attr(data-placeholder);
     color: var(--muted-foreground);
