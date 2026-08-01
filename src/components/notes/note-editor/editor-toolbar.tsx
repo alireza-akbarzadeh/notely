@@ -11,6 +11,8 @@ import {
   Link2,
   List,
   ListOrdered,
+  ListTodo,
+  Paperclip,
   Quote,
   Redo2,
   Star,
@@ -57,7 +59,41 @@ type EditorToolbarProps = {
   onToggleCode: () => void;
   onToggleFavorite: () => void;
   onDelete: () => void;
+  onOpenChecklist: () => void;
+  onOpenResources: () => void;
 };
+
+function FormatButton({
+  active,
+  disabled,
+  onClick,
+  label,
+  title,
+  children,
+}: {
+  active?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  label: string;
+  title?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={cn(TOOLBAR_BTN, "shrink-0", active && TOOLBAR_BTN_ACTIVE)}
+      disabled={disabled}
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      title={title ?? label}
+    >
+      {children}
+    </Button>
+  );
+}
 
 export function EditorToolbar({
   canEdit,
@@ -77,20 +113,29 @@ export function EditorToolbar({
   onToggleCode,
   onToggleFavorite,
   onDelete,
+  onOpenChecklist,
+  onOpenResources,
 }: EditorToolbarProps) {
   return (
-    <div className="flex h-12 shrink-0 items-center gap-0.5 border-b border-border px-2 md:px-4">
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn(TOOLBAR_BTN, "md:hidden")}
-        onClick={onBack}
-        aria-label="Back to notes"
-      >
-        <ArrowLeft className="size-4" />
-      </Button>
+    <header
+      className={cn(
+        "sticky top-0 z-30 shrink-0 border-b border-border",
+        "bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80",
+        "pt-[env(safe-area-inset-top)]",
+      )}
+    >
+      {/* Top row: navigation + font + actions */}
+      <div className="flex h-11 items-center gap-1 px-2 md:h-12 md:px-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(TOOLBAR_BTN, "shrink-0 md:hidden")}
+          onClick={onBack}
+          aria-label="Back to notes"
+        >
+          <ArrowLeft className="size-4" />
+        </Button>
 
-      <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto scrollbar-thin">
         <Combobox
           items={EDITOR_FONTS}
           value={editorFont}
@@ -101,12 +146,12 @@ export function EditorToolbar({
           itemToStringLabel={(font) => font.label}
           isItemEqualToValue={(a, b) => a.value === b.value}
         >
-          <ComboboxInputGroup className="h-8 w-[9.5rem] shrink-0">
+          <ComboboxInputGroup className="h-8 min-w-0 flex-1 sm:max-w-[11rem] md:flex-none md:w-[9.5rem]">
             <Type className="ml-2 size-3.5 shrink-0 text-muted-foreground" />
             <ComboboxInput
               placeholder="Font"
               disabled={!canEdit}
-              className="pl-1.5"
+              className="min-w-0 pl-1.5"
               aria-label="Editor font"
             />
             <ComboboxTrigger disabled={!canEdit} />
@@ -123,239 +168,196 @@ export function EditorToolbar({
           </ComboboxContent>
         </Combobox>
 
-        <span className="mx-1 hidden h-4 w-px bg-border sm:block" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "h-8 gap-1 px-2 text-xs",
-            activeFormats.h1
-              ? TOOLBAR_BTN_ACTIVE
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-          disabled={!canEdit}
-          onClick={() => onToggleBlock("h1")}
-          aria-pressed={activeFormats.h1}
-        >
-          <Heading1 className="size-3.5" />
-          H1
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "h-8 gap-1 px-2 text-xs",
-            activeFormats.h2
-              ? TOOLBAR_BTN_ACTIVE
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-          disabled={!canEdit}
-          onClick={() => onToggleBlock("h2")}
-          aria-pressed={activeFormats.h2}
-        >
-          <Heading2 className="size-3.5" />
-          H2
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(TOOLBAR_BTN, activeFormats.bold && TOOLBAR_BTN_ACTIVE)}
-          disabled={!canEdit}
-          onClick={() => onInlineCommand("bold")}
-          aria-label="Bold"
-          aria-pressed={activeFormats.bold}
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(TOOLBAR_BTN, activeFormats.italic && TOOLBAR_BTN_ACTIVE)}
-          disabled={!canEdit}
-          onClick={() => onInlineCommand("italic")}
-          aria-label="Italic"
-          aria-pressed={activeFormats.italic}
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            TOOLBAR_BTN,
-            activeFormats.underline && TOOLBAR_BTN_ACTIVE,
-          )}
-          disabled={!canEdit}
-          onClick={() => onInlineCommand("underline")}
-          aria-label="Underline"
-          aria-pressed={activeFormats.underline}
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            TOOLBAR_BTN,
-            activeFormats.strikeThrough && TOOLBAR_BTN_ACTIVE,
-          )}
-          disabled={!canEdit}
-          onClick={() => onInlineCommand("strikeThrough")}
-          aria-label="Strikethrough"
-          aria-pressed={activeFormats.strikeThrough}
-        >
-          <Strikethrough className="size-3.5" />
-        </Button>
-        <span className="mx-1 hidden h-4 w-px bg-border sm:block" />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            TOOLBAR_BTN,
-            activeFormats.unorderedList && TOOLBAR_BTN_ACTIVE,
-          )}
-          disabled={!canEdit}
-          onClick={() => onRunCommand("insertUnorderedList")}
-          aria-label="Bullet list"
-          aria-pressed={activeFormats.unorderedList}
-        >
-          <List className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            TOOLBAR_BTN,
-            activeFormats.orderedList && TOOLBAR_BTN_ACTIVE,
-          )}
-          disabled={!canEdit}
-          onClick={() => onRunCommand("insertOrderedList")}
-          aria-label="Numbered list"
-          aria-pressed={activeFormats.orderedList}
-        >
-          <ListOrdered className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={TOOLBAR_BTN}
-          disabled={!canEdit}
-          onClick={onInsertChecklist}
-          aria-label="Checklist"
-        >
-          <CheckSquare className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(TOOLBAR_BTN, activeFormats.link && TOOLBAR_BTN_ACTIVE)}
-          disabled={!canEdit}
-          onClick={onOpenLink}
-          aria-label="Link"
-          aria-pressed={activeFormats.link}
-        >
-          <Link2 className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            TOOLBAR_BTN,
-            activeFormats.blockquote && TOOLBAR_BTN_ACTIVE,
-          )}
-          disabled={!canEdit}
-          onClick={() => onToggleBlock("blockquote")}
-          aria-label="Quote"
-          aria-pressed={activeFormats.blockquote}
-        >
-          <Quote className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(TOOLBAR_BTN, activeFormats.code && TOOLBAR_BTN_ACTIVE)}
-          disabled={!canEdit}
-          onClick={onToggleCode}
-          aria-label="Code"
-          aria-pressed={activeFormats.code}
-          title="Toggle inline code"
-        >
-          <Code2 className="size-3.5" />
-        </Button>
+        <div className="ml-auto flex shrink-0 items-center gap-0.5">
+          <FormatButton
+            onClick={onOpenChecklist}
+            label="Checklist"
+            title="Open checklist"
+          >
+            <ListTodo className="size-3.5" />
+          </FormatButton>
+          <FormatButton
+            onClick={onOpenResources}
+            label="Resources"
+            title="Open resources"
+          >
+            <Paperclip className="size-3.5" />
+          </FormatButton>
+          <span className="mx-0.5 hidden h-4 w-px bg-border sm:block" />
+          <div className="hidden items-center gap-0.5 sm:flex">
+            <FormatButton
+              disabled={!canEdit}
+              onClick={() => onRunCommand("undo")}
+              label="Undo"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              disabled={!canEdit}
+              onClick={() => onRunCommand("redo")}
+              label="Redo"
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 className="size-3.5" />
+            </FormatButton>
+          </div>
+          <NoteShareTrigger
+            canShare={canShare}
+            open={shareOpen}
+            onOpenChange={onShareOpenChange}
+            className={cn(TOOLBAR_BTN, "hidden shrink-0 sm:inline-flex")}
+          />
+          {canShare ? (
+            <FormatButton onClick={onToggleFavorite} label="Toggle favorite">
+              <Star
+                className={`size-3.5 ${isFavorite ? "fill-primary text-primary" : ""}`}
+              />
+            </FormatButton>
+          ) : null}
+          {canShare ? (
+            <FormatButton
+              onClick={onDelete}
+              label="Delete note"
+            >
+              <Trash2 className="size-3.5" />
+            </FormatButton>
+          ) : null}
+        </div>
       </div>
 
-      <div className="flex items-center gap-0.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={TOOLBAR_BTN}
-          disabled={!canEdit}
-          onClick={() => onRunCommand("undo")}
-          aria-label="Undo"
-          title="Undo (Ctrl+Z)"
-        >
-          <Undo2 className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={TOOLBAR_BTN}
-          disabled={!canEdit}
-          onClick={() => onRunCommand("redo")}
-          aria-label="Redo"
-          title="Redo (Ctrl+Y)"
-        >
-          <Redo2 className="size-3.5" />
-        </Button>
-        <NoteShareTrigger
-          canShare={canShare}
-          open={shareOpen}
-          onOpenChange={onShareOpenChange}
-          className={TOOLBAR_BTN}
-        />
-        {canShare ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={TOOLBAR_BTN}
-            onClick={onToggleFavorite}
-            aria-label="Toggle favorite"
-          >
-            <Star
-              className={`size-3.5 ${isFavorite ? "fill-primary text-primary" : ""}`}
-            />
-          </Button>
-        ) : null}
-        {canShare ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={TOOLBAR_BTN}
-            onClick={onDelete}
-            aria-label="Delete note"
-          >
-            <Trash2 className="size-3.5" />
-          </Button>
-        ) : null}
+      {/* Format row: scrolls horizontally on small screens */}
+      <div className="border-t border-border/60 md:border-t-0">
+        <div className="overflow-x-auto overscroll-x-contain touch-pan-x scrollbar-thin [-webkit-overflow-scrolling:touch]">
+          <div className="flex w-max items-center gap-0.5 px-2 py-1.5 md:px-4 md:pt-0 md:pb-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 shrink-0 gap-1 px-2 text-xs",
+                activeFormats.h1
+                  ? TOOLBAR_BTN_ACTIVE
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+              disabled={!canEdit}
+              onClick={() => onToggleBlock("h1")}
+              aria-pressed={activeFormats.h1}
+              aria-label="Heading 1"
+            >
+              <Heading1 className="size-3.5" />
+              <span className="sr-only sm:not-sr-only">H1</span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "h-8 shrink-0 gap-1 px-2 text-xs",
+                activeFormats.h2
+                  ? TOOLBAR_BTN_ACTIVE
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+              disabled={!canEdit}
+              onClick={() => onToggleBlock("h2")}
+              aria-pressed={activeFormats.h2}
+              aria-label="Heading 2"
+            >
+              <Heading2 className="size-3.5" />
+              <span className="sr-only sm:not-sr-only">H2</span>
+            </Button>
+
+            <span className="mx-0.5 h-4 w-px shrink-0 bg-border" />
+
+            <FormatButton
+              active={activeFormats.bold}
+              disabled={!canEdit}
+              onClick={() => onInlineCommand("bold")}
+              label="Bold"
+              title="Bold (Ctrl+B)"
+            >
+              <Bold className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.italic}
+              disabled={!canEdit}
+              onClick={() => onInlineCommand("italic")}
+              label="Italic"
+              title="Italic (Ctrl+I)"
+            >
+              <Italic className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.underline}
+              disabled={!canEdit}
+              onClick={() => onInlineCommand("underline")}
+              label="Underline"
+              title="Underline (Ctrl+U)"
+            >
+              <Underline className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.strikeThrough}
+              disabled={!canEdit}
+              onClick={() => onInlineCommand("strikeThrough")}
+              label="Strikethrough"
+            >
+              <Strikethrough className="size-3.5" />
+            </FormatButton>
+
+            <span className="mx-0.5 h-4 w-px shrink-0 bg-border" />
+
+            <FormatButton
+              active={activeFormats.unorderedList}
+              disabled={!canEdit}
+              onClick={() => onRunCommand("insertUnorderedList")}
+              label="Bullet list"
+            >
+              <List className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.orderedList}
+              disabled={!canEdit}
+              onClick={() => onRunCommand("insertOrderedList")}
+              label="Numbered list"
+            >
+              <ListOrdered className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              disabled={!canEdit}
+              onClick={onInsertChecklist}
+              label="Checklist"
+            >
+              <CheckSquare className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.link}
+              disabled={!canEdit}
+              onClick={onOpenLink}
+              label="Link"
+            >
+              <Link2 className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.blockquote}
+              disabled={!canEdit}
+              onClick={() => onToggleBlock("blockquote")}
+              label="Quote"
+            >
+              <Quote className="size-3.5" />
+            </FormatButton>
+            <FormatButton
+              active={activeFormats.code}
+              disabled={!canEdit}
+              onClick={onToggleCode}
+              label="Code"
+              title="Toggle inline code"
+            >
+              <Code2 className="size-3.5" />
+            </FormatButton>
+          </div>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

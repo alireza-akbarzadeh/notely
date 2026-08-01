@@ -3,8 +3,6 @@
 import type { MouseEvent, RefObject } from "react";
 
 import { Input } from "@/components/ui/input";
-import { NoteChecklist } from "@/components/notes/note-checklist";
-import { NoteResources } from "@/components/notes/note-resources";
 import type { EditorFontOption } from "@/lib/editor-fonts";
 import { cn } from "@/lib/utils";
 import type { NoteSummary, NoteTag } from "@/types/notes";
@@ -51,10 +49,10 @@ export function EditorCanvas({
 }: EditorCanvasProps) {
   return (
     <div
-      className="prose-note min-h-0 flex-1 overflow-y-auto px-5 py-8 pb-[calc(6rem+env(safe-area-inset-bottom))] scrollbar-thin md:px-12 md:pb-8 lg:px-16"
+      className="prose-note min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-5 [-webkit-overflow-scrolling:touch] scrollbar-thin sm:px-5 md:px-12 md:py-8 lg:px-16"
       style={{ fontFamily: editorFont.family }}
     >
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-2xl pb-8 md:pb-4">
         <EditorTags
           allTags={allTags}
           selectedTags={selectedTags}
@@ -72,7 +70,7 @@ export function EditorCanvas({
           placeholder="Untitled"
         />
 
-        <p className="mb-8 text-xs text-muted-foreground">
+        <p className="mb-6 text-xs text-muted-foreground md:mb-8">
           {formatEditedAt(note.updatedAt)}
           {note.isShared ? ` · Shared · ${note.accessRole ?? "editor"}` : ""}
         </p>
@@ -91,17 +89,12 @@ export function EditorCanvas({
           onMouseUp={onMouseUp}
           data-placeholder="Start writing…"
           className={cn(
-            "note-rich-editor mb-10 min-h-[42vh] w-full text-[16px] leading-7 text-foreground/90 outline-none",
+            "note-rich-editor min-h-[30vh] w-full text-[16px] leading-7 text-foreground/90 outline-none md:min-h-[42vh]",
             !canEdit && "opacity-90",
           )}
           style={{ fontFamily: editorFont.family }}
           data-empty={stripHtml(note.content) ? "false" : "true"}
         />
-
-        <div className="font-sans">
-          <NoteChecklist noteId={note.id} canEdit={canEdit} />
-          <NoteResources noteId={note.id} canEdit={canEdit} />
-        </div>
       </div>
     </div>
   );

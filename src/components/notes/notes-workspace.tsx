@@ -119,7 +119,7 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const note = noteQuery.data?.note;
   const defaultSpaceId = spaceId ?? spacesQuery.data?.spaces[0]?.id;
   const isEmptyList = !notesQuery.isLoading && notes.length === 0;
-  const hideList = (focusMode && showEditor) || (isEmptyList && !showEditor);
+  const hideList = focusMode && showEditor;
 
   return (
     <div className="flex min-h-0 flex-1 bg-background">
@@ -129,7 +129,9 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
             ? "hidden"
             : showEditor
               ? "hidden md:flex md:min-h-0"
-              : "flex min-h-0 w-full md:w-auto"
+              : isEmptyList
+                ? "flex min-h-0 w-full md:hidden"
+                : "flex min-h-0 w-full md:w-auto"
         }
       >
         <NotesList

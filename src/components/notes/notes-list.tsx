@@ -3,9 +3,17 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, ListFilter, Search, Star } from "lucide-react";
+import {
+  ChevronDown,
+  ListFilter,
+  PanelLeftIcon,
+  Search,
+  Star,
+} from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSidebar } from "@/components/ui/sidebar";
 import { cn, formatRelativeDate } from "@/lib/utils";
 import type { NoteSummary } from "@/types/notes";
 
@@ -87,6 +95,7 @@ export function NotesList({
   spaceName = "All Notes",
 }: NotesListProps) {
   const searchParams = useSearchParams();
+  const { toggleSidebar } = useSidebar();
   const view = searchParams.get("view");
 
   const title =
@@ -106,7 +115,18 @@ export function NotesList({
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col border-border bg-panel md:w-75 md:border-r lg:w-85">
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+      <div className="flex h-14 shrink-0 items-center gap-1.5 border-b border-border px-3 pt-[env(safe-area-inset-top)] md:gap-2 md:px-4">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-9 shrink-0 md:hidden"
+          onClick={toggleSidebar}
+          aria-label="Open navigation"
+        >
+          <PanelLeftIcon className="size-4" />
+        </Button>
+
         <button
           type="button"
           className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
@@ -116,6 +136,7 @@ export function NotesList({
           </span>
           <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
         </button>
+
         <button
           type="button"
           className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"

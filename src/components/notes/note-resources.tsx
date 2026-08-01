@@ -105,7 +105,7 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const items: NoteAttachment[] = attachmentsQuery.data?.attachments ?? [];
 
   return (
-    <section className="mb-8 rounded-2xl border border-border/80 bg-card/40 p-4">
+    <section className="rounded-2xl border border-border/80 bg-card/40 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold">Resources</h2>

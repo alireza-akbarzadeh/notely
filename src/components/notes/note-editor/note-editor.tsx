@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
 
 import { EditorCanvas } from "./editor-canvas";
 import { EditorLinkDialog } from "./editor-link-dialog";
+import { EditorPanelsDialog } from "./editor-panels-dialog";
 import { EditorStatusBar } from "./editor-status-bar";
 import { EditorToolbar } from "./editor-toolbar";
 import { useEditorFont } from "./hooks/use-editor-font";
@@ -21,6 +22,8 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
   const canEdit = note.accessRole !== "viewer";
   const canShare = note.accessRole === "owner";
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
 
   const { editorFont, selectFont } = useEditorFont();
   const draft = useNoteDraft({ note, allTags, canEdit });
@@ -34,7 +37,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const stats = useMemo(() => wordStats(draft.content), [draft.content]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-background">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background">
       <EditorToolbar
         canEdit={canEdit}
         canShare={canShare}
@@ -55,6 +58,8 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onDelete={() => {
           if (window.confirm("Delete this note?")) draft.deleteMutation.mutate();
         }}
+        onOpenChecklist={() => setChecklistOpen(true)}
+        onOpenResources={() => setResourcesOpen(true)}
       />
 
       <NoteSharePanel
@@ -72,6 +77,15 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onLinkUrlChange={editor.setLinkUrl}
         onLinkTextChange={editor.setLinkText}
         onApply={editor.applyLinkFromDialog}
+      />
+
+      <EditorPanelsDialog
+        noteId={note.id}
+        canEdit={canEdit}
+        checklistOpen={checklistOpen}
+        resourcesOpen={resourcesOpen}
+        onChecklistOpenChange={setChecklistOpen}
+        onResourcesOpenChange={setResourcesOpen}
       />
 
       <EditorCanvas
