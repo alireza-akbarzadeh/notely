@@ -30,7 +30,13 @@ type NoteGroup = {
   notes: NoteSummary[];
 };
 
-function groupNotes(notes: NoteSummary[]): NoteGroup[] {
+function groupNotes(notes: NoteSummary[], trashView = false): NoteGroup[] {
+  if (trashView) {
+    return notes.length > 0
+      ? [{ key: "trash", label: "Recently deleted", notes }]
+      : [];
+  }
+
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfYesterday = new Date(startOfToday);
@@ -65,8 +71,10 @@ function groupNotes(notes: NoteSummary[]): NoteGroup[] {
   ].filter((group) => group.notes.length > 0);
 }
 
-function noteTimestamp(note: NoteSummary) {
-  const date = new Date(note.updatedAt);
+function noteTimestamp(note: NoteSummary, trashView = false) {
+  const date = new Date(
+    trashView && note.deletedAt ? note.deletedAt : note.updatedAt,
+  );
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfThatDay = new Date(
@@ -113,7 +121,10 @@ export function NotesList({
                 ? "All Notes"
                 : spaceName;
 
-  const groups = useMemo(() => groupNotes(notes), [notes]);
+  const groups = useMemo(
+    () => groupNotes(notes, view === "trash"),
+    [notes, view],
+  );
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col border-border bg-panel md:w-75 md:border-r lg:w-85">
@@ -201,7 +212,7 @@ export function NotesList({
                               {note.title || "Untitled"}
                             </p>
                             <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
-                              {noteTimestamp(note)}
+                              {noteTimestamp(note, view === "trash")}
                             </span>
                           </div>
                           <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">

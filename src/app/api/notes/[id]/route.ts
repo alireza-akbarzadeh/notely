@@ -59,10 +59,18 @@ export async function DELETE(request: Request, { params }: Params) {
   const permanent =
     new URL(request.url).searchParams.get("permanent") === "1";
 
-  const deleted = permanent
-    ? await permanentlyDeleteNote(session.user.id, id)
-    : await deleteNote(session.user.id, id);
-  if (!deleted) return jsonError("Note not found", 404);
+  // Permanent delete only removes notes that are already in Trash.
+  // Active notes always soft-delete, even if ?permanent=1 is sent by mistake.
+  if (permanent) {
+    const hardDeleted = await permanentlyDeleteNote(session.user.id, id);
+    if (hardDeleted) {
+      return NextResponse.json({ success: true, permanent: true });
+    }
+    // Not in trash yet — fall through to soft delete.
+  }
 
-  return NextResponse.json({ success: true });
+  const softDeleted = await deleteNote(session.user.id, id);
+  if (!softDeleted) return jsonError("Note not found", 404);
+
+  return NextResponse.json({ success: true, permanent: false });
 }

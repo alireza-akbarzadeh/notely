@@ -7,6 +7,7 @@ import { NoteDeleteDialog } from "@/components/notes/note-delete-dialog";
 import { NoteReminderDialog } from "@/components/notes/note-reminder-dialog";
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
 
+import { applyAppendNoteContent } from "./ai-apply";
 import { EditorAiSheet } from "./editor-ai-sheet";
 import { EditorCanvas } from "./editor-canvas";
 import { EditorLinkDialog } from "./editor-link-dialog";
@@ -28,6 +29,11 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const canShare = !isTrashed && note.accessRole === "owner";
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [integrationsOpen, setIntegrationsOpen] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("integration"),
+  );
   const [aiOpen, setAiOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
@@ -67,6 +73,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onRestore={() => draft.restoreMutation.mutate()}
         onOpenChecklist={() => setChecklistOpen(true)}
         onOpenResources={() => setResourcesOpen(true)}
+        onOpenIntegrations={() => setIntegrationsOpen(true)}
         onOpenAi={() => setAiOpen(true)}
         onOpenReminder={() => setReminderOpen(true)}
         onPrepareTextColor={editor.prepareTextColor}
@@ -139,8 +146,18 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         canEdit={canEdit}
         checklistOpen={checklistOpen}
         resourcesOpen={resourcesOpen}
+        integrationsOpen={integrationsOpen}
         onChecklistOpenChange={setChecklistOpen}
         onResourcesOpenChange={setResourcesOpen}
+        onIntegrationsOpenChange={setIntegrationsOpen}
+        onImportIntegration={(content) => {
+          applyAppendNoteContent(
+            editor.editorRef.current,
+            draft.content,
+            draft.setContent,
+            content,
+          );
+        }}
       />
 
       <NoteReminderDialog

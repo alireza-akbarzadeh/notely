@@ -325,13 +325,15 @@ export async function updateNote(
   return getNote(userId, noteId);
 }
 
-/** Soft-delete: move note to Trash. */
+/** Soft-delete: move note to Trash. Owner-only; does not require share capability. */
 export async function deleteNote(userId: string, noteId: string) {
-  const access = await requireNoteAccess(userId, noteId, "share");
+  const access = await requireNoteAccess(userId, noteId, "read");
   if (!access || access.role !== "owner") return false;
 
   const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
-  if (!existing || existing.deletedAt) return false;
+  if (!existing) return false;
+  // Already in trash — treat as success so the client can navigate to Trash.
+  if (existing.deletedAt) return true;
 
   const now = new Date();
   await db

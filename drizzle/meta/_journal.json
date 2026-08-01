@@ -57,6 +57,13 @@
       "when": 1785513000000,
       "tag": "0007_reminders_push",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785573600000,
+      "tag": "0008_google_connections",
+      "breakpoints": true
     }
   ]
 }

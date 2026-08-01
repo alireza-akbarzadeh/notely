@@ -102,12 +102,13 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
       const response = await fetch(url, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete");
-      return { permanent };
+      return data as { success: boolean; permanent?: boolean };
     },
-    onSuccess: ({ permanent }) => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    onSuccess: async () => {
       queryClient.removeQueries({ queryKey: ["note", note.id] });
-      router.push(permanent ? "/notes?view=trash" : "/notes");
+      await queryClient.invalidateQueries({ queryKey: ["notes"] });
+      // Soft-deleted notes appear here; after permanent delete Trash refreshes.
+      router.push("/notes?view=trash");
     },
   });
 

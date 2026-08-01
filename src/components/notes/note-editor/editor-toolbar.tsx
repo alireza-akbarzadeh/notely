@@ -18,6 +18,7 @@ import {
   LoaderCircle,
   Paperclip,
   PenLine,
+  Plug,
   Quote,
   Redo2,
   RotateCcw,
@@ -77,6 +78,7 @@ type EditorToolbarProps = {
   isTrashed?: boolean;
   onOpenChecklist: () => void;
   onOpenResources: () => void;
+  onOpenIntegrations: () => void;
   onOpenAi: () => void;
   onOpenReminder: () => void;
   onPrepareTextColor: () => void;
@@ -140,6 +142,7 @@ export function EditorToolbar({
   isTrashed = false,
   onOpenChecklist,
   onOpenResources,
+  onOpenIntegrations,
   onOpenAi,
   onOpenReminder,
   onPrepareTextColor,
@@ -218,6 +221,13 @@ export function EditorToolbar({
             title="Open resources"
           >
             <Paperclip className="size-3.5" />
+          </FormatButton>
+          <FormatButton
+            onClick={onOpenIntegrations}
+            label="Integrations"
+            title="Import from connected apps"
+          >
+            <Plug className="size-3.5" />
           </FormatButton>
           {!isTrashed ? (
             <FormatButton
