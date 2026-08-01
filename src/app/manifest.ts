@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Notely",
     description:
       "Think. Note. Plan. A calm workspace for notes, spaces, reminders, and calendar.",
-    start_url: "/notes",
+    start_url: "/workspace",
     scope: "/",
     display: "standalone",
     orientation: "portrait-primary",

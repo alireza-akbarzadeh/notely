@@ -100,7 +100,7 @@ export async function listUserPushSubscriptions(userId: string) {
 function reminderUrl(reminder: ReminderSummary) {
   if (reminder.noteId) return `/notes/${reminder.noteId}`;
   if (reminder.eventId) return `/calendar`;
-  return "/notes";
+  return "/workspace";
 }
 
 export async function sendReminderPush(

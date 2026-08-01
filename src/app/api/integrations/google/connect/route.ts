@@ -3,14 +3,18 @@ import { NextResponse } from "next/server";
 
 import { requireSession } from "@/lib/api/auth-guard";
 import { getEnv } from "@/lib/env";
-import { createGoogleAuthorizationUrl } from "@/lib/google-integration";
+import {
+  createGoogleAuthorizationUrl,
+  isGoogleIntegrationConfigured,
+} from "@/lib/google-integration";
+import { workspacePath } from "@/lib/workspace/paths";
 
 const STATE_COOKIE = "notely_google_oauth_state";
 const RETURN_COOKIE = "notely_google_oauth_return";
 
 function safeReturnTo(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/notes";
+    return workspacePath({ view: "integration" });
   }
   return value;
 }
@@ -19,10 +23,25 @@ export async function GET(request: Request) {
   const { session, response } = await requireSession();
   if (!session) return response!;
 
+  const returnTo = safeReturnTo(
+    new URL(request.url).searchParams.get("returnTo"),
+  );
+  const appUrl = getEnv().NEXT_PUBLIC_APP_URL;
+  const secure = appUrl.startsWith("https://");
+
+  if (!(await isGoogleIntegrationConfigured(session.user.id))) {
+    const url = new URL(returnTo, appUrl);
+    url.searchParams.set("integration", "error");
+    url.searchParams.set(
+      "integrationError",
+      "Add your Google Client ID and Client Secret first.",
+    );
+    return NextResponse.redirect(url);
+  }
+
   const state = randomBytes(32).toString("base64url");
-  const returnTo = safeReturnTo(new URL(request.url).searchParams.get("returnTo"));
-  const redirect = NextResponse.redirect(createGoogleAuthorizationUrl(state));
-  const secure = getEnv().NEXT_PUBLIC_APP_URL.startsWith("https://");
+  const authUrl = await createGoogleAuthorizationUrl(session.user.id, state);
+  const redirect = NextResponse.redirect(authUrl);
   const cookieOptions = {
     httpOnly: true,
     secure,

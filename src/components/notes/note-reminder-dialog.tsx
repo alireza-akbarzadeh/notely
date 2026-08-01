@@ -53,6 +53,50 @@ function defaultRemindAt() {
   return d;
 }
 
+function withTime(base: Date, hours: number, minutes = 0) {
+  const d = new Date(base);
+  d.setHours(hours, minutes, 0, 0);
+  return d;
+}
+
+const QUICK_PRESETS: {
+  label: string;
+  build: () => Date;
+}[] = [
+  {
+    label: "In 15 min",
+    build: () => {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() + 15, 0, 0);
+      return d;
+    },
+  },
+  {
+    label: "In 1 hour",
+    build: () => {
+      const d = new Date();
+      d.setHours(d.getHours() + 1, d.getMinutes(), 0, 0);
+      return d;
+    },
+  },
+  {
+    label: "Tonight 8pm",
+    build: () => {
+      const d = withTime(new Date(), 20);
+      if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+      return d;
+    },
+  },
+  {
+    label: "Tomorrow 9am",
+    build: () => {
+      const d = withTime(new Date(), 9);
+      d.setDate(d.getDate() + 1);
+      return d;
+    },
+  },
+];
+
 export function NoteReminderDialog({
   noteId,
   noteTitle,
@@ -110,8 +154,8 @@ export function NoteReminderDialog({
     },
     onSuccess: () => {
       setError(null);
+      setRemindAt(toLocalInputValue(defaultRemindAt()));
       queryClient.invalidateQueries({ queryKey: ["reminders"] });
-      onOpenChange(false);
     },
     onError: (err: Error) => setError(err.message),
   });
@@ -130,7 +174,16 @@ export function NoteReminderDialog({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (next) {
+          setRemindAt(toLocalInputValue(defaultRemindAt()));
+          setError(null);
+        }
+        onOpenChange(next);
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -187,8 +240,25 @@ export function NoteReminderDialog({
                 id="remind-at"
                 type="datetime-local"
                 value={remindAt}
+                min={toLocalInputValue(new Date())}
                 onChange={(e) => setRemindAt(e.target.value)}
               />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {QUICK_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() =>
+                      setRemindAt(toLocalInputValue(preset.build()))
+                    }
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-1.5">

@@ -42,12 +42,14 @@ export const createTagSchema = z.object({
 });
 
 export const createTaskSchema = z.object({
-  noteId: z.string().min(1),
+  noteId: z.string().min(1).optional().nullable(),
   text: z.string().trim().max(500).default(""),
+  status: z.enum(["todo", "in_progress", "done"]).optional().default("todo"),
 });
 
 export const updateTaskSchema = z.object({
   text: z.string().trim().max(500).optional(),
+  status: z.enum(["todo", "in_progress", "done"]).optional(),
   isCompleted: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 });

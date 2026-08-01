@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 import { db, noteTags, notes, spaces, tags } from "@/lib/db";
@@ -35,12 +35,66 @@ function summarize(content: string, explicit?: string | null) {
   return trimmed.length > 140 ? `${trimmed.slice(0, 137)}…` : trimmed;
 }
 
+export function serializeSpace(
+  row: typeof spaces.$inferSelect,
+  extras?: { noteCount?: number },
+) {
+  return {
+    ...row,
+    deletedAt: row.deletedAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    ...(extras?.noteCount !== undefined ? { noteCount: extras.noteCount } : {}),
+  };
+}
+
+/** Ids of the user's spaces that are not in Trash — used to scope note queries. */
+function activeSpaceIds(userId: string) {
+  return db
+    .select({ id: spaces.id })
+    .from(spaces)
+    .where(and(eq(spaces.userId, userId), isNull(spaces.deletedAt)));
+}
+
 export async function listSpaces(userId: string) {
   return db
     .select()
     .from(spaces)
-    .where(eq(spaces.userId, userId))
+    .where(and(eq(spaces.userId, userId), isNull(spaces.deletedAt)))
     .orderBy(asc(spaces.sortOrder), asc(spaces.name));
+}
+
+/** Spaces in Trash, newest first, each with the number of notes that come back on restore. */
+export async function listTrashedSpaces(userId: string) {
+  const rows = await db
+    .select()
+    .from(spaces)
+    .where(and(eq(spaces.userId, userId), isNotNull(spaces.deletedAt)))
+    .orderBy(desc(spaces.deletedAt));
+
+  if (rows.length === 0) return [];
+
+  const counts = await db
+    .select({
+      spaceId: notes.spaceId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(notes)
+    .where(
+      and(
+        inArray(
+          notes.spaceId,
+          rows.map((row) => row.id),
+        ),
+        isNull(notes.deletedAt),
+      ),
+    )
+    .groupBy(notes.spaceId);
+
+  const countBySpace = new Map(counts.map((row) => [row.spaceId, row.count]));
+  return rows.map((row) =>
+    serializeSpace(row, { noteCount: countBySpace.get(row.id) ?? 0 }),
+  );
 }
 
 export async function ensureDefaultSpace(userId: string) {
@@ -91,7 +145,7 @@ export async function updateSpace(
     .from(spaces)
     .where(and(eq(spaces.id, spaceId), eq(spaces.userId, userId)))
     .limit(1);
-  if (!existing) return null;
+  if (!existing || existing.deletedAt) return null;
 
   await db
     .update(spaces)
@@ -108,6 +162,11 @@ export async function updateSpace(
   return space!;
 }
 
+/**
+ * Soft-delete: move the space to Trash. Its notes are left untouched so that
+ * restoring the space brings the whole thing back; they are hidden everywhere
+ * because every note query is scoped to non-trashed spaces.
+ */
 export async function deleteSpace(userId: string, spaceId: string) {
   const [existing] = await db
     .select()
@@ -115,6 +174,42 @@ export async function deleteSpace(userId: string, spaceId: string) {
     .where(and(eq(spaces.id, spaceId), eq(spaces.userId, userId)))
     .limit(1);
   if (!existing) return false;
+  if (existing.deletedAt) return true;
+
+  const now = new Date();
+  await db
+    .update(spaces)
+    .set({ deletedAt: now, updatedAt: now })
+    .where(eq(spaces.id, spaceId));
+  return true;
+}
+
+export async function restoreSpace(userId: string, spaceId: string) {
+  const [existing] = await db
+    .select()
+    .from(spaces)
+    .where(and(eq(spaces.id, spaceId), eq(spaces.userId, userId)))
+    .limit(1);
+  if (!existing?.deletedAt) return null;
+
+  await db
+    .update(spaces)
+    .set({ deletedAt: null, updatedAt: new Date() })
+    .where(eq(spaces.id, spaceId));
+
+  const [space] = await db.select().from(spaces).where(eq(spaces.id, spaceId)).limit(1);
+  return space!;
+}
+
+/** Hard-delete: permanently remove a trashed space and, by cascade, its notes. */
+export async function permanentlyDeleteSpace(userId: string, spaceId: string) {
+  const [existing] = await db
+    .select()
+    .from(spaces)
+    .where(and(eq(spaces.id, spaceId), eq(spaces.userId, userId)))
+    .limit(1);
+  if (!existing?.deletedAt) return false;
+
   await db.delete(spaces).where(eq(spaces.id, spaceId));
   return true;
 }
@@ -179,7 +274,10 @@ export async function listNotes(
     }));
   }
 
-  const conditions = [eq(notes.userId, userId)];
+  const conditions = [
+    eq(notes.userId, userId),
+    inArray(notes.spaceId, activeSpaceIds(userId)),
+  ];
   if (options?.trashOnly) {
     conditions.push(isNotNull(notes.deletedAt));
   } else {
@@ -210,8 +308,14 @@ export async function getNote(userId: string, noteId: string) {
   const access = await requireNoteAccess(userId, noteId, "read");
   if (!access) return null;
 
-  const [row] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
-  if (!row) return null;
+  const [joined] = await db
+    .select({ note: notes })
+    .from(notes)
+    .innerJoin(spaces, eq(notes.spaceId, spaces.id))
+    .where(and(eq(notes.id, noteId), isNull(spaces.deletedAt)))
+    .limit(1);
+  if (!joined) return null;
+  const row = joined.note;
 
   const tagMap = await tagsForNotes([row.id]);
   return serializeNote(row, tagMap.get(row.id) ?? [], {
@@ -225,7 +329,13 @@ async function assertSpaceOwned(userId: string, spaceId: string) {
   const [space] = await db
     .select()
     .from(spaces)
-    .where(and(eq(spaces.id, spaceId), eq(spaces.userId, userId)))
+    .where(
+      and(
+        eq(spaces.id, spaceId),
+        eq(spaces.userId, userId),
+        isNull(spaces.deletedAt),
+      ),
+    )
     .limit(1);
   return space ?? null;
 }

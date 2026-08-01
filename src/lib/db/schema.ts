@@ -71,6 +71,24 @@ export const googleConnections = pgTable(
   ],
 );
 
+/** Per-user Google Cloud OAuth app credentials (BYO client id/secret). */
+export const googleOAuthCredentials = pgTable(
+  "google_oauth_credentials",
+  {
+    id: text("id").primaryKey(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    clientId: text("clientId").notNull(),
+    clientSecret: text("clientSecret").notNull(),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("google_oauth_credentials_userId_unique").on(table.userId),
+  ],
+);
+
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
@@ -101,6 +119,7 @@ export const spaces = pgTable("spaces", {
   icon: text("icon"),
   sortOrder: integer("sortOrder").notNull().default(0),
   isFavorite: boolean("isFavorite").notNull().default(false),
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
@@ -149,12 +168,12 @@ export const noteTags = pgTable(
 export const tasks = pgTable("tasks", {
   id: text("id").primaryKey(),
   noteId: text("noteId")
-    .notNull()
     .references(() => notes.id, { onDelete: "cascade" }),
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   text: text("text").notNull().default(""),
+  status: text("status").notNull().default("todo"),
   isCompleted: boolean("isCompleted").notNull().default(false),
   sortOrder: integer("sortOrder").notNull().default(0),
   createdAt: timestamp("createdAt").notNull().defaultNow(),

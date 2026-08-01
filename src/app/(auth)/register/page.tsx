@@ -50,7 +50,7 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/notes");
+    router.push("/workspace");
     router.refresh();
   }
 
@@ -61,7 +61,7 @@ export default function RegisterPage() {
       subtitle="One workspace for notes, spaces, and tags."
     >
       <AuthPanel>
-        <SocialAuthButtons callbackURL="/notes" className="mb-5" />
+        <SocialAuthButtons callbackURL="/workspace" className="mb-5" />
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FieldGroup>

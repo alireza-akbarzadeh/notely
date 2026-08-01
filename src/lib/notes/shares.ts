@@ -2,7 +2,7 @@ import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 
-import { db, noteShares, notes, user } from "@/lib/db";
+import { db, noteShares, notes, spaces, user } from "@/lib/db";
 import { getNoteAccess, requireNoteAccess } from "@/lib/notes/access";
 
 const inviter = alias(user, "inviter");
@@ -228,11 +228,13 @@ export async function listSharedWithMe(userId: string) {
     })
     .from(noteShares)
     .innerJoin(notes, eq(noteShares.noteId, notes.id))
+    .innerJoin(spaces, eq(notes.spaceId, spaces.id))
     .where(
       and(
         eq(noteShares.userId, userId),
         eq(noteShares.status, "accepted"),
         isNull(notes.deletedAt),
+        isNull(spaces.deletedAt),
       ),
     )
     .orderBy(desc(notes.updatedAt));
@@ -255,12 +257,14 @@ export async function searchNotes(userId: string, query: string) {
   const pattern = `%${q}%`;
 
   const owned = await db
-    .select()
+    .select({ note: notes })
     .from(notes)
+    .innerJoin(spaces, eq(notes.spaceId, spaces.id))
     .where(
       and(
         eq(notes.userId, userId),
         isNull(notes.deletedAt),
+        isNull(spaces.deletedAt),
         or(ilike(notes.title, pattern), ilike(notes.content, pattern)),
       ),
     )
@@ -271,19 +275,21 @@ export async function searchNotes(userId: string, query: string) {
     .select({ note: notes })
     .from(noteShares)
     .innerJoin(notes, eq(noteShares.noteId, notes.id))
+    .innerJoin(spaces, eq(notes.spaceId, spaces.id))
     .where(
       and(
         eq(noteShares.userId, userId),
         eq(noteShares.status, "accepted"),
         isNull(notes.deletedAt),
+        isNull(spaces.deletedAt),
         or(ilike(notes.title, pattern), ilike(notes.content, pattern)),
       ),
     )
     .orderBy(desc(notes.updatedAt))
     .limit(20);
 
-  const map = new Map<string, (typeof owned)[number]>();
-  for (const row of owned) map.set(row.id, row);
+  const map = new Map<string, (typeof notes.$inferSelect)>();
+  for (const row of owned) map.set(row.note.id, row.note);
   for (const row of shared) map.set(row.note.id, row.note);
 
   return [...map.values()].map((row) => ({

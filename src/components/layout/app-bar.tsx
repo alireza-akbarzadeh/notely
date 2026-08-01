@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { isWorkspacePath, workspacePath } from "@/lib/workspace/paths";
 
 type AppBarProps = {
   title?: string;
@@ -40,9 +41,11 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
     title ??
     (pathname.startsWith("/settings")
       ? "Settings"
-      : pathname.startsWith("/notes")
-        ? "Notes"
-        : "Notely");
+      : isWorkspacePath(pathname)
+        ? "Workspace"
+        : pathname.startsWith("/notes")
+          ? "Notes"
+          : "Notely");
 
   return (
     <header
@@ -94,7 +97,7 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
                 variant="ghost"
                 size="icon"
                 className="size-9"
-                onClick={() => router.push("/notes?view=shared")}
+                onClick={() => router.push(workspacePath({ view: "archive" }))}
                 aria-label="Shared notes"
               />
             }
@@ -112,7 +115,7 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
                 variant="ghost"
                 size="icon"
                 className="relative size-9"
-                onClick={() => router.push("/notes?view=inbox")}
+                onClick={() => router.push(workspacePath({ view: "inbox" }))}
                 aria-label={
                   pendingInvites > 0
                     ? `Inbox, ${pendingInvites} pending`

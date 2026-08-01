@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, NotebookPen, Plus, Settings } from "lucide-react";
+import { CalendarDays, CheckSquare, NotebookPen, Plus, Settings } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { notePath, workspacePath } from "@/lib/workspace/paths";
 import type { SpaceSummary } from "@/types/notes";
 
 export function MobileBottomNav() {
@@ -16,10 +17,9 @@ export function MobileBottomNav() {
   const view = searchParams.get("view");
   const isNoteEditor = /^\/notes\/[^/]+$/.test(pathname);
 
-  if (isNoteEditor) return null;
-
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
+    enabled: !isNoteEditor,
     queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
       const response = await fetch("/api/spaces");
       if (!response.ok) throw new Error("Failed to load spaces");
@@ -40,23 +40,34 @@ export function MobileBottomNav() {
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      router.push(`/notes/${note.id}`);
+      router.push(notePath(note.id));
     },
   });
+
+  if (isNoteEditor) return null;
 
   const defaultSpaceId = spacesQuery.data?.spaces[0]?.id;
   const items = [
     {
-      href: "/notes",
+      href: workspacePath(),
       label: "Notes",
       icon: NotebookPen,
-      active: pathname.startsWith("/notes") && view !== "favorites",
+      active:
+        (pathname.startsWith("/workspace") || pathname.startsWith("/notes")) &&
+        view !== "favorites" &&
+        view !== "integration",
     },
     {
       href: "/calendar",
       label: "Calendar",
       icon: CalendarDays,
       active: pathname.startsWith("/calendar"),
+    },
+    {
+      href: "/tasks",
+      label: "Tasks",
+      icon: CheckSquare,
+      active: pathname.startsWith("/tasks"),
     },
     {
       href: "/settings",
@@ -71,7 +82,7 @@ export function MobileBottomNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card shadow-[0_-10px_28px_rgba(0,0,0,0.28)] md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-4 gap-1.5 px-2.5 py-2.5">
+      <div className="grid grid-cols-5 gap-1 px-2 py-2.5">
         {items.map(({ href, label, icon: Icon, active }) => (
           <Link
             key={href}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, requireSession } from "@/lib/api/auth-guard";
-import { createTask, listTasksForNote } from "@/lib/notes/tasks";
+import { createTask, listTasks, listTasksForNote } from "@/lib/notes/tasks";
 import { createTaskSchema } from "@/lib/validations/notes";
 
 export async function GET(request: Request) {
@@ -9,10 +9,10 @@ export async function GET(request: Request) {
   if (!session) return response!;
 
   const noteId = new URL(request.url).searchParams.get("noteId");
-  if (!noteId) return jsonError("noteId is required");
-
-  const rows = await listTasksForNote(session.user.id, noteId);
-  if (!rows) return jsonError("Note not found", 404);
+  const rows = noteId
+    ? await listTasksForNote(session.user.id, noteId)
+    : await listTasks(session.user.id);
+  if (rows === null) return jsonError("Note not found", 404);
 
   return NextResponse.json({ tasks: rows });
 }

@@ -14,6 +14,7 @@ import {
   Moon,
   NotebookPen,
   Pencil,
+  Plug,
   Plus,
   Settings,
   Star,
@@ -56,6 +57,12 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import {
+  isNotesChromePath,
+  notePath,
+  normalizeWorkspaceView,
+  workspacePath,
+} from "@/lib/workspace/paths";
 import { useFocusMode } from "@/stores/focus-mode";
 import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
@@ -70,7 +77,7 @@ export function AppSidebar() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const view = searchParams.get("view");
+  const view = normalizeWorkspaceView(searchParams.get("view"));
   const activeSpaceId = searchParams.get("spaceId");
   const [createSpaceOpen, setCreateSpaceOpen] = useState(false);
   const [spaceName, setSpaceName] = useState("");
@@ -108,7 +115,7 @@ export function AppSidebar() {
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      router.push(`/notes/${note.id}`);
+      router.push(notePath(note.id));
     },
   });
 
@@ -128,7 +135,7 @@ export function AppSidebar() {
       setCreateSpaceOpen(false);
       setSpaceName("");
       setCreateSpaceError(null);
-      if (space) router.push(`/notes?spaceId=${space.id}`);
+      if (space) router.push(workspacePath({ spaceId: space.id }));
     },
     onError: (error) => {
       setCreateSpaceError(
@@ -193,7 +200,9 @@ export function AppSidebar() {
     onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: ["spaces"] });
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      if (activeSpaceId === id) router.push("/notes");
+      if (activeSpaceId === id) {
+        router.push(workspacePath({ view: "trash" }));
+      }
     },
   });
 
@@ -234,16 +243,24 @@ export function AppSidebar() {
 
   const spaces: SpaceSummary[] = spacesQuery.data?.spaces ?? [];
   const defaultSpaceId = spaces[0]?.id;
-  const onNotes = pathname.startsWith("/notes");
+  const onWorkspace = isNotesChromePath(pathname);
+  const onNotesList =
+    onWorkspace &&
+    view !== "today" &&
+    view !== "archive" &&
+    view !== "inbox" &&
+    view !== "trash" &&
+    view !== "integration" &&
+    view !== "favorites";
   const noteCount = notesCountQuery.data?.notes.length ?? 0;
   const storageMb = (noteCount * 0.018).toFixed(1);
 
   const navItems = [
     {
       label: "Notes",
-      href: "/notes",
+      href: workspacePath({ view: "notes" }),
       icon: NotebookPen,
-      active: onNotes && !view,
+      active: onNotesList && !activeSpaceId,
       tooltip: "Notes",
     },
     {
@@ -255,38 +272,45 @@ export function AppSidebar() {
     },
     {
       label: "Journal",
-      href: "/notes?view=today",
+      href: workspacePath({ view: "today" }),
       icon: BookOpen,
       active: view === "today",
       tooltip: "Journal",
     },
     {
       label: "Tasks",
-      href: "/notes?view=favorites",
+      href: "/tasks",
       icon: CheckSquare,
-      active: view === "favorites",
-      tooltip: "Favorites & tasks",
+      active: pathname.startsWith("/tasks"),
+      tooltip: "Task workflow",
     },
     {
       label: "Archive",
-      href: "/notes?view=shared",
+      href: workspacePath({ view: "archive" }),
       icon: Archive,
-      active: view === "shared",
+      active: view === "archive",
       tooltip: "Shared archive",
     },
     {
       label: "Inbox",
-      href: "/notes?view=inbox",
+      href: workspacePath({ view: "inbox" }),
       icon: Inbox,
       active: view === "inbox",
       tooltip: "Inbox",
     },
     {
       label: "Trash",
-      href: "/notes?view=trash",
+      href: workspacePath({ view: "trash" }),
       icon: Trash2,
       active: view === "trash",
       tooltip: "Trash",
+    },
+    {
+      label: "Integrations",
+      href: workspacePath({ view: "integration" }),
+      icon: Plug,
+      active: view === "integration",
+      tooltip: "Connected apps",
     },
     {
       label: "Settings",
@@ -300,7 +324,7 @@ export function AppSidebar() {
   function isSpaceActive(space: SpaceSummary) {
     return (
       activeSpaceId === space.id ||
-      (!activeSpaceId && !view && space.id === defaultSpaceId && onNotes)
+      (!activeSpaceId && onNotesList && space.id === defaultSpaceId)
     );
   }
 
@@ -311,7 +335,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              render={<Link href="/notes" />}
+              render={<Link href={workspacePath()} />}
               className="hover:bg-transparent data-active:bg-transparent"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary/15 text-primary">
@@ -395,7 +419,7 @@ export function AppSidebar() {
                         <SidebarMenuButton
                           isActive={active}
                           tooltip={space.name}
-                          render={<Link href={`/notes?spaceId=${space.id}`} />}
+                          render={<Link href={workspacePath({ spaceId: space.id })} />}
                           className={cn(
                             "h-9 rounded-lg",
                             active && "note-active-rail bg-sidebar-accent",
@@ -422,7 +446,7 @@ export function AppSidebar() {
                           </ContextMenuItem>
                           <ContextMenuItem
                             onClick={() =>
-                              router.push(`/notes?spaceId=${space.id}`)
+                              router.push(workspacePath({ spaceId: space.id }))
                             }
                           >
                             <FolderOpen />
@@ -634,14 +658,14 @@ export function AppSidebar() {
         onOpenChange={(open) => {
           if (!open) setSpaceToDelete(null);
         }}
-        title="Delete space?"
+        title="Move space to Trash?"
         description={
           spaceToDelete
-            ? `“${spaceToDelete.name}” and its notes will be removed. This cannot be undone.`
-            : "This space and its notes will be removed."
+            ? `“${spaceToDelete.name}” and its notes will move to Trash. You can restore them later.`
+            : "This space and its notes will move to Trash."
         }
-        confirmLabel="Delete space"
-        pendingLabel="Deleting…"
+        confirmLabel="Move to Trash"
+        pendingLabel="Moving…"
         pending={deleteSpaceMutation.isPending}
         destructive
         onConfirm={() => {

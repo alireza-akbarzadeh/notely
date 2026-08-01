@@ -67,7 +67,7 @@ export function LandingNav() {
           ) : isLoggedIn ? (
             <>
               <Link
-                href="/notes"
+                href="/workspace"
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "hidden px-3.5 sm:inline-flex",
@@ -130,7 +130,7 @@ export function LandingNav() {
             <div className="mt-2 flex items-center justify-between gap-3 border-t border-border/60 pt-4">
               {isLoggedIn ? (
                 <Link
-                  href="/notes"
+                  href="/workspace"
                   onClick={() => setOpen(false)}
                   className={cn(
                     buttonVariants({ size: "lg" }),

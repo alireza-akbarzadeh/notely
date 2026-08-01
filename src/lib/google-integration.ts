@@ -9,7 +9,7 @@ import {
 } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 
-import { db, googleConnections } from "@/lib/db";
+import { db, googleConnections, googleOAuthCredentials } from "@/lib/db";
 import { getEnv } from "@/lib/env";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -47,6 +47,8 @@ export type GoogleIntegrationItem = {
   url: string | null;
 };
 
+export type GoogleCredentialSource = "env" | "user" | null;
+
 function integrationKey() {
   return createHash("sha256")
     .update(`notely-google-integration:${getEnv().BETTER_AUTH_SECRET}`)
@@ -81,19 +83,52 @@ function decryptToken(value: string) {
   ]).toString("utf8");
 }
 
-function googleCredentials() {
+function envGoogleCredentials() {
   const env = getEnv();
-  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    throw new Error("Google integration is not configured");
-  }
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return null;
   return {
     clientId: env.GOOGLE_CLIENT_ID,
     clientSecret: env.GOOGLE_CLIENT_SECRET,
-    redirectUri: new URL(
-      "/api/integrations/google/callback",
-      env.NEXT_PUBLIC_APP_URL,
-    ).toString(),
   };
+}
+
+function googleRedirectUri() {
+  return new URL(
+    "/api/integrations/google/callback",
+    getEnv().NEXT_PUBLIC_APP_URL,
+  ).toString();
+}
+
+async function getUserOAuthCredentials(userId: string) {
+  const [row] = await db
+    .select()
+    .from(googleOAuthCredentials)
+    .where(eq(googleOAuthCredentials.userId, userId))
+    .limit(1);
+  if (!row) return null;
+  return {
+    clientId: decryptToken(row.clientId),
+    clientSecret: decryptToken(row.clientSecret),
+  };
+}
+
+async function googleCredentials(userId: string) {
+  const userCreds = await getUserOAuthCredentials(userId);
+  const envCreds = envGoogleCredentials();
+  const creds = userCreds ?? envCreds;
+  if (!creds) {
+    throw new Error("Google integration is not configured");
+  }
+  return {
+    ...creds,
+    redirectUri: googleRedirectUri(),
+    source: (userCreds ? "user" : "env") as Exclude<GoogleCredentialSource, null>,
+  };
+}
+
+function maskClientId(clientId: string) {
+  if (clientId.length <= 12) return "••••••••";
+  return `${clientId.slice(0, 8)}…${clientId.slice(-4)}`;
 }
 
 async function googleJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -105,13 +140,53 @@ async function googleJson<T>(url: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function isGoogleIntegrationConfigured() {
-  const env = getEnv();
-  return Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+export async function isGoogleIntegrationConfigured(userId: string) {
+  if (envGoogleCredentials()) return true;
+  return Boolean(await getUserOAuthCredentials(userId));
 }
 
-export function createGoogleAuthorizationUrl(state: string) {
-  const { clientId, redirectUri } = googleCredentials();
+export async function saveGoogleOAuthCredentials(
+  userId: string,
+  clientId: string,
+  clientSecret: string,
+) {
+  const [existing] = await db
+    .select({ id: googleOAuthCredentials.id })
+    .from(googleOAuthCredentials)
+    .where(eq(googleOAuthCredentials.userId, userId))
+    .limit(1);
+  const now = new Date();
+  await db
+    .insert(googleOAuthCredentials)
+    .values({
+      id: existing?.id ?? randomUUID(),
+      userId,
+      clientId: encryptToken(clientId),
+      clientSecret: encryptToken(clientSecret),
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: googleOAuthCredentials.userId,
+      set: {
+        clientId: encryptToken(clientId),
+        clientSecret: encryptToken(clientSecret),
+        updatedAt: now,
+      },
+    });
+}
+
+export async function clearGoogleOAuthCredentials(userId: string) {
+  await db
+    .delete(googleOAuthCredentials)
+    .where(eq(googleOAuthCredentials.userId, userId));
+}
+
+export async function createGoogleAuthorizationUrl(
+  userId: string,
+  state: string,
+) {
+  const { clientId, redirectUri } = await googleCredentials(userId);
   const url = new URL(GOOGLE_AUTH_URL);
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -125,7 +200,8 @@ export function createGoogleAuthorizationUrl(state: string) {
 }
 
 export async function connectGoogleAccount(userId: string, code: string) {
-  const { clientId, clientSecret, redirectUri } = googleCredentials();
+  const { clientId, clientSecret, redirectUri } =
+    await googleCredentials(userId);
   const tokens = await googleJson<GoogleTokenResponse>(GOOGLE_TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -189,8 +265,22 @@ async function getConnection(userId: string) {
 
 export async function getGoogleConnectionStatus(userId: string) {
   const connection = await getConnection(userId);
+  const userCreds = await getUserOAuthCredentials(userId);
+  const envCreds = envGoogleCredentials();
+  const source: GoogleCredentialSource = userCreds
+    ? "user"
+    : envCreds
+      ? "env"
+      : null;
   return {
-    configured: isGoogleIntegrationConfigured(),
+    configured: Boolean(userCreds || envCreds),
+    credentialSource: source,
+    clientIdHint: userCreds
+      ? maskClientId(userCreds.clientId)
+      : envCreds
+        ? maskClientId(envCreds.clientId)
+        : null,
+    redirectUri: googleRedirectUri(),
     connected: Boolean(connection),
     email: connection?.email ?? null,
   };
@@ -206,7 +296,7 @@ async function getValidAccessToken(userId: string) {
     throw new Error("Google access expired. Reconnect your account.");
   }
 
-  const { clientId, clientSecret } = googleCredentials();
+  const { clientId, clientSecret } = await googleCredentials(userId);
   const tokens = await googleJson<GoogleTokenResponse>(GOOGLE_TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

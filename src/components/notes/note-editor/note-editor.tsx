@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { NoteDeleteDialog } from "@/components/notes/note-delete-dialog";
 import { NoteReminderDialog } from "@/components/notes/note-reminder-dialog";
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
+import { workspacePath } from "@/lib/workspace/paths";
 
 import { applyAppendNoteContent } from "./ai-apply";
 import { EditorAiSheet } from "./editor-ai-sheet";
@@ -24,15 +25,15 @@ export type { NoteEditorProps } from "./types";
 
 export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isTrashed = Boolean(note.deletedAt);
   const canEdit = !isTrashed && note.accessRole !== "viewer";
   const canShare = !isTrashed && note.accessRole === "owner";
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
-  const [integrationsOpen, setIntegrationsOpen] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).has("integration"),
+  // Reopens the panel when Google sends the user back here after consent.
+  const [integrationsOpen, setIntegrationsOpen] = useState(() =>
+    searchParams.has("integration"),
   );
   const [aiOpen, setAiOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -61,7 +62,11 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onShareOpenChange={editor.setShareOpen}
         isFavorite={note.isFavorite}
         isTrashed={isTrashed}
-        onBack={() => router.push(isTrashed ? "/notes?view=trash" : "/notes")}
+        onBack={() =>
+          router.push(
+            isTrashed ? workspacePath({ view: "trash" }) : workspacePath(),
+          )
+        }
         onToggleBlock={editor.toggleBlock}
         onInlineCommand={editor.toggleInlineCommand}
         onRunCommand={editor.runCommand}
@@ -196,6 +201,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onToggleTag={draft.toggleTag}
         onOpenChecklist={() => setChecklistOpen(true)}
         onOpenResources={() => setResourcesOpen(true)}
+        onOpenReminder={() => setReminderOpen(true)}
         onInput={() => {
           editor.syncContentFromEditor();
           editor.refreshActiveFormats();

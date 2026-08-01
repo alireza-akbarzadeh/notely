@@ -10,6 +10,7 @@ import { NotesList } from "@/components/notes/notes-list";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFocusMode } from "@/stores/focus-mode";
+import { normalizeWorkspaceView, notePath, workspacePath } from "@/lib/workspace/paths";
 import type { NoteSummary, NoteTag, SpaceSummary } from "@/types/notes";
 
 type NotesWorkspaceProps = {
@@ -21,7 +22,7 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const spaceId = searchParams.get("spaceId") ?? undefined;
-  const view = searchParams.get("view");
+  const view = normalizeWorkspaceView(searchParams.get("view"));
   const focusMode = useFocusMode((state) => state.enabled);
 
   const spacesQuery = useQuery({
@@ -43,11 +44,56 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
       } else {
         if (spaceId) params.set("spaceId", spaceId);
         if (view === "favorites") params.set("favorites", "1");
-        if (view === "shared") params.set("shared", "1");
+        if (view === "archive") params.set("shared", "1");
       }
       const response = await fetch(`/api/notes?${params.toString()}`);
       if (!response.ok) throw new Error("Failed to load notes");
       return response.json();
+    },
+  });
+
+  const trashedSpacesQuery = useQuery({
+    queryKey: ["spaces", "trash"],
+    enabled: view === "trash",
+    queryFn: async (): Promise<{ spaces: SpaceSummary[] }> => {
+      const response = await fetch("/api/spaces?trash=1");
+      if (!response.ok) throw new Error("Failed to load trashed spaces");
+      return response.json();
+    },
+  });
+
+  const restoreSpaceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/spaces/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restore: true }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Failed to restore space");
+      return data.space as SpaceSummary;
+    },
+    onSuccess: (space) => {
+      queryClient.invalidateQueries({ queryKey: ["spaces"] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      router.push(workspacePath({ spaceId: space.id }));
+    },
+  });
+
+  const permanentlyDeleteSpaceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/spaces/${id}?permanent=1`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to permanently delete space");
+      }
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["spaces"] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 
@@ -83,7 +129,7 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      router.push(`/notes/${note.id}`);
+      router.push(notePath(note.id));
     },
   });
 
@@ -104,7 +150,7 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   }, [notesQuery.data?.notes, view]);
 
   const spaceName =
-    view === "shared"
+    view === "archive"
       ? "Archive"
       : view === "favorites"
         ? "Tasks"
@@ -124,8 +170,15 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const showEditor = Boolean(noteId);
   const note = noteQuery.data?.note;
   const defaultSpaceId = spaceId ?? spacesQuery.data?.spaces[0]?.id;
-  const isEmptyList = !notesQuery.isLoading && notes.length === 0;
+  const trashedSpaces = trashedSpacesQuery.data?.spaces ?? [];
+  const isEmptyList =
+    !notesQuery.isLoading &&
+    notes.length === 0 &&
+    (view !== "trash" ||
+      (!trashedSpacesQuery.isLoading && trashedSpaces.length === 0));
   const hideList = focusMode && showEditor;
+  const spaceActionPending =
+    restoreSpaceMutation.isPending || permanentlyDeleteSpaceMutation.isPending;
 
   return (
     <div className="flex min-h-0 flex-1 bg-background">
@@ -145,6 +198,15 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
           activeNoteId={noteId}
           isLoading={notesQuery.isLoading}
           spaceName={spaceName}
+          trashedSpaces={view === "trash" ? trashedSpaces : undefined}
+          trashedSpacesLoading={
+            view === "trash" ? trashedSpacesQuery.isLoading : false
+          }
+          onRestoreSpace={(id) => restoreSpaceMutation.mutate(id)}
+          onPermanentlyDeleteSpace={(id) =>
+            permanentlyDeleteSpaceMutation.mutate(id)
+          }
+          spaceActionPending={spaceActionPending}
         />
       </div>
 
@@ -175,12 +237,20 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
               isEmptyList
                 ? view === "trash"
                   ? "trash"
-                  : "empty"
+                  : view === "archive"
+                    ? "archive"
+                    : view === "favorites"
+                      ? "task"
+                      : "empty"
                 : "select"
             }
             createPending={createNoteMutation.isPending}
             onCreateNote={
-              isEmptyList && view !== "trash" && defaultSpaceId
+              isEmptyList &&
+              view !== "trash" &&
+              view !== "archive" &&
+              view !== "favorites" &&
+              defaultSpaceId
                 ? () => createNoteMutation.mutate(defaultSpaceId)
                 : undefined
             }

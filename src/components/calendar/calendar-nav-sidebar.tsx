@@ -116,7 +116,7 @@ export function CalendarNavSidebar({
 
         <div className="border-t border-border py-3">
           <Link
-            href="/notes"
+            href="/workspace"
             className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           >
             <NotebookPen className="size-3.5" />

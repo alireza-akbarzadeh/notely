@@ -29,23 +29,36 @@ export async function listTasksForNote(userId: string, noteId: string) {
   return rows.map(serializeTask);
 }
 
+export async function listTasks(userId: string) {
+  const rows = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.userId, userId))
+    .orderBy(asc(tasks.sortOrder), desc(tasks.updatedAt));
+
+  return rows.map(serializeTask);
+}
+
 export async function createTask(userId: string, input: CreateTaskValues) {
-  const access = await requireNoteAccess(userId, input.noteId, "edit");
-  if (!access) throw new Error("Note not found");
+  if (input.noteId) {
+    const access = await requireNoteAccess(userId, input.noteId, "edit");
+    if (!access) throw new Error("Note not found");
+  }
 
   const [agg] = await db
     .select({ maxOrder: max(tasks.sortOrder) })
     .from(tasks)
-    .where(eq(tasks.noteId, input.noteId));
+    .where(eq(tasks.userId, userId));
 
   const id = randomUUID();
   const now = new Date();
   await db.insert(tasks).values({
     id,
-    noteId: input.noteId,
+    noteId: input.noteId ?? null,
     userId,
     text: input.text ?? "",
-    isCompleted: false,
+    status: input.status ?? "todo",
+    isCompleted: (input.status ?? "todo") === "done",
     sortOrder: (agg?.maxOrder ?? -1) + 1,
     createdAt: now,
     updatedAt: now,
@@ -67,16 +80,30 @@ export async function updateTask(
     .limit(1);
   if (!existing) return null;
 
-  const access = await requireNoteAccess(userId, existing.noteId, "edit");
-  if (!access) return null;
+  if (existing.noteId) {
+    const access = await requireNoteAccess(userId, existing.noteId, "edit");
+    if (!access) return null;
+  } else if (existing.userId !== userId) {
+    return null;
+  }
+
+  const nextStatus =
+    input.status ??
+    (input.isCompleted === true
+      ? "done"
+      : input.isCompleted === false
+        ? "todo"
+        : undefined);
 
   await db
     .update(tasks)
     .set({
       ...(input.text !== undefined ? { text: input.text } : {}),
-      ...(input.isCompleted !== undefined
-        ? { isCompleted: input.isCompleted }
-        : {}),
+      ...(nextStatus !== undefined
+        ? { status: nextStatus, isCompleted: nextStatus === "done" }
+        : input.isCompleted !== undefined
+          ? { isCompleted: input.isCompleted }
+          : {}),
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
       updatedAt: new Date(),
     })
@@ -94,8 +121,12 @@ export async function deleteTask(userId: string, taskId: string) {
     .limit(1);
   if (!existing) return false;
 
-  const access = await requireNoteAccess(userId, existing.noteId, "edit");
-  if (!access) return false;
+  if (existing.noteId) {
+    const access = await requireNoteAccess(userId, existing.noteId, "edit");
+    if (!access) return false;
+  } else if (existing.userId !== userId) {
+    return false;
+  }
 
   await db.delete(tasks).where(eq(tasks.id, taskId));
   return true;

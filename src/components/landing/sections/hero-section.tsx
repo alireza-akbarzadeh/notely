@@ -51,7 +51,7 @@ export function HeroSection() {
               <div className="h-11 w-40 animate-pulse rounded-lg bg-muted" />
             ) : isLoggedIn ? (
               <Link
-                href="/notes"
+                href="/workspace"
                 className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-5 text-sm")}
               >
                 Continue to notes

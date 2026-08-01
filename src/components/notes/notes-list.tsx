@@ -1,27 +1,36 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   ChevronDown,
   ListFilter,
+  Notebook,
   PanelLeftIcon,
+  RotateCcw,
   Search,
   Star,
+  Trash2,
 } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn, formatRelativeDate } from "@/lib/utils";
-import type { NoteSummary } from "@/types/notes";
+import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
 type NotesListProps = {
   notes: NoteSummary[];
   activeNoteId?: string;
   isLoading?: boolean;
   spaceName?: string;
+  trashedSpaces?: SpaceSummary[];
+  trashedSpacesLoading?: boolean;
+  onRestoreSpace?: (spaceId: string) => void;
+  onPermanentlyDeleteSpace?: (spaceId: string) => void;
+  spaceActionPending?: boolean;
 };
 
 type NoteGroup = {
@@ -33,7 +42,7 @@ type NoteGroup = {
 function groupNotes(notes: NoteSummary[], trashView = false): NoteGroup[] {
   if (trashView) {
     return notes.length > 0
-      ? [{ key: "trash", label: "Recently deleted", notes }]
+      ? [{ key: "trash", label: "Recently deleted notes", notes }]
       : [];
   }
 
@@ -93,7 +102,14 @@ function noteTimestamp(note: NoteSummary, trashView = false) {
       hour12: false,
     });
   }
-  return formatRelativeDate(note.updatedAt);
+  return formatRelativeDate(
+    trashView && note.deletedAt ? note.deletedAt : note.updatedAt,
+  );
+}
+
+function spaceTimestamp(space: SpaceSummary) {
+  const raw = space.deletedAt ?? space.updatedAt;
+  return formatRelativeDate(raw);
 }
 
 export function NotesList({
@@ -101,10 +117,17 @@ export function NotesList({
   activeNoteId,
   isLoading,
   spaceName = "All Notes",
+  trashedSpaces = [],
+  trashedSpacesLoading = false,
+  onRestoreSpace,
+  onPermanentlyDeleteSpace,
+  spaceActionPending = false,
 }: NotesListProps) {
   const searchParams = useSearchParams();
   const { toggleSidebar } = useSidebar();
   const view = searchParams.get("view");
+  const trashView = view === "trash";
+  const [spaceToPurge, setSpaceToPurge] = useState<SpaceSummary | null>(null);
 
   const title =
     view === "favorites"
@@ -113,18 +136,24 @@ export function NotesList({
         ? "Journal"
         : view === "inbox"
           ? "Inbox"
-          : view === "shared"
+          : view === "archive" || view === "shared"
             ? "Archive"
-            : view === "trash"
+            : trashView
               ? "Trash"
               : spaceName === "Notes"
                 ? "All Notes"
                 : spaceName;
 
   const groups = useMemo(
-    () => groupNotes(notes, view === "trash"),
-    [notes, view],
+    () => groupNotes(notes, trashView),
+    [notes, trashView],
   );
+
+  const isEmpty =
+    !isLoading &&
+    !trashedSpacesLoading &&
+    notes.length === 0 &&
+    (!trashView || trashedSpaces.length === 0);
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col border-border bg-panel md:w-75 md:border-r lg:w-85">
@@ -168,25 +197,86 @@ export function NotesList({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] scrollbar-thin md:pb-0">
-        {isLoading ? (
+        {isLoading || (trashView && trashedSpacesLoading) ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} className="h-20 w-full rounded-xl" />
             ))}
           </div>
-        ) : notes.length === 0 ? (
+        ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
             <p className="text-sm font-medium">
-              {view === "trash" ? "Trash is empty" : "No notes yet"}
+              {trashView ? "Trash is empty" : "No notes yet"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {view === "trash"
-                ? "Deleted notes will appear here."
+              {trashView
+                ? "Deleted notes and spaces will appear here."
                 : "Create a note to start writing."}
             </p>
           </div>
         ) : (
           <div className="py-2">
+            {trashView && trashedSpaces.length > 0 ? (
+              <section className="mb-1">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                  Deleted spaces
+                </p>
+                <ul>
+                  {trashedSpaces.map((space) => {
+                    const noteCount = space.noteCount ?? 0;
+                    return (
+                      <li key={space.id}>
+                        <div className="mx-2 rounded-lg px-3 py-3 transition-colors hover:bg-accent/50">
+                          <div className="mb-1 flex items-start justify-between gap-2">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Notebook className="size-3.5 shrink-0 text-muted-foreground" />
+                              <p className="truncate text-[13px] font-semibold text-foreground">
+                                {space.name}
+                              </p>
+                            </div>
+                            <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
+                              {spaceTimestamp(space)}
+                            </span>
+                          </div>
+                          <p className="mb-2 text-[12px] leading-relaxed text-muted-foreground">
+                            {noteCount === 0
+                              ? "Empty space"
+                              : noteCount === 1
+                                ? "1 note"
+                                : `${noteCount} notes`}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 gap-1.5 px-2 text-xs"
+                              disabled={spaceActionPending}
+                              onClick={() => onRestoreSpace?.(space.id)}
+                            >
+                              <RotateCcw className="size-3" />
+                              Restore
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 gap-1.5 px-2 text-xs text-destructive hover:text-destructive"
+                              disabled={spaceActionPending}
+                              onClick={() => setSpaceToPurge(space)}
+                            >
+                              <Trash2 className="size-3" />
+                              Delete forever
+                            </Button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ) : null}
+
             {groups.map((group) => (
               <section key={group.key} className="mb-1">
                 <p className="px-4 pt-3 pb-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
@@ -212,7 +302,7 @@ export function NotesList({
                               {note.title || "Untitled"}
                             </p>
                             <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
-                              {noteTimestamp(note, view === "trash")}
+                              {noteTimestamp(note, trashView)}
                             </span>
                           </div>
                           <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
@@ -246,6 +336,28 @@ export function NotesList({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(spaceToPurge)}
+        onOpenChange={(open) => {
+          if (!open) setSpaceToPurge(null);
+        }}
+        title="Delete space forever?"
+        description={
+          spaceToPurge
+            ? `“${spaceToPurge.name}” and all of its notes will be permanently deleted. This cannot be undone.`
+            : "This space and its notes will be permanently deleted."
+        }
+        confirmLabel="Delete forever"
+        pendingLabel="Deleting…"
+        pending={spaceActionPending}
+        destructive
+        onConfirm={() => {
+          if (!spaceToPurge) return;
+          onPermanentlyDeleteSpace?.(spaceToPurge.id);
+          setSpaceToPurge(null);
+        }}
+      />
     </div>
   );
 }

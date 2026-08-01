@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { NoteSummary, NoteTag } from "@/types/notes";
+import { notePath, workspacePath } from "@/lib/workspace/paths";
 
 import type { DraftSnapshot, SaveStatus } from "../types";
 import { sameTagIds } from "../utils";
@@ -108,7 +109,7 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
       queryClient.removeQueries({ queryKey: ["note", note.id] });
       await queryClient.invalidateQueries({ queryKey: ["notes"] });
       // Soft-deleted notes appear here; after permanent delete Trash refreshes.
-      router.push("/notes?view=trash");
+      router.push(workspacePath({ view: "trash" }));
     },
   });
 
@@ -126,7 +127,7 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
     onSuccess: (restored) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.setQueryData(["note", note.id], { note: restored });
-      router.push(`/notes/${note.id}`);
+      router.push(notePath(note.id));
     },
   });
 

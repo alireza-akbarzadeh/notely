@@ -54,7 +54,7 @@ export default function TwoFactorPage() {
       return;
     }
 
-    router.push("/notes");
+    router.push("/workspace");
     router.refresh();
   }
 

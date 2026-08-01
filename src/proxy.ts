@@ -53,7 +53,7 @@ export async function proxy(request: NextRequest) {
     pathname !== "/two-factor" &&
     pathname !== "/reset-password"
   ) {
-    return NextResponse.redirect(new URL("/notes", request.url));
+    return NextResponse.redirect(new URL("/workspace", request.url));
   }
 
   return NextResponse.next();

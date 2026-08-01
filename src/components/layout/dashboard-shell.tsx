@@ -10,10 +10,11 @@ import { ReminderRuntime } from "@/components/notifications/reminder-runtime";
 import { NoteSearchDialog } from "@/components/notes/note-search-dialog";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { isNotesChromePath } from "@/lib/workspace/paths";
 
 function DashboardChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isNotes = pathname.startsWith("/notes");
+  const isNotesChrome = isNotesChromePath(pathname);
 
   return (
     <>
@@ -23,11 +24,11 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
       <SidebarInset
         className={cn(
           "min-h-0 overflow-hidden bg-background",
-          isNotes &&
+          isNotesChrome &&
             "md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none",
         )}
       >
-        {isNotes ? null : <AppBar />}
+        {isNotesChrome ? null : <AppBar />}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
       </SidebarInset>
       <Suspense fallback={null}>

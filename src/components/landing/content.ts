@@ -256,7 +256,7 @@ export const FOOTER_LINKS: { title: string; links: { label: string; href: string
     links: [
       { label: "Sign in", href: "/login" },
       { label: "Create account", href: "/register" },
-      { label: "Your notes", href: "/notes" },
+      { label: "Your notes", href: "/workspace" },
     ],
   },
   {

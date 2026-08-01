@@ -64,6 +64,27 @@
       "when": 1785573600000,
       "tag": "0008_google_connections",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785660000000,
+      "tag": "0009_space_trash",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785663000000,
+      "tag": "0010_task_workflow",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785666000000,
+      "tag": "0011_google_oauth_credentials",
+      "breakpoints": true
     }
   ]
 }

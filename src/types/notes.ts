@@ -29,15 +29,19 @@ export type SpaceSummary = {
   icon: string | null;
   sortOrder: number;
   isFavorite: boolean;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Present on trashed spaces — notes restored with the space. */
+  noteCount?: number;
 };
 
 export type NoteTask = {
   id: string;
-  noteId: string;
+  noteId: string | null;
   userId: string;
   text: string;
+  status: "todo" | "in_progress" | "done";
   isCompleted: boolean;
   sortOrder: number;
   createdAt: string;

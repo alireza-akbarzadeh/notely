@@ -25,5 +25,5 @@ Notes app: **Next.js 16** (App Router) + **React 19** + **TypeScript**, **Drizzl
 - Server secrets only through `getEnv()` — never read `process.env` ad hoc in feature code
 - API handlers: thin — validate with Zod, auth with `requireSession`, logic in `src/lib/**`
 - Prefer existing UI primitives under `src/components/ui` over new one-offs
-- App home after login: `/notes`
+- App home after login: `/workspace`
 - After substantive code edits, run `graphify update .` (see graphify rule)

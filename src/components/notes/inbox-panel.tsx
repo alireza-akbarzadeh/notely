@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Check, Inbox, X } from "lucide-react";
 
+import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { Button } from "@/components/ui/button";
 
 type Invite = {
@@ -70,12 +71,7 @@ export function InboxPanel() {
         {inboxQuery.isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : invites.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
-            <p className="text-sm font-medium">You're all caught up</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Shared note invites will show up here.
-            </p>
-          </div>
+          <NotesEmptyState variant="inbox" className="min-h-[50vh]" />
         ) : (
           <ul className="space-y-3">
             {invites.map((invite) => (

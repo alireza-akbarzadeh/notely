@@ -25,7 +25,7 @@ const firedLocally = new Set<string>();
 function reminderUrl(reminder: Reminder) {
   if (reminder.noteId) return `/notes/${reminder.noteId}`;
   if (reminder.eventId) return "/calendar";
-  return "/notes";
+  return "/workspace";
 }
 
 async function ackReminder(id: string) {

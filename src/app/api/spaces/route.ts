@@ -5,22 +5,27 @@ import {
   createSpace,
   ensureDefaultSpace,
   listSpaces,
+  listTrashedSpaces,
+  serializeSpace,
 } from "@/lib/notes/service";
 import { createSpaceSchema } from "@/lib/validations/notes";
 
-export async function GET() {
+export async function GET(request: Request) {
   const { session, response } = await requireSession();
   if (!session) return response!;
+
+  const trashOnly = new URL(request.url).searchParams.get("trash") === "1";
+
+  if (trashOnly) {
+    const rows = await listTrashedSpaces(session.user.id);
+    return NextResponse.json({ spaces: rows });
+  }
 
   await ensureDefaultSpace(session.user.id);
   const rows = await listSpaces(session.user.id);
 
   return NextResponse.json({
-    spaces: rows.map((space) => ({
-      ...space,
-      createdAt: space.createdAt.toISOString(),
-      updatedAt: space.updatedAt.toISOString(),
-    })),
+    spaces: rows.map((space) => serializeSpace(space)),
   });
 }
 
@@ -35,14 +40,5 @@ export async function POST(request: Request) {
   }
 
   const space = await createSpace(session.user.id, parsed.data);
-  return NextResponse.json(
-    {
-      space: {
-        ...space,
-        createdAt: space.createdAt.toISOString(),
-        updatedAt: space.updatedAt.toISOString(),
-      },
-    },
-    { status: 201 },
-  );
+  return NextResponse.json({ space: serializeSpace(space) }, { status: 201 });
 }

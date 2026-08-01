@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/api/auth-guard";
 import { getEnv } from "@/lib/env";
 import { connectGoogleAccount } from "@/lib/google-integration";
+import { workspacePath } from "@/lib/workspace/paths";
 
 const STATE_COOKIE = "notely_google_oauth_state";
 const RETURN_COOKIE = "notely_google_oauth_return";
@@ -13,7 +14,7 @@ function callbackRedirect(request: NextRequest, error?: string) {
   const returnTo =
     storedReturn?.startsWith("/") && !storedReturn.startsWith("//")
       ? storedReturn
-      : "/notes";
+      : workspacePath({ view: "integration" });
   const url = new URL(returnTo, appUrl);
   url.searchParams.set("integration", error ? "error" : "google");
   if (error) url.searchParams.set("integrationError", error);

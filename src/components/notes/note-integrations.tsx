@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   CalendarDays,
   ExternalLink,
@@ -11,6 +12,13 @@ import {
   Unplug,
 } from "lucide-react";
 
+import {
+  googleItemsKey,
+  readJson,
+  useCallbackError,
+  useGoogleConnection,
+  type GoogleIntegrationItem,
+} from "@/components/integrations/use-google-connection";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,35 +28,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-
-type IntegrationStatus = {
-  configured: boolean;
-  connected: boolean;
-  email: string | null;
-};
-
-type IntegrationItem = {
-  id: string;
-  kind: "gmail" | "calendar";
-  title: string;
-  subtitle: string;
-  date: string | null;
-  content: string;
-  url: string | null;
-};
+import { workspacePath } from "@/lib/workspace/paths";
 
 type NoteIntegrationsProps = {
   canEdit: boolean;
   onImport: (content: string) => void;
 };
-
-async function readJson<T>(response: Response): Promise<T> {
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error ?? "Request failed");
-  }
-  return data;
-}
 
 function formatItemDate(value: string | null) {
   if (!value) return "";
@@ -66,33 +51,21 @@ export function NoteIntegrations({
   canEdit,
   onImport,
 }: NoteIntegrationsProps) {
-  const queryClient = useQueryClient();
+  const { statusQuery, disconnectMutation, connect, connected } =
+    useGoogleConnection();
   const [source, setSource] = useState<"gmail" | "calendar">("gmail");
   const [searchDraft, setSearchDraft] = useState("");
   const [query, setQuery] = useState("");
   const [importedId, setImportedId] = useState<string | null>(null);
-  const [callbackError] = useState(() =>
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get("integrationError"),
-  );
-
-  const statusQuery = useQuery({
-    queryKey: ["google-integration"],
-    queryFn: async () =>
-      readJson<IntegrationStatus>(
-        await fetch("/api/integrations/google", { cache: "no-store" }),
-      ),
-  });
-  const connected = statusQuery.data?.connected === true;
+  const callbackError = useCallbackError();
 
   const itemsQuery = useQuery({
-    queryKey: ["google-integration-items", source, query],
+    queryKey: [...googleItemsKey, source, query],
     enabled: connected,
     queryFn: async () => {
       const params = new URLSearchParams({ source });
       if (query) params.set("q", query);
-      return readJson<{ items: IntegrationItem[] }>(
+      return readJson<{ items: GoogleIntegrationItem[] }>(
         await fetch(`/api/integrations/google/items?${params}`, {
           cache: "no-store",
         }),
@@ -100,29 +73,7 @@ export function NoteIntegrations({
     },
   });
 
-  const disconnectMutation = useMutation({
-    mutationFn: async () =>
-      readJson<{ success: boolean }>(
-        await fetch("/api/integrations/google", { method: "DELETE" }),
-      ),
-    onSuccess: () => {
-      queryClient.setQueryData<IntegrationStatus>(["google-integration"], {
-        configured: statusQuery.data?.configured ?? true,
-        connected: false,
-        email: null,
-      });
-      queryClient.removeQueries({ queryKey: ["google-integration-items"] });
-    },
-  });
-
-  function connectGoogle() {
-    const returnTo = `${window.location.pathname}?integration=google`;
-    window.location.assign(
-      `/api/integrations/google/connect?returnTo=${encodeURIComponent(returnTo)}`,
-    );
-  }
-
-  function importItem(item: IntegrationItem) {
+  function importItem(item: GoogleIntegrationItem) {
     onImport(item.content);
     setImportedId(item.id);
     window.setTimeout(() => setImportedId(null), 1800);
@@ -150,13 +101,32 @@ export function NoteIntegrations({
     return (
       <Alert>
         <AlertTitle>Google Workspace is not configured</AlertTitle>
-        <AlertDescription>
-          Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, enable Gmail and
-          Calendar APIs, then use this panel again.
+        <AlertDescription className="space-y-2">
+          <p>
+            Open Integrations and add your Google Client ID and Client Secret,
+            then connect your account.
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={workspacePath({ view: "integration" })} />}
+          >
+            Open Integrations
+          </Button>
         </AlertDescription>
       </Alert>
     );
   }
+
+  const manageLink = (
+    <Button
+      variant="ghost"
+      size="sm"
+      render={<Link href={workspacePath({ view: "integration" })} />}
+    >
+      Manage
+    </Button>
+  );
 
   if (!connected) {
     return (
@@ -178,7 +148,7 @@ export function NoteIntegrations({
                 Connect Gmail and Google Calendar, browse recent items, and
                 import selected content into this note.
               </p>
-              <Button className="mt-4" onClick={connectGoogle}>
+              <Button className="mt-4" onClick={() => connect()}>
                 Connect Google Workspace
               </Button>
             </div>
@@ -199,19 +169,22 @@ export function NoteIntegrations({
             {statusQuery.data.email}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={disconnectMutation.isPending}
-          onClick={() => disconnectMutation.mutate()}
-        >
-          {disconnectMutation.isPending ? (
-            <LoaderCircle className="animate-spin" />
-          ) : (
-            <Unplug />
-          )}
-          Disconnect
-        </Button>
+        <div className="flex shrink-0 items-center gap-1">
+          {manageLink}
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={disconnectMutation.isPending}
+            onClick={() => disconnectMutation.mutate()}
+          >
+            {disconnectMutation.isPending ? (
+              <LoaderCircle className="animate-spin" />
+            ) : (
+              <Unplug />
+            )}
+            Disconnect
+          </Button>
+        </div>
       </div>
 
       {disconnectMutation.isError ? (

@@ -26,7 +26,7 @@ import { FieldGroup } from "@/components/ui/field";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/notes";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/workspace";
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({

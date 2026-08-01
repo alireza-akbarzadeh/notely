@@ -26,6 +26,7 @@ type EditorCanvasProps = {
   onToggleTag: (tagId: string) => void;
   onOpenChecklist: () => void;
   onOpenResources: () => void;
+  onOpenReminder: () => void;
   onInput: () => void;
   onBlur: () => void;
   onClick: (event: MouseEvent<HTMLDivElement>) => void;
@@ -48,6 +49,7 @@ export function EditorCanvas({
   onToggleTag,
   onOpenChecklist,
   onOpenResources,
+  onOpenReminder,
   onInput,
   onBlur,
   onClick,
@@ -118,6 +120,7 @@ export function EditorCanvas({
           editorFocused={editorFocused}
           onOpenChecklist={onOpenChecklist}
           onOpenResources={onOpenResources}
+          onOpenReminder={onOpenReminder}
         />
       </div>
     </div>
