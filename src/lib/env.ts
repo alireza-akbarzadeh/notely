@@ -23,6 +23,13 @@ const envSchema = z
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1).optional(),
     /** Alias used by Netlify AI Gateway and some local setups. */
     GEMINI_API_KEY: z.string().min(1).optional(),
+    /** Web Push VAPID keys — optional; in-app reminders still work without them. */
+    VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+    VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+    VAPID_SUBJECT: z.string().min(1).optional(),
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+    /** Protects /api/reminders/dispatch for cron/scheduled jobs. */
+    CRON_SECRET: z.string().min(1).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.EMAIL_PROVIDER === "resend") {
@@ -72,6 +79,16 @@ const envSchema = z
           "Apple auth requires APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, and APPLE_PRIVATE_KEY",
       });
     }
+
+    const vapidPartial =
+      Boolean(value.VAPID_PUBLIC_KEY) !== Boolean(value.VAPID_PRIVATE_KEY);
+    if (vapidPartial) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["VAPID_PUBLIC_KEY"],
+        message: "VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY must both be set",
+      });
+    }
   });
 
 export type Env = z.infer<typeof envSchema>;
@@ -104,6 +121,13 @@ function loadEnv(): Env {
       process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     ),
     GEMINI_API_KEY: emptyToUndefined(process.env.GEMINI_API_KEY),
+    VAPID_PUBLIC_KEY: emptyToUndefined(process.env.VAPID_PUBLIC_KEY),
+    VAPID_PRIVATE_KEY: emptyToUndefined(process.env.VAPID_PRIVATE_KEY),
+    VAPID_SUBJECT: emptyToUndefined(process.env.VAPID_SUBJECT),
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: emptyToUndefined(
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    ),
+    CRON_SECRET: emptyToUndefined(process.env.CRON_SECRET),
   });
 
   if (!parsed.success) {

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { AppBar } from "@/components/layout/app-bar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { ReminderRuntime } from "@/components/notifications/reminder-runtime";
 import { NoteSearchDialog } from "@/components/notes/note-search-dialog";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -50,6 +51,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <MobileBottomNav />
         </Suspense>
+        <ReminderRuntime />
       </div>
     );
   }
@@ -64,6 +66,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <DashboardChrome>{children}</DashboardChrome>
+      <ReminderRuntime />
     </SidebarProvider>
   );
 }

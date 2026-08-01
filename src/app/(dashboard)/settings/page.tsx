@@ -2,6 +2,7 @@
 
 import { AccountSettings } from "@/components/settings/account-settings";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
+import { NotificationSettings } from "@/components/settings/notification-settings";
 import { SecuritySettings } from "@/components/settings/security-settings";
 
 export default function SettingsPage() {
@@ -11,7 +12,7 @@ export default function SettingsPage() {
         <header className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your account, theme, and security.
+            Manage your account, theme, notifications, and security.
           </p>
         </header>
 
@@ -33,6 +34,16 @@ export default function SettingsPage() {
             </p>
           </div>
           <AppearanceSettings />
+        </section>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">Notifications</h2>
+            <p className="text-xs text-muted-foreground">
+              Sounds and push alerts for note reminders and calendar events.
+            </p>
+          </div>
+          <NotificationSettings />
         </section>
 
         <section className="space-y-3">

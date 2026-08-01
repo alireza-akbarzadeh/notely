@@ -76,6 +76,34 @@ export const createEventSchema = z.object({
   endTime: z.string().datetime().optional().nullable(),
   link: z.string().url().optional().nullable(),
   noteId: z.string().min(1).optional().nullable(),
+  /** Minutes before start to fire a reminder; 0 = at start; omit = no reminder. */
+  remindMinutesBefore: z.number().int().min(0).max(10080).optional().nullable(),
+  reminderSound: z.enum(["chime", "bell", "soft", "none"]).optional(),
+});
+
+export const createReminderSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  body: z.string().trim().max(500).optional().nullable(),
+  remindAt: z.string().datetime(),
+  sound: z.enum(["chime", "bell", "soft", "none"]).optional().default("chime"),
+  noteId: z.string().min(1).optional().nullable(),
+  eventId: z.string().min(1).optional().nullable(),
+});
+
+export const updateReminderSchema = z.object({
+  title: z.string().trim().min(1).max(200).optional(),
+  body: z.string().trim().max(500).optional().nullable(),
+  remindAt: z.string().datetime().optional(),
+  sound: z.enum(["chime", "bell", "soft", "none"]).optional(),
+  status: z.enum(["pending", "fired", "dismissed", "cancelled"]).optional(),
+});
+
+export const pushSubscribeSchema = z.object({
+  endpoint: z.string().url(),
+  keys: z.object({
+    p256dh: z.string().min(1),
+    auth: z.string().min(1),
+  }),
 });
 
 export type CreateSpaceValues = z.infer<typeof createSpaceSchema>;
@@ -88,4 +116,6 @@ export type UpdateTaskValues = z.infer<typeof updateTaskSchema>;
 export type CreateLinkAttachmentValues = z.infer<typeof createLinkAttachmentSchema>;
 export type InviteShareValues = z.infer<typeof inviteShareSchema>;
 export type CreateEventValues = z.infer<typeof createEventSchema>;
+export type CreateReminderValues = z.infer<typeof createReminderSchema>;
+export type UpdateReminderValues = z.infer<typeof updateReminderSchema>;
  

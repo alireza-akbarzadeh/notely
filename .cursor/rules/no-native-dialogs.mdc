@@ -1,0 +1,16 @@
+---
+description: Never use window.prompt / window.confirm / window.alert for UX flows
+alwaysApply: true
+---
+
+# Native browser dialogs
+
+Do **not** use `window.prompt`, `window.confirm`, or `window.alert` for app UX.
+
+Use existing UI instead:
+
+- **Confirm / delete**: `ConfirmDialog` (`src/components/ui/confirm-dialog.tsx`) or domain dialogs like `NoteDeleteDialog`
+- **Forms / rename / create**: `Dialog` + inputs (see space rename, link dialog, calendar event dialog)
+- **Errors**: inline message in the panel/dialog, or AlertDialog — not `alert()`
+
+When adding destructive actions, always open a confirm dialog; never block with native browser prompts.

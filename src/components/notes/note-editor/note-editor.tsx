@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { NoteDeleteDialog } from "@/components/notes/note-delete-dialog";
+import { NoteReminderDialog } from "@/components/notes/note-reminder-dialog";
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
 
 import { EditorAiSheet } from "./editor-ai-sheet";
@@ -29,6 +30,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [reminderOpen, setReminderOpen] = useState(false);
 
   const { editorFont, selectFont } = useEditorFont();
   const draft = useNoteDraft({ note, allTags, canEdit });
@@ -66,6 +68,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onOpenChecklist={() => setChecklistOpen(true)}
         onOpenResources={() => setResourcesOpen(true)}
         onOpenAi={() => setAiOpen(true)}
+        onOpenReminder={() => setReminderOpen(true)}
         onPrepareTextColor={editor.prepareTextColor}
         onApplyTextColor={editor.applyTextColor}
         onPrepareInlineImage={editor.prepareInlineImage}
@@ -138,6 +141,14 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         resourcesOpen={resourcesOpen}
         onChecklistOpenChange={setChecklistOpen}
         onResourcesOpenChange={setResourcesOpen}
+      />
+
+      <NoteReminderDialog
+        noteId={note.id}
+        noteTitle={draft.title || note.title}
+        open={reminderOpen}
+        onOpenChange={setReminderOpen}
+        canEdit={canEdit}
       />
 
       <EditorAiSheet

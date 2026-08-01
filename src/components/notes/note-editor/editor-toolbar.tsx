@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import {
   ArrowLeft,
+  Bell,
   Bold,
   CheckSquare,
   Code2,
@@ -46,6 +47,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { NoteShareTrigger } from "@/components/notes/note-share-panel";
 import { EDITOR_FONTS, type EditorFontOption } from "@/lib/editor-fonts";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,7 @@ type EditorToolbarProps = {
   onOpenChecklist: () => void;
   onOpenResources: () => void;
   onOpenAi: () => void;
+  onOpenReminder: () => void;
   onPrepareTextColor: () => void;
   onApplyTextColor: (color: string | null) => void;
   onPrepareInlineImage: () => void;
@@ -138,6 +141,7 @@ export function EditorToolbar({
   onOpenChecklist,
   onOpenResources,
   onOpenAi,
+  onOpenReminder,
   onPrepareTextColor,
   onApplyTextColor,
   onPrepareInlineImage,
@@ -146,6 +150,7 @@ export function EditorToolbar({
 }: EditorToolbarProps) {
   const [colorMenuOpen, setColorMenuOpen] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   return (
     <header
@@ -214,6 +219,15 @@ export function EditorToolbar({
           >
             <Paperclip className="size-3.5" />
           </FormatButton>
+          {!isTrashed ? (
+            <FormatButton
+              onClick={onOpenReminder}
+              label="Remind me"
+              title="Set a reminder for this note"
+            >
+              <Bell className="size-3.5" />
+            </FormatButton>
+          ) : null}
           <FormatButton
             onClick={onOpenAi}
             label="Ask AI"
@@ -486,7 +500,7 @@ export function EditorToolbar({
                 event.target.value = "";
                 if (!file) return;
                 void onInsertInlineImage(file).catch((error) => {
-                  window.alert(
+                  setUploadError(
                     error instanceof Error
                       ? error.message
                       : "Image upload failed",
@@ -514,6 +528,18 @@ export function EditorToolbar({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(uploadError)}
+        onOpenChange={(open) => {
+          if (!open) setUploadError(null);
+        }}
+        title="Image upload failed"
+        description={uploadError ?? "Could not upload the image."}
+        confirmLabel="OK"
+        cancelLabel="Close"
+        onConfirm={() => setUploadError(null)}
+      />
     </header>
   );
 }

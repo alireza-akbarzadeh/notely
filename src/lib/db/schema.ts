@@ -5,6 +5,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -48,6 +49,27 @@ export const account = pgTable("account", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
+
+export const googleConnections = pgTable(
+  "google_connections",
+  {
+    id: text("id").primaryKey(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    googleAccountId: text("googleAccountId").notNull(),
+    email: text("email").notNull(),
+    accessToken: text("accessToken").notNull(),
+    refreshToken: text("refreshToken"),
+    scope: text("scope").notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("google_connections_userId_unique").on(table.userId),
+  ],
+);
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
@@ -183,6 +205,40 @@ export const events = pgTable("events", {
   endTime: timestamp("endTime"),
   link: text("link"),
   noteId: text("noteId").references(() => notes.id, { onDelete: "set null" }),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+/** Timed reminders for notes and calendar events. */
+export const reminders = pgTable("reminders", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  noteId: text("noteId").references(() => notes.id, { onDelete: "cascade" }),
+  eventId: text("eventId").references(() => events.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  body: text("body"),
+  remindAt: timestamp("remindAt").notNull(),
+  /** chime | bell | soft | none */
+  sound: text("sound").notNull().default("chime"),
+  /** pending | fired | dismissed | cancelled */
+  status: text("status").notNull().default("pending"),
+  firedAt: timestamp("firedAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+/** Web Push subscriptions for background reminder delivery. */
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  userAgent: text("userAgent"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });

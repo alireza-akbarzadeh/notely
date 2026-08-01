@@ -39,6 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import {
   Sidebar,
@@ -77,6 +78,7 @@ export function AppSidebar() {
   const [renameSpace, setRenameSpace] = useState<SpaceSummary | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [renameError, setRenameError] = useState<string | null>(null);
+  const [spaceToDelete, setSpaceToDelete] = useState<SpaceSummary | null>(null);
   const focusMode = useFocusMode();
 
   const spacesQuery = useQuery({
@@ -464,15 +466,7 @@ export function AppSidebar() {
                               spaces.length <= 1 ||
                               deleteSpaceMutation.isPending
                             }
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  `Delete “${space.name}”? Notes in this space will be removed.`,
-                                )
-                              ) {
-                                deleteSpaceMutation.mutate(space.id);
-                              }
-                            }}
+                            onClick={() => setSpaceToDelete(space)}
                           >
                             <Trash2 />
                             Delete space
@@ -634,6 +628,29 @@ export function AppSidebar() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={Boolean(spaceToDelete)}
+        onOpenChange={(open) => {
+          if (!open) setSpaceToDelete(null);
+        }}
+        title="Delete space?"
+        description={
+          spaceToDelete
+            ? `“${spaceToDelete.name}” and its notes will be removed. This cannot be undone.`
+            : "This space and its notes will be removed."
+        }
+        confirmLabel="Delete space"
+        pendingLabel="Deleting…"
+        pending={deleteSpaceMutation.isPending}
+        destructive
+        onConfirm={() => {
+          if (!spaceToDelete) return;
+          deleteSpaceMutation.mutate(spaceToDelete.id, {
+            onSettled: () => setSpaceToDelete(null),
+          });
+        }}
+      />
     </Sidebar>
   );
 }

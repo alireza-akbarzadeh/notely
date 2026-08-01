@@ -30,7 +30,7 @@ type CalendarWeekViewProps = {
   onToggleSidebars: () => void;
   onAnchorChange: (date: Date) => void;
   onCreateAt: (date: Date) => void;
-  onDeleteEvent: (id: string) => void;
+  onRequestDeleteEvent: (event: CalendarEvent) => void;
 };
 
 export function CalendarWeekView({
@@ -40,7 +40,7 @@ export function CalendarWeekView({
   onToggleSidebars,
   onAnchorChange,
   onCreateAt,
-  onDeleteEvent,
+  onRequestDeleteEvent,
 }: CalendarWeekViewProps) {
   const days = useMemo(() => weekDays(anchor, 7), [anchor]);
   const today = new Date();
@@ -203,11 +203,7 @@ export function CalendarWeekView({
                         title="Click to delete"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (
-                            window.confirm(`Delete “${event.title}”?`)
-                          ) {
-                            onDeleteEvent(event.id);
-                          }
+                          onRequestDeleteEvent(event);
                         }}
                         className="absolute right-1 left-1 z-[1] overflow-hidden rounded-md border border-primary/30 bg-primary/20 px-1.5 py-1 text-left shadow-sm transition-opacity hover:opacity-90"
                         style={{

@@ -3,12 +3,14 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { CalendarEventDialog } from "@/components/calendar/calendar-event-dialog";
 import { CalendarListPanel } from "@/components/calendar/calendar-list-panel";
 import { CalendarNavSidebar } from "@/components/calendar/calendar-nav-sidebar";
 import { CalendarUtilityPanel } from "@/components/calendar/calendar-utility-panel";
 import { CalendarWeekView } from "@/components/calendar/calendar-week-view";
 import type { CalendarEvent } from "@/components/calendar/types";
 import { startOfMonth, weekRangeIso } from "@/components/calendar/utils";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { authClient } from "@/lib/auth/client";
 import type { NoteSummary, SpaceSummary } from "@/types/notes";
 
@@ -21,6 +23,10 @@ export function CalendarWorkspace() {
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
   const [sidebarsOpen, setSidebarsOpen] = useState(true);
   const [search, setSearch] = useState("");
+  const [createAtDate, setCreateAtDate] = useState<Date | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(
+    null,
+  );
 
   const range = useMemo(() => weekRangeIso(selected), [selected]);
 
@@ -60,6 +66,8 @@ export function CalendarWorkspace() {
       title: string;
       startTime: string;
       noteId?: string | null;
+      /** Minutes before start; default 0 = alert when the event starts. */
+      remindMinutesBefore?: number | null;
     }) => {
       const end = new Date(input.startTime);
       end.setHours(end.getHours() + 1);
@@ -71,6 +79,11 @@ export function CalendarWorkspace() {
           startTime: input.startTime,
           endTime: end.toISOString(),
           noteId: input.noteId ?? null,
+          remindMinutesBefore:
+            input.remindMinutesBefore === undefined
+              ? 0
+              : input.remindMinutesBefore,
+          reminderSound: "chime",
         }),
       });
       const data = await response.json();
@@ -79,6 +92,7 @@ export function CalendarWorkspace() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["reminders"] });
     },
   });
 
@@ -103,15 +117,6 @@ export function CalendarWorkspace() {
   function selectDate(date: Date) {
     setSelected(date);
     setMonthCursor(startOfMonth(date));
-  }
-
-  function createAt(date: Date) {
-    const title = window.prompt("Event title", "New event");
-    if (!title?.trim()) return;
-    createMutation.mutate({
-      title: title.trim(),
-      startTime: date.toISOString(),
-    });
   }
 
   function createFromNote(note: NoteSummary) {
@@ -158,14 +163,60 @@ export function CalendarWorkspace() {
         sidebarsOpen={sidebarsOpen}
         onToggleSidebars={() => setSidebarsOpen((open) => !open)}
         onAnchorChange={selectDate}
-        onCreateAt={createAt}
-        onDeleteEvent={(id) => deleteMutation.mutate(id)}
+        onCreateAt={setCreateAtDate}
+        onRequestDeleteEvent={setEventToDelete}
       />
 
       <CalendarUtilityPanel
         events={events}
         search={search}
         onSearchChange={setSearch}
+      />
+
+      <CalendarEventDialog
+        key={createAtDate?.toISOString() ?? "closed"}
+        open={Boolean(createAtDate)}
+        onOpenChange={(open) => {
+          if (!open) setCreateAtDate(null);
+        }}
+        startAt={createAtDate}
+        pending={createMutation.isPending}
+        onSubmit={({ title, remindMinutesBefore }) => {
+          if (!createAtDate) return;
+          createMutation.mutate(
+            {
+              title,
+              startTime: createAtDate.toISOString(),
+              remindMinutesBefore,
+            },
+            {
+              onSettled: () => setCreateAtDate(null),
+            },
+          );
+        }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(eventToDelete)}
+        onOpenChange={(open) => {
+          if (!open) setEventToDelete(null);
+        }}
+        title="Delete event?"
+        description={
+          eventToDelete
+            ? `“${eventToDelete.title}” will be removed from your calendar.`
+            : "This event will be removed from your calendar."
+        }
+        confirmLabel="Delete"
+        pendingLabel="Deleting…"
+        pending={deleteMutation.isPending}
+        destructive
+        onConfirm={() => {
+          if (!eventToDelete) return;
+          deleteMutation.mutate(eventToDelete.id, {
+            onSettled: () => setEventToDelete(null),
+          });
+        }}
       />
     </div>
   );
