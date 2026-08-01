@@ -163,11 +163,18 @@ export async function updateSpace(
 }
 
 /**
- * Soft-delete: move the space to Trash. Its notes are left untouched so that
- * restoring the space brings the whole thing back; they are hidden everywhere
- * because every note query is scoped to non-trashed spaces.
+ * Soft-delete: move the space to Trash.
+ * Optional `keepNoteIds` are moved to `moveTargetSpaceId` first so they survive;
+ * remaining notes stay with the space and come back on restore.
  */
-export async function deleteSpace(userId: string, spaceId: string) {
+export async function deleteSpace(
+  userId: string,
+  spaceId: string,
+  options?: {
+    keepNoteIds?: string[];
+    moveTargetSpaceId?: string;
+  },
+) {
   const [existing] = await db
     .select()
     .from(spaces)
@@ -175,6 +182,29 @@ export async function deleteSpace(userId: string, spaceId: string) {
     .limit(1);
   if (!existing) return false;
   if (existing.deletedAt) return true;
+
+  const keepNoteIds = options?.keepNoteIds ?? [];
+  if (keepNoteIds.length > 0) {
+    const targetId = options?.moveTargetSpaceId;
+    if (!targetId || targetId === spaceId) {
+      throw new Error("A different space is required to keep notes");
+    }
+    const target = await assertSpaceOwned(userId, targetId);
+    if (!target) throw new Error("Target space not found");
+
+    const now = new Date();
+    await db
+      .update(notes)
+      .set({ spaceId: targetId, updatedAt: now })
+      .where(
+        and(
+          eq(notes.userId, userId),
+          eq(notes.spaceId, spaceId),
+          isNull(notes.deletedAt),
+          inArray(notes.id, keepNoteIds),
+        ),
+      );
+  }
 
   const now = new Date();
   await db

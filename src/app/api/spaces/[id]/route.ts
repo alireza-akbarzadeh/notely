@@ -8,7 +8,7 @@ import {
   serializeSpace,
   updateSpace,
 } from "@/lib/notes/service";
-import { updateSpaceSchema } from "@/lib/validations/notes";
+import { deleteSpaceSchema, updateSpaceSchema } from "@/lib/validations/notes";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -52,8 +52,36 @@ export async function DELETE(request: Request, { params }: Params) {
     // Not in trash yet — fall through to soft delete.
   }
 
-  const softDeleted = await deleteSpace(session.user.id, id);
-  if (!softDeleted) return jsonError("Space not found", 404);
+  let keepNoteIds: string[] = [];
+  let moveTargetSpaceId: string | undefined;
 
-  return NextResponse.json({ success: true, permanent: false });
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const body = await request.json();
+      const parsed = deleteSpaceSchema.safeParse(body ?? {});
+      if (!parsed.success) {
+        return jsonError(
+          parsed.error.issues[0]?.message ?? "Invalid delete payload",
+        );
+      }
+      keepNoteIds = parsed.data.keepNoteIds ?? [];
+      moveTargetSpaceId = parsed.data.moveTargetSpaceId;
+    } catch {
+      // Empty / invalid body — treat as delete-all (no keep list).
+    }
+  }
+
+  try {
+    const softDeleted = await deleteSpace(session.user.id, id, {
+      keepNoteIds,
+      moveTargetSpaceId,
+    });
+    if (!softDeleted) return jsonError("Space not found", 404);
+    return NextResponse.json({ success: true, permanent: false });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to delete space";
+    return jsonError(message, 400);
+  }
 }

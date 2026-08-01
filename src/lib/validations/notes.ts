@@ -10,6 +10,22 @@ export const updateSpaceSchema = createSpaceSchema.partial().extend({
   sortOrder: z.number().int().optional(),
 });
 
+/** Body for soft-deleting a space; unchecked notes can be moved to another space. */
+export const deleteSpaceSchema = z
+  .object({
+    keepNoteIds: z.array(z.string().min(1)).optional().default([]),
+    moveTargetSpaceId: z.string().min(1).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if ((value.keepNoteIds?.length ?? 0) > 0 && !value.moveTargetSpaceId) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Choose a space to keep the unchecked notes in",
+        path: ["moveTargetSpaceId"],
+      });
+    }
+  });
+
 export const createNoteSchema = z.object({
   spaceId: z.string().min(1),
   title: z.string().trim().max(200).optional(),
@@ -110,6 +126,7 @@ export const pushSubscribeSchema = z.object({
 
 export type CreateSpaceValues = z.infer<typeof createSpaceSchema>;
 export type UpdateSpaceValues = z.infer<typeof updateSpaceSchema>;
+export type DeleteSpaceValues = z.infer<typeof deleteSpaceSchema>;
 export type CreateNoteValues = z.infer<typeof createNoteSchema>;
 export type UpdateNoteValues = z.infer<typeof updateNoteSchema>;
 export type CreateTagValues = z.infer<typeof createTagSchema>;

@@ -18,6 +18,7 @@ import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
+import { readJson } from "@/lib/api/read-json";
 import { playReminderSound } from "@/lib/notifications/sound-player";
 import { cn } from "@/lib/utils";
 
@@ -98,12 +99,8 @@ export function TaskBoard() {
 
   const tasksQuery = useQuery({
     queryKey: ["tasks"],
-    queryFn: async (): Promise<{ tasks: Task[] }> => {
-      const response = await fetch("/api/tasks");
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to load tasks");
-      return data;
-    },
+    queryFn: async (): Promise<{ tasks: Task[] }> =>
+      readJson<{ tasks: Task[] }>(await fetch("/api/tasks"), "Failed to load tasks"),
   });
 
   const createMutation = useMutation({
@@ -113,14 +110,18 @@ export function TaskBoard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, status: "todo" }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to create task");
-      return data.task as Task;
+      const data = await readJson<{ task: Task }>(response, "Failed to create task");
+      return data.task;
     },
     onSuccess: (task) => {
       setDraft("");
+      // A refetch that lands between the POST and here already holds the new
+      // row, so replace by id rather than appending a second copy.
       queryClient.setQueryData<{ tasks: Task[] }>(["tasks"], (current) => ({
-        tasks: [...(current?.tasks ?? []), task],
+        tasks: [
+          ...(current?.tasks ?? []).filter((item) => item.id !== task.id),
+          task,
+        ],
       }));
       setMessage("Task added to To do");
       void playReminderSound("soft");
@@ -135,9 +136,8 @@ export function TaskBoard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to move task");
-      return data.task as Task;
+      const data = await readJson<{ task: Task }>(response, "Failed to move task");
+      return data.task;
     },
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
@@ -171,8 +171,7 @@ export function TaskBoard() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to delete task");
+      await readJson(response, "Failed to delete task");
       return id;
     },
     onSuccess: (id) => {
@@ -192,7 +191,10 @@ export function TaskBoard() {
       in_progress: [],
       done: [],
     };
+    const seen = new Set<string>();
     for (const task of tasks) {
+      if (seen.has(task.id)) continue;
+      seen.add(task.id);
       const status: TaskStatus =
         task.status === "in_progress" || task.status === "done" || task.status === "todo"
           ? task.status

@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
+import { SpaceDeleteDialog } from "@/components/notes/space-delete-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -191,8 +192,26 @@ export function AppSidebar() {
   });
 
   const deleteSpaceMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`/api/spaces/${id}`, { method: "DELETE" });
+    mutationFn: async ({
+      id,
+      keepNoteIds,
+      moveTargetSpaceId,
+    }: {
+      id: string;
+      keepNoteIds?: string[];
+      moveTargetSpaceId?: string;
+    }) => {
+      const hasBody =
+        (keepNoteIds?.length ?? 0) > 0 || Boolean(moveTargetSpaceId);
+      const response = await fetch(`/api/spaces/${id}`, {
+        method: "DELETE",
+        ...(hasBody
+          ? {
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ keepNoteIds, moveTargetSpaceId }),
+            }
+          : {}),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete space");
       return id;
@@ -243,6 +262,18 @@ export function AppSidebar() {
 
   const spaces: SpaceSummary[] = spacesQuery.data?.spaces ?? [];
   const defaultSpaceId = spaces[0]?.id;
+  const notesInSpaceToDelete = spaceToDelete
+    ? (notesCountQuery.data?.notes ?? []).filter(
+        (note) => note.spaceId === spaceToDelete.id,
+      )
+    : [];
+  // Prefer the note-picker dialog while counts are loading so we don't flash
+  // a simple confirm for a multi-note space.
+  const useNotePickerDialog =
+    Boolean(spaceToDelete) &&
+    (notesCountQuery.isLoading || notesInSpaceToDelete.length > 1);
+  const fallbackSpaceForDelete =
+    spaces.find((space) => space.id !== spaceToDelete?.id) ?? null;
   const onWorkspace = isNotesChromePath(pathname);
   const onNotesList =
     onWorkspace &&
@@ -493,7 +524,7 @@ export function AppSidebar() {
                             onClick={() => setSpaceToDelete(space)}
                           >
                             <Trash2 />
-                            Delete space
+                            Move to Trash
                           </ContextMenuItem>
                         </ContextMenuGroup>
                       </ContextMenuContent>
@@ -654,15 +685,17 @@ export function AppSidebar() {
       </Dialog>
 
       <ConfirmDialog
-        open={Boolean(spaceToDelete)}
+        open={Boolean(spaceToDelete) && !useNotePickerDialog}
         onOpenChange={(open) => {
           if (!open) setSpaceToDelete(null);
         }}
         title="Move space to Trash?"
         description={
           spaceToDelete
-            ? `“${spaceToDelete.name}” and its notes will move to Trash. You can restore them later.`
-            : "This space and its notes will move to Trash."
+            ? notesInSpaceToDelete.length === 1
+              ? `“${spaceToDelete.name}” and its note will move to Trash. You can restore them later.`
+              : `“${spaceToDelete.name}” will move to Trash. You can restore it later.`
+            : "This space will move to Trash."
         }
         confirmLabel="Move to Trash"
         pendingLabel="Moving…"
@@ -670,9 +703,30 @@ export function AppSidebar() {
         destructive
         onConfirm={() => {
           if (!spaceToDelete) return;
-          deleteSpaceMutation.mutate(spaceToDelete.id, {
-            onSettled: () => setSpaceToDelete(null),
-          });
+          deleteSpaceMutation.mutate(
+            { id: spaceToDelete.id },
+            { onSettled: () => setSpaceToDelete(null) },
+          );
+        }}
+      />
+
+      <SpaceDeleteDialog
+        space={useNotePickerDialog ? spaceToDelete : null}
+        fallbackSpace={fallbackSpaceForDelete}
+        pending={deleteSpaceMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setSpaceToDelete(null);
+        }}
+        onConfirm={({ keepNoteIds, moveTargetSpaceId }) => {
+          if (!spaceToDelete) return;
+          deleteSpaceMutation.mutate(
+            {
+              id: spaceToDelete.id,
+              keepNoteIds,
+              moveTargetSpaceId,
+            },
+            { onSettled: () => setSpaceToDelete(null) },
+          );
         }}
       />
     </Sidebar>

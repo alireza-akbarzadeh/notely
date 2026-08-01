@@ -45,6 +45,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -413,42 +414,44 @@ export function EditorToolbar({
                 align="start"
                 className="w-auto min-w-0 p-2"
               >
-                <DropdownMenuLabel className="px-1 pb-1.5 pt-0">
-                  Text color
-                </DropdownMenuLabel>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {TEXT_COLORS.map((swatch) => {
-                    const isActive =
-                      swatch.value === null
-                        ? activeFormats.color === null
-                        : activeFormats.color === swatch.value;
-                    return (
-                      <button
-                        key={swatch.label}
-                        type="button"
-                        title={swatch.label}
-                        aria-label={swatch.label}
-                        aria-pressed={isActive}
-                        className={cn(
-                          "size-7 rounded-md ring-1 ring-border/80 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          isActive && "ring-2 ring-primary",
-                          swatch.value === null &&
-                            "bg-[linear-gradient(135deg,#f4f4f5_50%,#18181b_50%)]",
-                        )}
-                        style={
-                          swatch.value
-                            ? { backgroundColor: swatch.value }
-                            : undefined
-                        }
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                          onApplyTextColor(swatch.value);
-                          setColorMenuOpen(false);
-                        }}
-                      />
-                    );
-                  })}
-                </div>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="px-1 pb-1.5 pt-0">
+                    Text color
+                  </DropdownMenuLabel>
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {TEXT_COLORS.map((swatch) => {
+                      const isActive =
+                        swatch.value === null
+                          ? activeFormats.color === null
+                          : activeFormats.color === swatch.value;
+                      return (
+                        <button
+                          key={swatch.label}
+                          type="button"
+                          title={swatch.label}
+                          aria-label={swatch.label}
+                          aria-pressed={isActive}
+                          className={cn(
+                            "size-7 rounded-md ring-1 ring-border/80 transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            isActive && "ring-2 ring-primary",
+                            swatch.value === null &&
+                              "bg-[linear-gradient(135deg,#f4f4f5_50%,#18181b_50%)]",
+                          )}
+                          style={
+                            swatch.value
+                              ? { backgroundColor: swatch.value }
+                              : undefined
+                          }
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            onApplyTextColor(swatch.value);
+                            setColorMenuOpen(false);
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
 
