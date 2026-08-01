@@ -69,7 +69,7 @@ import {
   workspacePath,
 } from "@/lib/workspace/paths";
 import { useFocusMode } from "@/stores/focus-mode";
-import type { NoteSummary, SpaceSummary } from "@/types/notes";
+import type { NoteSummary, NoteTag, SpaceSummary } from "@/types/notes";
 
 async function fetchSpaces(): Promise<{ spaces: SpaceSummary[] }> {
   return readJson<{ spaces: SpaceSummary[] }>(
@@ -85,6 +85,7 @@ export function AppSidebar() {
   const queryClient = useQueryClient();
   const view = normalizeWorkspaceView(searchParams.get("view"));
   const activeSpaceId = searchParams.get("spaceId");
+  const activeTagId = searchParams.get("tagId");
   const [createSpaceOpen, setCreateSpaceOpen] = useState(false);
   const [spaceName, setSpaceName] = useState("");
   const [createSpaceError, setCreateSpaceError] = useState<string | null>(null);
@@ -108,6 +109,14 @@ export function AppSidebar() {
         "Failed to load notes",
       ),
   });
+
+  const tagsQuery = useQuery({
+    queryKey: ["tags"],
+    queryFn: async (): Promise<{ tags: NoteTag[] }> =>
+      readJson<{ tags: NoteTag[] }>(await fetch("/api/tags"), "Failed to load tags"),
+  });
+
+  const tags = tagsQuery.data?.tags ?? [];
 
   const createNoteMutation = useMutation({
     mutationFn: async (spaceId: string) => {
@@ -580,16 +589,45 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Manage tags"
-                  onClick={() => setTagsOpen(true)}
-                  className="h-9 rounded-lg"
-                >
-                  <Tags className="size-4 text-muted-foreground" />
-                  <span>Manage tags</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {tags.length === 0 ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Manage tags"
+                    onClick={() => setTagsOpen(true)}
+                    className="h-9 rounded-lg"
+                  >
+                    <Tags className="size-4 text-muted-foreground" />
+                    <span>Add tags</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
+                tags.map((tag) => {
+                  const active = activeTagId === tag.id;
+                  return (
+                    <SidebarMenuItem key={tag.id}>
+                      <SidebarMenuButton
+                        isActive={active}
+                        tooltip={`#${tag.name}`}
+                        render={
+                          <Link
+                            href={workspacePath({
+                              params: { tagId: tag.id },
+                            })}
+                          />
+                        }
+                        className="h-9 rounded-lg"
+                      >
+                        <span
+                          className="size-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: tag.color }}
+                          aria-hidden
+                        />
+                        <span className="truncate">#{tag.name}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

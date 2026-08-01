@@ -176,7 +176,10 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
     });
   }
 
-  const selectedTags = allTags.filter((tag) => tagIds.includes(tag.id));
+  const selectedTags =
+    allTags.length > 0
+      ? allTags.filter((tag) => tagIds.includes(tag.id))
+      : note.tags.filter((tag) => tagIds.includes(tag.id));
 
   return {
     title,

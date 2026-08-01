@@ -19,7 +19,7 @@ type EditorCanvasProps = {
   title: string;
   content: string;
   canEdit: boolean;
-  canShare: boolean;
+  canManageTags: boolean;
   editorFont: EditorFontOption;
   editorRef: RefObject<HTMLDivElement | null>;
   onTitleChange: (value: string) => void;
@@ -42,7 +42,7 @@ export function EditorCanvas({
   title,
   content,
   canEdit,
-  canShare,
+  canManageTags,
   editorFont,
   editorRef,
   onTitleChange,
@@ -68,7 +68,7 @@ export function EditorCanvas({
           allTags={allTags}
           selectedTags={selectedTags}
           tagIds={tagIds}
-          canShare={canShare}
+          canManageTags={canManageTags}
           onToggleTag={onToggleTag}
         />
 

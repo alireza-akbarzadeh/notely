@@ -1,22 +1,22 @@
 # Graph Report - notely  (2026-08-01)
 
 ## Corpus Check
-- 289 files · ~103,845 words
+- 289 files · ~104,078 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2349 nodes · 5013 edges · 146 communities (99 shown, 47 thin omitted)
+- 2349 nodes · 5014 edges · 152 communities (104 shown, 48 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 19 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `04541b92`
+- Built from commit: `c9b9a190`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - auth.ts
-- jsonError
+- requireNoteAccess
 - app-bar.tsx
 - getEnv
 - dependencies
@@ -28,7 +28,7 @@
 - components.json
 - 1. Current product surface
 - Find Skills
-- tooltip.tsx
+- app/layout.tsx
 - Nexora
 - shares.ts
 - graphify
@@ -36,14 +36,14 @@
 - next.config.ts
 - postcss.config.mjs
 - dialog.tsx
-- editor-toolbar.tsx
+- note-editor.tsx
 - workspacePath
 - prompt-input.tsx
 - Notely Drizzle + Neon
 - Notely Better Auth
 - requireSession
 - service.ts
-- readJson
+- notes-workspace.tsx
 - commit.tsx
 - events.ts
 - google-integration.ts
@@ -95,7 +95,7 @@
 - conversation.tsx
 - jsx-preview.tsx
 - collapsible.tsx
-- notes-empty-state.tsx
+- user-menu.tsx
 - date-time-picker.tsx
 - persona.tsx
 - note-chat/route.ts
@@ -154,6 +154,12 @@
 - zod
 - zustand
 - sw.js
+- editor-toolbar.tsx
+- types/notes.ts
+- readJson
+- use-editor-font.ts
+- react
+- app-workspace.tsx
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 599 edges
@@ -172,29 +178,29 @@
   src/components/ui/carousel.tsx → package.json
 - `useCarousel()` --references--> `react`  [EXTRACTED]
   src/components/ui/carousel.tsx → package.json
+- `useSidebar()` --references--> `react`  [EXTRACTED]
+  src/components/ui/sidebar.tsx → package.json
 - `CalendarDayButton()` --references--> `react`  [EXTRACTED]
   src/components/ui/calendar.tsx → package.json
 - `SidebarMenuSkeleton()` --references--> `react`  [EXTRACTED]
-  src/components/ui/sidebar.tsx → package.json
-- `SidebarProvider()` --references--> `react`  [EXTRACTED]
   src/components/ui/sidebar.tsx → package.json
 
 ## Import Cycles
 - None detected.
 
-## Communities (146 total, 47 thin omitted)
+## Communities (152 total, 48 thin omitted)
 
 ### Community 0 - "auth.ts"
 Cohesion: 0.11
 Nodes (27): DevAuthEmail, extractUrl(), ForgotPasswordPage(), TwoFactorPage(), AuthError(), AuthFooterLink(), AuthPanel(), AuthPanelProps (+19 more)
 
-### Community 1 - "jsonError"
-Cohesion: 0.13
-Nodes (28): GET(), Params, GET(), POST(), DELETE(), Params, PATCH(), GET() (+20 more)
+### Community 1 - "requireNoteAccess"
+Cohesion: 0.28
+Nodes (12): GET(), POST(), requireNoteAccess(), createTask(), deleteTask(), listIncompleteTasks(), listTasks(), listTasksForNote() (+4 more)
 
 ### Community 2 - "app-bar.tsx"
 Cohesion: 0.15
-Nodes (14): Checkpoint(), CheckpointIcon(), CheckpointIconProps, CheckpointProps, CheckpointTriggerProps, AppBarProps, Header(), OPTIONS (+6 more)
+Nodes (16): Checkpoint(), CheckpointIcon(), CheckpointIconProps, CheckpointProps, CheckpointTriggerProps, AppBar(), AppBarProps, Header() (+8 more)
 
 ### Community 3 - "getEnv"
 Cohesion: 0.13
@@ -205,16 +211,16 @@ Cohesion: 0.18
 Nodes (11): ai, drizzle-orm, next-themes, dependencies, ai, drizzle-orm, next-themes, @tanstack/react-query (+3 more)
 
 ### Community 5 - "open-in-chat.tsx"
-Cohesion: 0.06
-Nodes (39): OpenInChatGPT(), OpenInChatGPTProps, OpenInClaude(), OpenInClaudeProps, OpenInContent(), OpenInContentProps, OpenInContext, OpenInCursor() (+31 more)
+Cohesion: 0.09
+Nodes (22): OpenInChatGPT(), OpenInChatGPTProps, OpenInClaude(), OpenInClaudeProps, OpenInContent(), OpenInContentProps, OpenInContext, OpenInCursor() (+14 more)
 
 ### Community 6 - "scripts"
 Cohesion: 0.05
 Nodes (40): drizzle-kit, eslint, eslint-config-next, devDependencies, drizzle-kit, eslint, eslint-config-next, tailwindcss (+32 more)
 
 ### Community 7 - "app-sidebar.tsx"
-Cohesion: 0.07
-Nodes (42): react, react, CalendarDayButton(), ContextMenu(), ContextMenuCheckboxItem(), ContextMenuContent(), ContextMenuGroup(), ContextMenuItem() (+34 more)
+Cohesion: 0.08
+Nodes (36): ContextMenu(), ContextMenuCheckboxItem(), ContextMenuContent(), ContextMenuGroup(), ContextMenuItem(), ContextMenuLabel(), ContextMenuRadioItem(), ContextMenuSeparator() (+28 more)
 
 ### Community 8 - "cn"
 Cohesion: 0.10
@@ -236,8 +242,8 @@ Nodes (44): 1. Current product surface, 2. Make the current state better (polish
 Cohesion: 0.14
 Nodes (13): Common Skill Categories, Find Skills, How to Help Users Find Skills, Step 1: Understand What They Need, Step 2: Check the Leaderboard First, Step 3: Search for Skills, Step 4: Verify Quality Before Recommending, Step 5: Present Options to the User (+5 more)
 
-### Community 13 - "tooltip.tsx"
-Cohesion: 0.21
+### Community 13 - "app/layout.tsx"
+Cohesion: 0.22
 Nodes (7): geistMono, geistSans, metadata, viewport, Providers(), ThemeProvider(), TooltipProvider()
 
 ### Community 14 - "Nexora"
@@ -252,13 +258,13 @@ Nodes (35): GET(), DELETE(), Params, PATCH(), GET(), POST(), db, sql (+27 more)
 Cohesion: 0.13
 Nodes (23): CalendarEventDialog(), CalendarEventDialogProps, GoogleCredentialsDialog(), GoogleCredentialsDialogProps, EditorLinkDialog(), EditorLinkDialogProps, EditorPanelsDialog(), EditorPanelsDialogProps (+15 more)
 
-### Community 25 - "editor-toolbar.tsx"
-Cohesion: 0.06
-Nodes (57): applyAppendNoteContent(), applyReplaceNoteContent(), htmlFromAiContent(), EDITOR_FONT_STORAGE_KEY, EMPTY_FORMATS, TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE (+49 more)
+### Community 25 - "note-editor.tsx"
+Cohesion: 0.15
+Nodes (26): applyAppendNoteContent(), applyReplaceNoteContent(), htmlFromAiContent(), EditorAiSheet(), EditorCanvas(), EditorStatusBar(), EditorStatusBarProps, useNoteDraft() (+18 more)
 
 ### Community 26 - "workspacePath"
-Cohesion: 0.12
-Nodes (23): IntegrationsPage(), IntegrationsPageProps, NotesPage(), NotesPageProps, IntegrationsPanel(), AppBar(), AppSidebar(), DashboardChrome() (+15 more)
+Cohesion: 0.15
+Nodes (18): IntegrationsPage(), IntegrationsPageProps, NotesPage(), NotesPageProps, AppSidebar(), fetchSpaces(), DashboardChrome(), DashboardShell() (+10 more)
 
 ### Community 27 - "prompt-input.tsx"
 Cohesion: 0.03
@@ -273,16 +279,16 @@ Cohesion: 0.40
 Nodes (4): Layout, Notely Better Auth, Pattern (API route), Rules
 
 ### Community 30 - "requireSession"
-Cohesion: 0.10
-Nodes (25): DELETE(), Params, { GET, POST }, DELETE(), PATCH(), RouteContext, GET(), DELETE() (+17 more)
+Cohesion: 0.08
+Nodes (41): GET(), Params, DELETE(), Params, GET(), POST(), { GET, POST }, DELETE() (+33 more)
 
 ### Community 31 - "service.ts"
 Cohesion: 0.07
 Nodes (54): DELETE(), GET(), Params, PATCH(), GET(), POST(), DELETE(), Params (+46 more)
 
-### Community 32 - "readJson"
-Cohesion: 0.13
-Nodes (17): Params, fetchSpaces(), InboxPanel(), Invite, NoteSharePanel(), NoteSharePanelProps, NoteShareTrigger(), ShareRow (+9 more)
+### Community 32 - "notes-workspace.tsx"
+Cohesion: 0.09
+Nodes (18): Params, InboxPanel(), Invite, copy, IllustrationProps, IllustrationShell(), NotesEmptyState(), NotesEmptyStateProps (+10 more)
 
 ### Community 33 - "commit.tsx"
 Cohesion: 0.04
@@ -321,8 +327,8 @@ Cohesion: 0.12
 Nodes (31): defaultRemindAt(), formatFromNow(), NoteReminderDialog(), NoteReminderDialogProps, QUICK_PRESETS, Reminder, snoozeInOneHour(), snoozeTomorrowMorning() (+23 more)
 
 ### Community 42 - "calendar-workspace.tsx"
-Cohesion: 0.09
-Nodes (26): metadata, CalendarNavSidebar(), CalendarNavSidebarProps, CalendarUtilityPanel(), CalendarUtilityPanelProps, SHORTCUTS, CalendarWorkspace(), CalendarEvent (+18 more)
+Cohesion: 0.16
+Nodes (12): metadata, CalendarNavSidebar(), CalendarNavSidebarProps, CalendarUtilityPanel(), CalendarUtilityPanelProps, SHORTCUTS, CalendarWorkspace(), CalendarEvent (+4 more)
 
 ### Community 43 - "schema-display.tsx"
 Cohesion: 0.06
@@ -488,9 +494,9 @@ Nodes (11): completeJsxTag(), JSXPreview, JSXPreviewContent, JSXPreviewContentPr
 Cohesion: 0.19
 Nodes (10): SourceProps, Sources(), SourcesContent(), SourcesContentProps, SourcesProps, SourcesTrigger(), SourcesTriggerProps, Collapsible() (+2 more)
 
-### Community 84 - "notes-empty-state.tsx"
-Cohesion: 0.15
-Nodes (5): copy, IllustrationProps, IllustrationShell(), NotesEmptyStateProps, NotesEmptyStateVariant
+### Community 84 - "user-menu.tsx"
+Cohesion: 0.13
+Nodes (17): UserAvatar(), UserMenu(), UserMenuProps, DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuGroup(), DropdownMenuItem() (+9 more)
 
 ### Community 85 - "date-time-picker.tsx"
 Cohesion: 0.26
@@ -552,25 +558,45 @@ Nodes (4): isBold(), isItalic(), isUnderline(), TokenSpan()
 Cohesion: 0.50
 Nodes (3): HoverCard(), HoverCardContent(), HoverCardTrigger()
 
+### Community 146 - "editor-toolbar.tsx"
+Cohesion: 0.14
+Nodes (17): EDITOR_FONT_STORAGE_KEY, EMPTY_FORMATS, TEXT_COLORS, TOOLBAR_BTN, TOOLBAR_BTN_ACTIVE, EditorToolbar(), EditorToolbarProps, FormatButton() (+9 more)
+
+### Community 147 - "types/notes.ts"
+Cohesion: 0.19
+Nodes (14): EditorCanvasProps, EditorNoteExtras(), EditorNoteExtrasProps, formatReminderAt(), isImageAttachment(), PendingReminder, EditorTags(), EditorTagsProps (+6 more)
+
+### Community 148 - "readJson"
+Cohesion: 0.19
+Nodes (12): NoteChecklist(), NoteChecklistProps, formatBytes(), isImageAttachment(), NoteResources(), NoteResourcesProps, NoteSharePanel(), NoteSharePanelProps (+4 more)
+
+### Community 149 - "use-editor-font.ts"
+Cohesion: 0.44
+Nodes (7): readStoredFont(), useEditorFont(), EDITOR_FONTS, EditorFontOption, ensureEditorFontLoaded(), getEditorFont(), loadedGoogleFonts
+
+### Community 150 - "react"
+Cohesion: 0.33
+Nodes (6): react, react, CalendarDayButton(), SidebarMenuSkeleton(), SidebarProvider(), useIsMobile()
+
 ## Knowledge Gaps
 - **860 isolated node(s):** `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style`, `rsc`, `tsx` (+855 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **47 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **48 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `cn` to `auth.ts`, `app-bar.tsx`, `open-in-chat.tsx`, `app-sidebar.tsx`, `tooltip.tsx`, `dialog.tsx`, `editor-toolbar.tsx`, `workspacePath`, `prompt-input.tsx`, `readJson`, `commit.tsx`, `inline-citation.tsx`, `queue.tsx`, `test-results.tsx`, `voice-selector.tsx`, `model-selector.tsx`, `note-reminder-dialog.tsx`, `calendar-workspace.tsx`, `schema-display.tsx`, `attachments.tsx`, `stack-trace.tsx`, `code-block.tsx`, `task-board.tsx`, `environment-variables.tsx`, `message.tsx`, `mic-selector.tsx`, `context.tsx`, `package-info.tsx`, `audio-player.tsx`, `security-settings.tsx`, `snippet.tsx`, `agent.tsx`, `editor-ai-sheet.tsx`, `calendar-week-view.tsx`, `file-tree.tsx`, `plan.tsx`, `chain-of-thought.tsx`, `confirmation.tsx`, `reasoning.tsx`, `terminal.tsx`, `note-integrations.tsx`, `speech-input.tsx`, `field.tsx`, `notes-list.tsx`, `artifact.tsx`, `node.tsx`, `sandbox.tsx`, `tool.tsx`, `web-preview.tsx`, `demo-section.tsx`, `lib/utils.ts`, `login-page.tsx`, `landing-page.tsx`, `conversation.tsx`, `jsx-preview.tsx`, `collapsible.tsx`, `notes-empty-state.tsx`, `date-time-picker.tsx`, `persona.tsx`, `usePromptInputAttachments`, `task.tsx`, `pricing-section.tsx`, `select.tsx`, `transcription.tsx`, `button.tsx`, `section-shell.tsx`, `hover-card.tsx`?**
+- **Why does `cn()` connect `cn` to `auth.ts`, `app-bar.tsx`, `open-in-chat.tsx`, `app-sidebar.tsx`, `editor-toolbar.tsx`, `types/notes.ts`, `readJson`, `react`, `dialog.tsx`, `note-editor.tsx`, `workspacePath`, `prompt-input.tsx`, `notes-workspace.tsx`, `commit.tsx`, `inline-citation.tsx`, `queue.tsx`, `test-results.tsx`, `voice-selector.tsx`, `model-selector.tsx`, `note-reminder-dialog.tsx`, `calendar-workspace.tsx`, `schema-display.tsx`, `attachments.tsx`, `stack-trace.tsx`, `code-block.tsx`, `task-board.tsx`, `environment-variables.tsx`, `message.tsx`, `mic-selector.tsx`, `context.tsx`, `package-info.tsx`, `audio-player.tsx`, `security-settings.tsx`, `snippet.tsx`, `agent.tsx`, `editor-ai-sheet.tsx`, `calendar-week-view.tsx`, `file-tree.tsx`, `plan.tsx`, `chain-of-thought.tsx`, `confirmation.tsx`, `reasoning.tsx`, `terminal.tsx`, `note-integrations.tsx`, `speech-input.tsx`, `field.tsx`, `notes-list.tsx`, `artifact.tsx`, `node.tsx`, `sandbox.tsx`, `tool.tsx`, `web-preview.tsx`, `demo-section.tsx`, `lib/utils.ts`, `login-page.tsx`, `landing-page.tsx`, `conversation.tsx`, `jsx-preview.tsx`, `collapsible.tsx`, `user-menu.tsx`, `date-time-picker.tsx`, `persona.tsx`, `usePromptInputAttachments`, `task.tsx`, `pricing-section.tsx`, `select.tsx`, `transcription.tsx`, `button.tsx`, `section-shell.tsx`, `hover-card.tsx`?**
   _High betweenness centrality (0.534) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `dependencies` to `shadcn`, `shiki`, `streamdown`, `@streamdown/cjk`, `@streamdown/code`, `@streamdown/math`, `scripts`, `app-sidebar.tsx`, `@streamdown/mermaid`, `tailwind-merge`, `tokenlens`, `tw-animate-css`, `use-stick-to-bottom`, `@xyflow/react`, `zod`, `zustand`, `@ai-sdk/google`, `@ai-sdk/react`, `ansi-to-react`, `@base-ui/react`, `better-auth`, `@better-auth/infra`, `class-variance-authority`, `clsx`, `cmdk`, `date-fns`, `embla-carousel-react`, `@hookform/resolvers`, `jose`, `lucide-react`, `media-chrome`, `motion`, `nanoid`, `@neondatabase/serverless`, `next`, `@radix-ui/react-use-controllable-state`, `react-day-picker`, `react-dom`, `react-hook-form`, `react-jsx-parser`, `react-qr-code`, `@rive-app/react-webgl2`?**
+- **Why does `dependencies` connect `dependencies` to `shadcn`, `shiki`, `streamdown`, `@streamdown/cjk`, `@streamdown/code`, `@streamdown/math`, `scripts`, `@streamdown/mermaid`, `tailwind-merge`, `tokenlens`, `tw-animate-css`, `use-stick-to-bottom`, `@xyflow/react`, `zod`, `zustand`, `react`, `@ai-sdk/google`, `@ai-sdk/react`, `ansi-to-react`, `@base-ui/react`, `better-auth`, `@better-auth/infra`, `class-variance-authority`, `clsx`, `cmdk`, `date-fns`, `embla-carousel-react`, `@hookform/resolvers`, `jose`, `lucide-react`, `media-chrome`, `motion`, `nanoid`, `@neondatabase/serverless`, `next`, `@radix-ui/react-use-controllable-state`, `react-day-picker`, `react-dom`, `react-hook-form`, `react-jsx-parser`, `react-qr-code`, `@rive-app/react-webgl2`?**
   _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `react` connect `app-sidebar.tsx` to `dependencies`, `inline-citation.tsx`?**
+- **Why does `react` connect `react` to `dependencies`, `inline-citation.tsx`, `app-sidebar.tsx`?**
   _High betweenness centrality (0.093) - this node is a cross-community bridge._
 - **What connects `${userHome}/.local/bin/graphify-mcp`, `$schema`, `style` to the rest of the system?**
   _860 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `auth.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.10668563300142248 - nodes in this community are weakly interconnected._
-- **Should `jsonError` be split into smaller, more focused modules?**
-  _Cohesion score 0.13277310924369748 - nodes in this community are weakly interconnected._
-- **Should `app-bar.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.14619883040935672 - nodes in this community are weakly interconnected._
+- **Should `getEnv` be split into smaller, more focused modules?**
+  _Cohesion score 0.12807881773399016 - nodes in this community are weakly interconnected._
+- **Should `open-in-chat.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.0873015873015873 - nodes in this community are weakly interconnected._

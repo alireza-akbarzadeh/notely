@@ -224,7 +224,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         title={draft.title}
         content={draft.content}
         canEdit={canEdit}
-        canShare={canShare}
+        canManageTags={canShare}
         editorFont={editorFont}
         editorRef={editor.editorRef}
         onTitleChange={draft.setTitle}

@@ -28,6 +28,7 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const queryClient = useQueryClient();
   const spaceId = searchParams.get("spaceId") ?? undefined;
   const view = normalizeWorkspaceView(searchParams.get("view"));
+  const tagId = searchParams.get("tagId") ?? undefined;
   const focusMode = useFocusMode((state) => state.enabled);
   const reminderDueTodayIds = useNoteIdsWithReminderDueToday(view === "today");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -190,31 +191,41 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
 
   // Today = edited today, reminder due today, or incomplete task due today.
   const notes = useMemo(() => {
-    const rows: NoteSummary[] = notesQuery.data?.notes ?? [];
-    if (view !== "today") return rows;
-    const today = new Date();
-    const taskDueTodayIds = new Set<string>();
-    for (const task of tasksForTodayQuery.data?.tasks ?? []) {
-      if (!task.noteId || task.isCompleted || !task.dueAt) continue;
-      if (isSameLocalDay(new Date(task.dueAt), today)) {
-        taskDueTodayIds.add(task.noteId);
+    let rows: NoteSummary[] = notesQuery.data?.notes ?? [];
+    if (view === "today") {
+      const today = new Date();
+      const taskDueTodayIds = new Set<string>();
+      for (const task of tasksForTodayQuery.data?.tasks ?? []) {
+        if (!task.noteId || task.isCompleted || !task.dueAt) continue;
+        if (isSameLocalDay(new Date(task.dueAt), today)) {
+          taskDueTodayIds.add(task.noteId);
+        }
       }
+      rows = rows.filter(
+        (note: NoteSummary) =>
+          isSameLocalDay(new Date(note.updatedAt), today) ||
+          reminderDueTodayIds.has(note.id) ||
+          taskDueTodayIds.has(note.id),
+      );
     }
-    return rows.filter(
-      (note: NoteSummary) =>
-        isSameLocalDay(new Date(note.updatedAt), today) ||
-        reminderDueTodayIds.has(note.id) ||
-        taskDueTodayIds.has(note.id),
-    );
+    if (tagId) {
+      rows = rows.filter((note) => note.tags.some((tag) => tag.id === tagId));
+    }
+    return rows;
   }, [
     notesQuery.data?.notes,
     reminderDueTodayIds,
+    tagId,
     tasksForTodayQuery.data?.tasks,
     view,
   ]);
 
+  const activeTag = tagsQuery.data?.tags.find((tag) => tag.id === tagId);
+
   const spaceName =
-    view === "shared"
+    activeTag
+      ? `#${activeTag.name}`
+      : view === "shared"
       ? "Shared with me"
       : view === "archive"
         ? "Archive"

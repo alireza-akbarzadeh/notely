@@ -258,12 +258,18 @@ export function NotesList({
         ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
             <p className="text-sm font-medium">
-              {trashView ? "Trash is empty" : "No notes yet"}
+              {trashView
+                ? "Trash is empty"
+                : spaceName.startsWith("#")
+                  ? "No notes with this tag"
+                  : "No notes yet"}
             </p>
             <p className="text-xs text-muted-foreground">
               {trashView
                 ? "Deleted notes and spaces will appear here."
-                : "Create a note to start writing."}
+                : spaceName.startsWith("#")
+                  ? "Open a note and tap a tag chip to assign it."
+                  : "Create a note to start writing."}
             </p>
           </div>
         ) : (
@@ -376,14 +382,28 @@ export function NotesList({
                               {note.isFavorite ? (
                                 <Star className="size-3 fill-primary text-primary" />
                               ) : null}
-                              {note.tags.slice(0, 2).map((tag) => (
+                              {note.tags.slice(0, 3).map((tag) => (
                                 <span
                                   key={tag.id}
-                                  className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary"
+                                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+                                  style={{
+                                    backgroundColor: `${tag.color}22`,
+                                    color: tag.color,
+                                  }}
                                 >
+                                  <span
+                                    className="size-1.5 rounded-full"
+                                    style={{ backgroundColor: tag.color }}
+                                    aria-hidden
+                                  />
                                   #{tag.name}
                                 </span>
                               ))}
+                              {note.tags.length > 3 ? (
+                                <span className="text-[10px] text-muted-foreground">
+                                  +{note.tags.length - 3}
+                                </span>
+                              ) : null}
                             </div>
                           )}
                           {active ? (
