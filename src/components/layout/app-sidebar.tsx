@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
   BookOpen,
+  CalendarDays,
   CheckSquare,
   FolderOpen,
   Inbox,
@@ -244,6 +245,13 @@ export function AppSidebar() {
       tooltip: "Notes",
     },
     {
+      label: "Calendar",
+      href: "/calendar",
+      icon: CalendarDays,
+      active: pathname.startsWith("/calendar"),
+      tooltip: "Calendar",
+    },
+    {
       label: "Journal",
       href: "/notes?view=today",
       icon: BookOpen,
@@ -270,6 +278,13 @@ export function AppSidebar() {
       icon: Inbox,
       active: view === "inbox",
       tooltip: "Inbox",
+    },
+    {
+      label: "Trash",
+      href: "/notes?view=trash",
+      icon: Trash2,
+      active: view === "trash",
+      tooltip: "Trash",
     },
     {
       label: "Settings",

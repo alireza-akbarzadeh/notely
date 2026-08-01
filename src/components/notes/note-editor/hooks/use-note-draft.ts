@@ -94,14 +94,38 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/notes/${note.id}`, { method: "DELETE" });
+    mutationFn: async (options?: { permanent?: boolean }) => {
+      const permanent = options?.permanent === true;
+      const url = permanent
+        ? `/api/notes/${note.id}?permanent=1`
+        : `/api/notes/${note.id}`;
+      const response = await fetch(url, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete");
+      return { permanent };
     },
-    onSuccess: () => {
+    onSuccess: ({ permanent }) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      router.push("/notes");
+      queryClient.removeQueries({ queryKey: ["note", note.id] });
+      router.push(permanent ? "/notes?view=trash" : "/notes");
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/notes/${note.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restore: true }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Failed to restore");
+      return data.note as NoteSummary;
+    },
+    onSuccess: (restored) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.setQueryData(["note", note.id], { note: restored });
+      router.push(`/notes/${note.id}`);
     },
   });
 
@@ -157,5 +181,6 @@ export function useNoteDraft({ note, allTags, canEdit }: UseNoteDraftOptions) {
     saveNow,
     saveMutation,
     deleteMutation,
+    restoreMutation,
   };
 }

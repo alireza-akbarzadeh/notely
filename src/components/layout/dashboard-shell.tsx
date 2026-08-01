@@ -43,6 +43,22 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
 }
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isCalendar = pathname.startsWith("/calendar");
+
+  if (isCalendar) {
+    return (
+      <div className="flex h-svh min-h-0 w-full flex-col overflow-hidden bg-background">
+        <div className="min-h-0 flex-1 overflow-hidden pb-16 md:pb-0">
+          {children}
+        </div>
+        <Suspense fallback={null}>
+          <MobileBottomNav />
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider
       className="h-svh overflow-hidden bg-background"

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 import { db, noteTags, notes, spaces, tags } from "@/lib/db";
@@ -149,6 +149,7 @@ function serializeNote(
 ) {
   return {
     ...row,
+    deletedAt: row.deletedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     tags: noteTagList,
@@ -160,19 +161,30 @@ function serializeNote(
 
 export async function listNotes(
   userId: string,
-  options?: { spaceId?: string; favoritesOnly?: boolean; sharedOnly?: boolean },
+  options?: {
+    spaceId?: string;
+    favoritesOnly?: boolean;
+    sharedOnly?: boolean;
+    trashOnly?: boolean;
+  },
 ) {
   if (options?.sharedOnly) {
     const shared = await listSharedWithMe(userId);
     const tagMap = await tagsForNotes(shared.map((row) => row.id));
     return shared.map((row) => ({
       ...row,
+      deletedAt: row.deletedAt ?? null,
       tags: tagMap.get(row.id) ?? [],
       accessRole: row.sharedRole === "viewer" ? "viewer" : "editor",
     }));
   }
 
   const conditions = [eq(notes.userId, userId)];
+  if (options?.trashOnly) {
+    conditions.push(isNotNull(notes.deletedAt));
+  } else {
+    conditions.push(isNull(notes.deletedAt));
+  }
   if (options?.spaceId) conditions.push(eq(notes.spaceId, options.spaceId));
   if (options?.favoritesOnly) conditions.push(eq(notes.isFavorite, true));
 
@@ -180,7 +192,10 @@ export async function listNotes(
     .select()
     .from(notes)
     .where(and(...conditions))
-    .orderBy(desc(notes.isPinned), desc(notes.updatedAt));
+    .orderBy(
+      options?.trashOnly ? desc(notes.deletedAt) : desc(notes.isPinned),
+      desc(notes.updatedAt),
+    );
 
   const tagMap = await tagsForNotes(rows.map((row) => row.id));
   return rows.map((row) =>
@@ -268,7 +283,7 @@ export async function updateNote(
   if (!access) return null;
 
   const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
-  if (!existing) return null;
+  if (!existing || existing.deletedAt) return null;
 
   if (input.spaceId) {
     if (access.role !== "owner") {
@@ -310,9 +325,45 @@ export async function updateNote(
   return getNote(userId, noteId);
 }
 
+/** Soft-delete: move note to Trash. */
 export async function deleteNote(userId: string, noteId: string) {
   const access = await requireNoteAccess(userId, noteId, "share");
   if (!access || access.role !== "owner") return false;
+
+  const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
+  if (!existing || existing.deletedAt) return false;
+
+  const now = new Date();
+  await db
+    .update(notes)
+    .set({ deletedAt: now, updatedAt: now })
+    .where(eq(notes.id, noteId));
+  return true;
+}
+
+export async function restoreNote(userId: string, noteId: string) {
+  const access = await requireNoteAccess(userId, noteId, "read");
+  if (!access || access.role !== "owner") return null;
+
+  const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
+  if (!existing?.deletedAt) return null;
+
+  await db
+    .update(notes)
+    .set({ deletedAt: null, updatedAt: new Date() })
+    .where(eq(notes.id, noteId));
+
+  return getNote(userId, noteId);
+}
+
+/** Hard-delete: permanently remove a trashed note. */
+export async function permanentlyDeleteNote(userId: string, noteId: string) {
+  const access = await requireNoteAccess(userId, noteId, "read");
+  if (!access || access.role !== "owner") return false;
+
+  const [existing] = await db.select().from(notes).where(eq(notes.id, noteId)).limit(1);
+  if (!existing?.deletedAt) return false;
+
   await db.delete(notes).where(eq(notes.id, noteId));
   return true;
 }

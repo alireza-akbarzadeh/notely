@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { NoteDeleteDialog } from "@/components/notes/note-delete-dialog";
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
 
+import { EditorAiSheet } from "./editor-ai-sheet";
 import { EditorCanvas } from "./editor-canvas";
 import { EditorLinkDialog } from "./editor-link-dialog";
 import { EditorPanelsDialog } from "./editor-panels-dialog";
@@ -20,10 +22,13 @@ export type { NoteEditorProps } from "./types";
 
 export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const router = useRouter();
-  const canEdit = note.accessRole !== "viewer";
-  const canShare = note.accessRole === "owner";
+  const isTrashed = Boolean(note.deletedAt);
+  const canEdit = !isTrashed && note.accessRole !== "viewer";
+  const canShare = !isTrashed && note.accessRole === "owner";
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { editorFont, selectFont } = useEditorFont();
   const draft = useNoteDraft({ note, allTags, canEdit });
@@ -47,7 +52,8 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         shareOpen={editor.shareOpen}
         onShareOpenChange={editor.setShareOpen}
         isFavorite={note.isFavorite}
-        onBack={() => router.push("/notes")}
+        isTrashed={isTrashed}
+        onBack={() => router.push(isTrashed ? "/notes?view=trash" : "/notes")}
         onToggleBlock={editor.toggleBlock}
         onInlineCommand={editor.toggleInlineCommand}
         onRunCommand={editor.runCommand}
@@ -55,11 +61,11 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         onOpenLink={editor.openLinkDialog}
         onToggleCode={editor.toggleCode}
         onToggleFavorite={() => draft.saveNow({ isFavorite: !note.isFavorite })}
-        onDelete={() => {
-          if (window.confirm("Delete this note?")) draft.deleteMutation.mutate();
-        }}
+        onDelete={() => setDeleteOpen(true)}
+        onRestore={() => draft.restoreMutation.mutate()}
         onOpenChecklist={() => setChecklistOpen(true)}
         onOpenResources={() => setResourcesOpen(true)}
+        onOpenAi={() => setAiOpen(true)}
         onPrepareTextColor={editor.prepareTextColor}
         onApplyTextColor={editor.applyTextColor}
         onPrepareInlineImage={editor.prepareInlineImage}
@@ -67,11 +73,52 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         inlineImageUploading={editor.inlineImageUploading}
       />
 
+      {isTrashed ? (
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/40 px-4 py-2 text-sm">
+          <p className="text-muted-foreground">
+            This note is in Trash. Restore it to edit again.
+          </p>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              className="rounded-md px-2 py-1 text-xs font-medium text-foreground hover:bg-accent"
+              disabled={draft.restoreMutation.isPending}
+              onClick={() => draft.restoreMutation.mutate()}
+            >
+              {draft.restoreMutation.isPending ? "Restoring…" : "Restore"}
+            </button>
+            <button
+              type="button"
+              className="rounded-md px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10"
+              onClick={() => setDeleteOpen(true)}
+            >
+              Delete forever
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <NoteSharePanel
         noteId={note.id}
         canShare={canShare}
         open={editor.shareOpen}
         onOpenChange={editor.setShareOpen}
+      />
+
+      <NoteDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        noteTitle={draft.title || note.title}
+        permanent={isTrashed}
+        pending={draft.deleteMutation.isPending}
+        onConfirm={() => {
+          draft.deleteMutation.mutate(
+            { permanent: isTrashed },
+            {
+              onSettled: () => setDeleteOpen(false),
+            },
+          );
+        }}
       />
 
       <EditorLinkDialog
@@ -91,6 +138,19 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
         resourcesOpen={resourcesOpen}
         onChecklistOpenChange={setChecklistOpen}
         onResourcesOpenChange={setResourcesOpen}
+      />
+
+      <EditorAiSheet
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        noteId={note.id}
+        title={draft.title}
+        contentHtml={draft.content}
+        canEdit={canEdit}
+        editorRef={editor.editorRef}
+        setContent={draft.setContent}
+        setTitle={draft.setTitle}
+        onBeforeSend={editor.syncContentFromEditor}
       />
 
       <EditorCanvas

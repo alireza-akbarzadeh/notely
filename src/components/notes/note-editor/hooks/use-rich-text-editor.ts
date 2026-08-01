@@ -52,9 +52,10 @@ export function useRichTextEditor({
     setShareOpen(false);
     if (editorRef.current) {
       editorRef.current.innerHTML = toEditorHtml(initialContent);
-      editorRef.current.dataset.empty = stripHtml(initialContent)
-        ? "false"
-        : "true";
+      editorRef.current.dataset.empty =
+        stripHtml(initialContent) || /<img\b/i.test(initialContent)
+          ? "false"
+          : "true";
       decorateEditorLinks(editorRef.current);
     }
     // Only reset the DOM when switching notes — not on every draft/save update.
@@ -65,7 +66,8 @@ export function useRichTextEditor({
     const editor = editorRef.current;
     if (!editor) return;
     const html = normalizeEditorHtml(editor.innerHTML);
-    editor.dataset.empty = stripHtml(html) ? "false" : "true";
+    editor.dataset.empty =
+      stripHtml(html) || /<img\b/i.test(html) ? "false" : "true";
     setContent(html);
   }
 
@@ -338,7 +340,7 @@ export function useRichTextEditor({
       range.deleteContents();
 
       const image = document.createElement("img");
-      image.src = attachment.url;
+      image.setAttribute("src", attachment.url);
       image.alt = attachment.fileName;
       image.dataset.attachmentId = attachment.id;
 

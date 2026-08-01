@@ -17,20 +17,27 @@ export async function getNoteAccess(
   noteId: string,
 ): Promise<NoteAccess | null> {
   const [note] = await db
-    .select({ id: notes.id, userId: notes.userId })
+    .select({
+      id: notes.id,
+      userId: notes.userId,
+      deletedAt: notes.deletedAt,
+    })
     .from(notes)
     .where(eq(notes.id, noteId))
     .limit(1);
 
   if (!note) return null;
 
+  // Trashed notes are owner-only (collaborators lose access until restored).
+  if (note.deletedAt && note.userId !== userId) return null;
+
   if (note.userId === userId) {
     return {
       noteId: note.id,
       ownerId: note.userId,
       role: "owner",
-      canEdit: true,
-      canShare: true,
+      canEdit: !note.deletedAt,
+      canShare: !note.deletedAt,
     };
   }
 

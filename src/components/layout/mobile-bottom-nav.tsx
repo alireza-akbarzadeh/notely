@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { NotebookPen, Plus, Settings, Star } from "lucide-react";
+import { CalendarDays, NotebookPen, Plus, Settings } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { SpaceSummary } from "@/types/notes";
@@ -53,10 +53,10 @@ export function MobileBottomNav() {
       active: pathname.startsWith("/notes") && view !== "favorites",
     },
     {
-      href: "/notes?view=favorites",
-      label: "Saved",
-      icon: Star,
-      active: view === "favorites",
+      href: "/calendar",
+      label: "Calendar",
+      icon: CalendarDays,
+      active: pathname.startsWith("/calendar"),
     },
     {
       href: "/settings",

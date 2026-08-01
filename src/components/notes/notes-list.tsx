@@ -107,9 +107,11 @@ export function NotesList({
           ? "Inbox"
           : view === "shared"
             ? "Archive"
-            : spaceName === "Notes"
-              ? "All Notes"
-              : spaceName;
+            : view === "trash"
+              ? "Trash"
+              : spaceName === "Notes"
+                ? "All Notes"
+                : spaceName;
 
   const groups = useMemo(() => groupNotes(notes), [notes]);
 
@@ -163,9 +165,13 @@ export function NotesList({
           </div>
         ) : notes.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-            <p className="text-sm font-medium">No notes yet</p>
+            <p className="text-sm font-medium">
+              {view === "trash" ? "Trash is empty" : "No notes yet"}
+            </p>
             <p className="text-xs text-muted-foreground">
-              Create a note to start writing.
+              {view === "trash"
+                ? "Deleted notes will appear here."
+                : "Create a note to start writing."}
             </p>
           </div>
         ) : (

@@ -106,7 +106,9 @@ export function EditorCanvas({
             !canEdit && "opacity-90",
           )}
           style={{ fontFamily: editorFont.family }}
-          data-empty={stripHtml(content) ? "false" : "true"}
+          data-empty={
+            stripHtml(content) || /<img\b/i.test(content) ? "false" : "true"
+          }
         />
 
         <EditorNoteExtras

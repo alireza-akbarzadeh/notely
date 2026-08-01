@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 
 import { jsonError, requireSession } from "@/lib/api/auth-guard";
-import { deleteNote, getNote, updateNote } from "@/lib/notes/service";
+import {
+  deleteNote,
+  getNote,
+  permanentlyDeleteNote,
+  restoreNote,
+  updateNote,
+} from "@/lib/notes/service";
 import { updateNoteSchema } from "@/lib/validations/notes";
 
 type Params = { params: Promise<{ id: string }> };
@@ -23,6 +29,13 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const { id } = await params;
   const body = await request.json();
+
+  if (body?.restore === true) {
+    const note = await restoreNote(session.user.id, id);
+    if (!note) return jsonError("Note not found", 404);
+    return NextResponse.json({ note });
+  }
+
   const parsed = updateNoteSchema.safeParse(body);
   if (!parsed.success) {
     return jsonError(parsed.error.issues[0]?.message ?? "Invalid note payload");
@@ -38,12 +51,17 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(_request: Request, { params }: Params) {
+export async function DELETE(request: Request, { params }: Params) {
   const { session, response } = await requireSession();
   if (!session) return response!;
 
   const { id } = await params;
-  const deleted = await deleteNote(session.user.id, id);
+  const permanent =
+    new URL(request.url).searchParams.get("permanent") === "1";
+
+  const deleted = permanent
+    ? await permanentlyDeleteNote(session.user.id, id)
+    : await deleteNote(session.user.id, id);
   if (!deleted) return jsonError("Note not found", 404);
 
   return NextResponse.json({ success: true });

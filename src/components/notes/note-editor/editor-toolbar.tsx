@@ -19,6 +19,8 @@ import {
   PenLine,
   Quote,
   Redo2,
+  RotateCcw,
+  Sparkles,
   Star,
   Strikethrough,
   Trash2,
@@ -69,8 +71,11 @@ type EditorToolbarProps = {
   onToggleCode: () => void;
   onToggleFavorite: () => void;
   onDelete: () => void;
+  onRestore?: () => void;
+  isTrashed?: boolean;
   onOpenChecklist: () => void;
   onOpenResources: () => void;
+  onOpenAi: () => void;
   onPrepareTextColor: () => void;
   onApplyTextColor: (color: string | null) => void;
   onPrepareInlineImage: () => void;
@@ -128,8 +133,11 @@ export function EditorToolbar({
   onToggleCode,
   onToggleFavorite,
   onDelete,
+  onRestore,
+  isTrashed = false,
   onOpenChecklist,
   onOpenResources,
+  onOpenAi,
   onPrepareTextColor,
   onApplyTextColor,
   onPrepareInlineImage,
@@ -206,6 +214,13 @@ export function EditorToolbar({
           >
             <Paperclip className="size-3.5" />
           </FormatButton>
+          <FormatButton
+            onClick={onOpenAi}
+            label="Ask AI"
+            title="Ask Gemini about this note"
+          >
+            <Sparkles className="size-3.5" />
+          </FormatButton>
           <span className="mx-0.5 hidden h-4 w-px bg-border sm:block" />
           <div className="hidden items-center gap-0.5 sm:flex">
             <FormatButton
@@ -225,23 +240,31 @@ export function EditorToolbar({
               <Redo2 className="size-3.5" />
             </FormatButton>
           </div>
-          <NoteShareTrigger
-            canShare={canShare}
-            open={shareOpen}
-            onOpenChange={onShareOpenChange}
-            className={cn(TOOLBAR_BTN, "hidden shrink-0 sm:inline-flex")}
-          />
-          {canShare ? (
+          {!isTrashed ? (
+            <NoteShareTrigger
+              canShare={canShare}
+              open={shareOpen}
+              onOpenChange={onShareOpenChange}
+              className={cn(TOOLBAR_BTN, "hidden shrink-0 sm:inline-flex")}
+            />
+          ) : null}
+          {canShare && !isTrashed ? (
             <FormatButton onClick={onToggleFavorite} label="Toggle favorite">
               <Star
                 className={`size-3.5 ${isFavorite ? "fill-primary text-primary" : ""}`}
               />
             </FormatButton>
           ) : null}
-          {canShare ? (
+          {isTrashed && onRestore ? (
+            <FormatButton onClick={onRestore} label="Restore note" title="Restore from Trash">
+              <RotateCcw className="size-3.5" />
+            </FormatButton>
+          ) : null}
+          {canShare || isTrashed ? (
             <FormatButton
               onClick={onDelete}
-              label="Delete note"
+              label={isTrashed ? "Delete forever" : "Move to Trash"}
+              title={isTrashed ? "Delete forever" : "Move to Trash"}
             >
               <Trash2 className="size-3.5" />
             </FormatButton>

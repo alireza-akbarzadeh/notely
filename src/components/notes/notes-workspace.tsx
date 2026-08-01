@@ -38,9 +38,13 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
     enabled: view !== "inbox",
     queryFn: async (): Promise<{ notes: NoteSummary[] }> => {
       const params = new URLSearchParams();
-      if (spaceId) params.set("spaceId", spaceId);
-      if (view === "favorites") params.set("favorites", "1");
-      if (view === "shared") params.set("shared", "1");
+      if (view === "trash") {
+        params.set("trash", "1");
+      } else {
+        if (spaceId) params.set("spaceId", spaceId);
+        if (view === "favorites") params.set("favorites", "1");
+        if (view === "shared") params.set("shared", "1");
+      }
       const response = await fetch(`/api/notes?${params.toString()}`);
       if (!response.ok) throw new Error("Failed to load notes");
       return response.json();
@@ -106,10 +110,12 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         ? "Tasks"
         : view === "today"
           ? "Journal"
-          : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
-              ?.name ??
-            spacesQuery.data?.spaces[0]?.name ??
-            "All Notes";
+          : view === "trash"
+            ? "Trash"
+            : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
+                ?.name ??
+              spacesQuery.data?.spaces[0]?.name ??
+              "All Notes";
 
   if (view === "inbox") {
     return <InboxPanel />;
@@ -165,10 +171,16 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         ) : (
           <NotesEmptyState
             className="w-full"
-            variant={isEmptyList ? "empty" : "select"}
+            variant={
+              isEmptyList
+                ? view === "trash"
+                  ? "trash"
+                  : "empty"
+                : "select"
+            }
             createPending={createNoteMutation.isPending}
             onCreateNote={
-              isEmptyList && defaultSpaceId
+              isEmptyList && view !== "trash" && defaultSpaceId
                 ? () => createNoteMutation.mutate(defaultSpaceId)
                 : undefined
             }

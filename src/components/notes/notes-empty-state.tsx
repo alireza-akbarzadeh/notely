@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type NotesEmptyStateProps = {
-  variant?: "select" | "empty";
+  variant?: "select" | "empty" | "trash";
   className?: string;
   onCreateNote?: () => void;
   createPending?: boolean;
@@ -132,6 +132,7 @@ export function NotesEmptyState({
   createPending,
 }: NotesEmptyStateProps) {
   const isEmpty = variant === "empty";
+  const isTrash = variant === "trash";
 
   return (
     <div
@@ -146,12 +147,18 @@ export function NotesEmptyState({
 
       <div className="max-w-sm animate-rise" style={{ animationDelay: "80ms" }}>
         <p className="text-xl font-semibold tracking-tight text-foreground">
-          {isEmpty ? "No notes yet" : "Pick a note to begin"}
+          {isTrash
+            ? "Trash is empty"
+            : isEmpty
+              ? "No notes yet"
+              : "Pick a note to begin"}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {isEmpty
-            ? "Your desk is clear. Capture the first idea and it will live here."
-            : "Choose something from the list, or start a fresh note from the sidebar."}
+          {isTrash
+            ? "Deleted notes land here. Restore them or delete forever."
+            : isEmpty
+              ? "Your desk is clear. Capture the first idea and it will live here."
+              : "Choose something from the list, or start a fresh note from the sidebar."}
         </p>
       </div>
 

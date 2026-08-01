@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 
@@ -140,6 +140,7 @@ export async function listInbox(userId: string) {
     .where(
       and(
         eq(noteShares.status, "pending"),
+        isNull(notes.deletedAt),
         or(
           eq(noteShares.userId, userId),
           eq(noteShares.email, me.email.toLowerCase()),
@@ -228,12 +229,17 @@ export async function listSharedWithMe(userId: string) {
     .from(noteShares)
     .innerJoin(notes, eq(noteShares.noteId, notes.id))
     .where(
-      and(eq(noteShares.userId, userId), eq(noteShares.status, "accepted")),
+      and(
+        eq(noteShares.userId, userId),
+        eq(noteShares.status, "accepted"),
+        isNull(notes.deletedAt),
+      ),
     )
     .orderBy(desc(notes.updatedAt));
 
   return rows.map((row) => ({
     ...row.note,
+    deletedAt: row.note.deletedAt?.toISOString() ?? null,
     createdAt: row.note.createdAt.toISOString(),
     updatedAt: row.note.updatedAt.toISOString(),
     sharedRole: row.role,
@@ -254,6 +260,7 @@ export async function searchNotes(userId: string, query: string) {
     .where(
       and(
         eq(notes.userId, userId),
+        isNull(notes.deletedAt),
         or(ilike(notes.title, pattern), ilike(notes.content, pattern)),
       ),
     )
@@ -268,6 +275,7 @@ export async function searchNotes(userId: string, query: string) {
       and(
         eq(noteShares.userId, userId),
         eq(noteShares.status, "accepted"),
+        isNull(notes.deletedAt),
         or(ilike(notes.title, pattern), ilike(notes.content, pattern)),
       ),
     )

@@ -19,6 +19,10 @@ const envSchema = z
     APPLE_KEY_ID: z.string().min(1).optional(),
     APPLE_PRIVATE_KEY: z.string().min(1).optional(),
     APPLE_APP_BUNDLE_IDENTIFIER: z.string().min(1).optional(),
+    /** Google AI / Gemini — AI SDK reads GOOGLE_GENERATIVE_AI_API_KEY by default. */
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1).optional(),
+    /** Alias used by Netlify AI Gateway and some local setups. */
+    GEMINI_API_KEY: z.string().min(1).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.EMAIL_PROVIDER === "resend") {
@@ -96,6 +100,10 @@ function loadEnv(): Env {
     APPLE_APP_BUNDLE_IDENTIFIER: emptyToUndefined(
       process.env.APPLE_APP_BUNDLE_IDENTIFIER,
     ),
+    GOOGLE_GENERATIVE_AI_API_KEY: emptyToUndefined(
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    ),
+    GEMINI_API_KEY: emptyToUndefined(process.env.GEMINI_API_KEY),
   });
 
   if (!parsed.success) {
