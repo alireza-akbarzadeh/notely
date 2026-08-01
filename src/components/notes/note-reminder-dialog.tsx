@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, LoaderCircle } from "lucide-react";
+import { Bell, BellOff, LoaderCircle, Volume2, VolumeX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   REMINDER_SOUND_LABELS,
@@ -41,15 +41,10 @@ type NoteReminderDialogProps = {
   canEdit: boolean;
 };
 
-function toLocalInputValue(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
 function defaultRemindAt() {
   const d = new Date();
   d.setMinutes(d.getMinutes() + 30);
-  d.setSeconds(0, 0);
+  d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0);
   return d;
 }
 
@@ -57,6 +52,16 @@ function withTime(base: Date, hours: number, minutes = 0) {
   const d = new Date(base);
   d.setHours(hours, minutes, 0, 0);
   return d;
+}
+
+function formatFromNow(target: Date) {
+  const diffMinutes = Math.round((target.getTime() - Date.now()) / 60_000);
+  const format = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  if (Math.abs(diffMinutes) < 60) return format.format(diffMinutes, "minute");
+  if (Math.abs(diffMinutes) < 60 * 24) {
+    return format.format(Math.round(diffMinutes / 60), "hour");
+  }
+  return format.format(Math.round(diffMinutes / (60 * 24)), "day");
 }
 
 const QUICK_PRESETS: {
@@ -105,9 +110,7 @@ export function NoteReminderDialog({
   canEdit,
 }: NoteReminderDialogProps) {
   const queryClient = useQueryClient();
-  const [remindAt, setRemindAt] = useState(() =>
-    toLocalInputValue(defaultRemindAt()),
-  );
+  const [remindAt, setRemindAt] = useState<Date>(() => defaultRemindAt());
   const [sound, setSound] = useState<ReminderSound>("chime");
   const [error, setError] = useState<string | null>(null);
 
@@ -131,9 +134,8 @@ export function NoteReminderDialog({
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const at = new Date(remindAt);
-      if (Number.isNaN(at.getTime())) throw new Error("Invalid date/time");
-      if (at.getTime() < Date.now() - 30_000) {
+      if (Number.isNaN(remindAt.getTime())) throw new Error("Invalid date/time");
+      if (remindAt.getTime() < Date.now() - 30_000) {
         throw new Error("Pick a time in the future");
       }
       await ensureNotificationPermission();
@@ -143,7 +145,7 @@ export function NoteReminderDialog({
         body: JSON.stringify({
           title: noteTitle.trim() || "Untitled note",
           body: "Time to revisit this note",
-          remindAt: at.toISOString(),
+          remindAt: remindAt.toISOString(),
           sound,
           noteId,
         }),
@@ -154,7 +156,7 @@ export function NoteReminderDialog({
     },
     onSuccess: () => {
       setError(null);
-      setRemindAt(toLocalInputValue(defaultRemindAt()));
+      setRemindAt(defaultRemindAt());
       queryClient.invalidateQueries({ queryKey: ["reminders"] });
     },
     onError: (err: Error) => setError(err.message),
@@ -178,13 +180,13 @@ export function NoteReminderDialog({
       open={open}
       onOpenChange={(next) => {
         if (next) {
-          setRemindAt(toLocalInputValue(defaultRemindAt()));
+          setRemindAt(defaultRemindAt());
           setError(null);
         }
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="size-4" />
@@ -233,61 +235,95 @@ export function NoteReminderDialog({
         ) : null}
 
         {canEdit ? (
-          <div className="space-y-3">
+          <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)]">
             <div className="space-y-1.5">
-              <Label htmlFor="remind-at">Date & time</Label>
-              <Input
-                id="remind-at"
-                type="datetime-local"
+              <Label>Date & time</Label>
+              <DateTimePicker
                 value={remindAt}
-                min={toLocalInputValue(new Date())}
-                onChange={(e) => setRemindAt(e.target.value)}
+                onChange={setRemindAt}
+                minDate={new Date()}
+                className="w-full sm:w-fit"
               />
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {QUICK_PRESETS.map((preset) => (
-                  <Button
-                    key={preset.label}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() =>
-                      setRemindAt(toLocalInputValue(preset.build()))
-                    }
-                  >
-                    {preset.label}
-                  </Button>
-                ))}
-              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label>Alert sound</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {REMINDER_SOUNDS.map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => {
-                      setSound(value);
-                      if (value !== "none") void playReminderSound(value);
-                    }}
-                    className={cn(
-                      "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                      sound === value
-                        ? "border-primary/60 bg-primary/10"
-                        : "border-border/80 hover:bg-accent/50",
-                    )}
-                  >
-                    {REMINDER_SOUND_LABELS[value]}
-                  </button>
-                ))}
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5">
+                <p className="text-xs text-muted-foreground">Alerting</p>
+                <p className="mt-0.5 font-medium">
+                  {remindAt.toLocaleString(undefined, {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatFromNow(remindAt)}
+                </p>
               </div>
-            </div>
 
-            {error ? (
-              <p className="text-xs text-destructive">{error}</p>
-            ) : null}
+              <div className="space-y-1.5">
+                <Label>Quick pick</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {QUICK_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.label}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="justify-start font-normal"
+                      onClick={() => setRemindAt(preset.build())}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Alert sound</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {REMINDER_SOUNDS.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={sound === value}
+                      onClick={() => {
+                        setSound(value);
+                        if (value !== "none") void playReminderSound(value);
+                      }}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                        sound === value
+                          ? "border-primary/60 bg-primary/10"
+                          : "border-border/80 hover:bg-accent/50",
+                      )}
+                    >
+                      {value === "none" ? (
+                        <VolumeX className="size-3.5 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <Volume2
+                          className={cn(
+                            "size-3.5 shrink-0",
+                            sound === value
+                              ? "text-primary"
+                              : "text-muted-foreground",
+                          )}
+                        />
+                      )}
+                      <span className="truncate">
+                        {REMINDER_SOUND_LABELS[value]}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {error ? (
+                <p className="text-xs text-destructive">{error}</p>
+              ) : null}
+            </div>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">

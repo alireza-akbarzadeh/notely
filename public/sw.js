@@ -1,12 +1,18 @@
 /* Notely service worker — PWA shell cache + Web Push */
 
-const CACHE_VERSION = "notely-v1";
+const CACHE_VERSION = "notely-v2";
 const PRECACHE = [
   "/",
   "/favicon.svg",
   "/icons/icon.svg",
   "/manifest.webmanifest",
 ];
+
+// Dev builds emit unhashed chunk URLs, so caching them serves stale modules
+// after a rebuild. Push handling below still works either way.
+const IS_DEV_HOST =
+  self.location.hostname === "localhost" ||
+  self.location.hostname === "127.0.0.1";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -34,6 +40,8 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (IS_DEV_HOST) return;
+
   const { request } = event;
   if (request.method !== "GET") return;
 
@@ -85,7 +93,7 @@ self.addEventListener("push", (event) => {
   let data = {
     title: "Notely reminder",
     body: "You have a reminder",
-    url: "/notes",
+    url: "/workspace",
     sound: "chime",
     reminderId: null,
   };
@@ -105,7 +113,7 @@ self.addEventListener("push", (event) => {
     tag: data.reminderId ? `reminder-${data.reminderId}` : "notely-reminder",
     renotify: true,
     data: {
-      url: data.url || "/notes",
+      url: data.url || "/workspace",
       sound: data.sound || "chime",
       reminderId: data.reminderId,
     },
@@ -131,7 +139,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || "/notes";
+  const url = event.notification.data?.url || "/workspace";
 
   event.waitUntil(
     self.clients

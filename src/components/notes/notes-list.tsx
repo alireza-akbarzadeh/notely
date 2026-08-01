@@ -14,6 +14,11 @@ import {
   Trash2,
 } from "lucide-react";
 
+import {
+  NoteReminderCountdown,
+  useReminderClock,
+} from "@/components/notes/note-reminder-countdown";
+import { useNoteReminders } from "@/components/notes/use-note-reminders";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -148,6 +153,16 @@ export function NotesList({
     () => groupNotes(notes, trashView),
     [notes, trashView],
   );
+
+  const remindersByNote = useNoteReminders(!trashView);
+  const hasCountdown = notes.some((note) => remindersByNote.has(note.id));
+  const now = useReminderClock(hasCountdown);
+  // Accent colour comes from the note's position in the list so each row differs.
+  const colorIndexByNote = useMemo(() => {
+    const indexes = new Map<string, number>();
+    notes.forEach((note, index) => indexes.set(note.id, index));
+    return indexes;
+  }, [notes]);
 
   const isEmpty =
     !isLoading &&
@@ -286,6 +301,9 @@ export function NotesList({
                   {group.notes.map((note) => {
                     const href = `/notes/${note.id}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
                     const active = activeNoteId === note.id;
+                    const reminder = trashView
+                      ? undefined
+                      : remindersByNote.get(note.id);
                     return (
                       <li key={note.id}>
                         <Link
@@ -308,6 +326,14 @@ export function NotesList({
                           <p className="line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
                             {note.summary || "Empty note"}
                           </p>
+                          {reminder ? (
+                            <NoteReminderCountdown
+                              remindAt={reminder.remindAt}
+                              createdAt={reminder.createdAt}
+                              colorIndex={colorIndexByNote.get(note.id) ?? 0}
+                              now={now}
+                            />
+                          ) : null}
                           {(note.isFavorite || note.tags.length > 0) && (
                             <div className="mt-2 flex flex-wrap items-center gap-1.5">
                               {note.isFavorite ? (

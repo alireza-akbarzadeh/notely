@@ -231,13 +231,18 @@ export function EditorToolbar({
             <Plug className="size-3.5" />
           </FormatButton>
           {!isTrashed ? (
-            <FormatButton
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 shrink-0 gap-1.5 px-2 text-xs"
               onClick={onOpenReminder}
-              label="Remind me"
               title="Set a reminder for this note"
+              aria-label="Set date and time reminder"
             >
               <Bell className="size-3.5" />
-            </FormatButton>
+              <span className="hidden lg:inline">Remind me</span>
+            </Button>
           ) : null}
           <FormatButton
             onClick={onOpenAi}
