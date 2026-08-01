@@ -7,15 +7,36 @@ import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { sendAuthEmail } from "@/lib/email/send";
 import { getEnv } from "@/lib/env";
+import { importPKCS8 } from "jose";
+
 import {
   generateAppleClientSecret,
   isAppleAuthConfigured,
   isGoogleAuthConfigured,
+  normalizeApplePrivateKey,
 } from "@/lib/auth/social";
 
 const env = getEnv();
 const googleEnabled = isGoogleAuthConfigured(env);
-const appleEnabled = isAppleAuthConfigured(env);
+
+async function resolveAppleEnabled() {
+  if (!isAppleAuthConfigured(env)) return false;
+  try {
+    await importPKCS8(
+      normalizeApplePrivateKey(env.APPLE_PRIVATE_KEY!),
+      "ES256",
+    );
+    return true;
+  } catch (error) {
+    console.warn(
+      "[auth] Apple Sign In disabled: APPLE_PRIVATE_KEY failed PKCS#8 import.",
+      error,
+    );
+    return false;
+  }
+}
+
+const appleEnabled = await resolveAppleEnabled();
 
 function normalizeBaseUrl(url: string) {
   return url.replace(/\/+$/, "");

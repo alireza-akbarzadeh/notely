@@ -12,9 +12,25 @@ import type {
   UpdateSpaceValues,
 } from "@/lib/validations/notes";
 
+function stripHtml(value: string) {
+  return value
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/p>/gi, " ")
+    .replace(/<\/div>/gi, " ")
+    .replace(/<\/li>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function summarize(content: string, explicit?: string | null) {
   if (explicit !== undefined && explicit !== null) return explicit;
-  const trimmed = content.trim().replace(/\s+/g, " ");
+  const trimmed = stripHtml(content);
   if (!trimmed) return null;
   return trimmed.length > 140 ? `${trimmed.slice(0, 137)}…` : trimmed;
 }

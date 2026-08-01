@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { InboxPanel } from "@/components/notes/inbox-panel";
+import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { NotesList } from "@/components/notes/notes-list";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFocusMode } from "@/stores/focus-mode";
 import type { NoteSummary, NoteTag, SpaceSummary } from "@/types/notes";
 
 type NotesWorkspaceProps = {
@@ -16,8 +18,11 @@ type NotesWorkspaceProps = {
 
 export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const spaceId = searchParams.get("spaceId") ?? undefined;
   const view = searchParams.get("view");
+  const focusMode = useFocusMode((state) => state.enabled);
 
   const spacesQuery = useQuery({
     queryKey: ["spaces"],
@@ -61,6 +66,23 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
     },
   });
 
+  const createNoteMutation = useMutation({
+    mutationFn: async (targetSpaceId: string) => {
+      const response = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ spaceId: targetSpaceId, title: "Untitled" }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Failed to create note");
+      return data.note as { id: string };
+    },
+    onSuccess: (note) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      router.push(`/notes/${note.id}`);
+    },
+  });
+
   const notes = useMemo(() => {
     const rows: NoteSummary[] = notesQuery.data?.notes ?? [];
     if (view === "today") {
@@ -79,11 +101,15 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
 
   const spaceName =
     view === "shared"
-      ? "Shared with me"
-      : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
-          ?.name ??
-        spacesQuery.data?.spaces[0]?.name ??
-        "Notes";
+      ? "Archive"
+      : view === "favorites"
+        ? "Tasks"
+        : view === "today"
+          ? "Journal"
+          : spacesQuery.data?.spaces.find((space: SpaceSummary) => space.id === spaceId)
+              ?.name ??
+            spacesQuery.data?.spaces[0]?.name ??
+            "All Notes";
 
   if (view === "inbox") {
     return <InboxPanel />;
@@ -91,10 +117,21 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
 
   const showEditor = Boolean(noteId);
   const note = noteQuery.data?.note;
+  const defaultSpaceId = spaceId ?? spacesQuery.data?.spaces[0]?.id;
+  const isEmptyList = !notesQuery.isLoading && notes.length === 0;
+  const hideList = (focusMode && showEditor) || (isEmptyList && !showEditor);
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <div className={showEditor ? "hidden md:flex md:min-h-0" : "flex min-h-0 w-full"}>
+    <div className="flex min-h-0 flex-1 bg-background">
+      <div
+        className={
+          hideList
+            ? "hidden"
+            : showEditor
+              ? "hidden md:flex md:min-h-0"
+              : "flex min-h-0 w-full md:w-auto"
+        }
+      >
         <NotesList
           notes={notes}
           activeNoteId={noteId}
@@ -103,7 +140,13 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
         />
       </div>
 
-      <div className={showEditor ? "flex min-h-0 flex-1" : "hidden min-h-0 flex-1 md:flex"}>
+      <div
+        className={
+          showEditor || hideList
+            ? "flex min-h-0 min-w-0 flex-1"
+            : "hidden min-h-0 min-w-0 flex-1 md:flex"
+        }
+      >
         {showEditor ? (
           noteQuery.isLoading ? (
             <div className="flex flex-1 flex-col gap-4 p-6">
@@ -118,14 +161,16 @@ export function NotesWorkspace({ noteId }: NotesWorkspaceProps) {
             </div>
           )
         ) : (
-          <div className="hidden flex-1 items-center justify-center p-8 text-center md:flex">
-            <div>
-              <p className="text-lg font-semibold">Select a note</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Or create a new one from the sidebar.
-              </p>
-            </div>
-          </div>
+          <NotesEmptyState
+            className="w-full"
+            variant={isEmptyList ? "empty" : "select"}
+            createPending={createNoteMutation.isPending}
+            onCreateNote={
+              isEmptyList && defaultSpaceId
+                ? () => createNoteMutation.mutate(defaultSpaceId)
+                : undefined
+            }
+          />
         )}
       </div>
     </div>
