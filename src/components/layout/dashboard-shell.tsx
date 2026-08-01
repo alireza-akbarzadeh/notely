@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { AppBar } from "@/components/layout/app-bar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
-import { UtilitySidebar } from "@/components/layout/utility-sidebar";
 import { NoteSearchDialog } from "@/components/notes/note-search-dialog";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -14,7 +13,6 @@ import { cn } from "@/lib/utils";
 function DashboardChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isNotes = pathname.startsWith("/notes");
-  const isSettings = pathname.startsWith("/settings");
 
   return (
     <>
@@ -29,10 +27,7 @@ function DashboardChrome({ children }: { children: React.ReactNode }) {
         )}
       >
         {isNotes ? null : <AppBar />}
-        <div className="flex min-h-0 flex-1">
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
-          {isSettings ? <UtilitySidebar /> : null}
-        </div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
       </SidebarInset>
       <Suspense fallback={null}>
         <MobileBottomNav />

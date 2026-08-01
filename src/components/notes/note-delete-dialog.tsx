@@ -46,9 +46,13 @@ export function NoteDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
+            type="button"
             variant="destructive"
             disabled={pending}
-            onClick={onConfirm}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm();
+            }}
           >
             {pending
               ? permanent

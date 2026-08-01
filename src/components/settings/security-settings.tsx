@@ -17,7 +17,13 @@ import {
   type TwoFactorPasswordFormValues,
 } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 
 type SessionRow = {
@@ -206,10 +212,14 @@ export function SecuritySettings() {
   const currentToken = session?.session?.token;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Change password</CardTitle>
+          <CardDescription>
+            Use a strong password. Other devices will be signed out after an
+            update.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -260,13 +270,13 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <CardTitle>Two-factor authentication</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+          <CardDescription>
             {twoFactorEnabled
               ? "Authenticator app 2FA is enabled on your account."
               : "Add a TOTP authenticator app for an extra sign-in step."}
-          </p>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
 
           {!twoFactorEnabled && !totpUri ? (
             <form
@@ -369,6 +379,9 @@ export function SecuritySettings() {
       <Card>
         <CardHeader>
           <CardTitle>Active sessions</CardTitle>
+          <CardDescription>
+            Review devices signed into your account and revoke unfamiliar ones.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
