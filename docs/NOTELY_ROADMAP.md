@@ -134,6 +134,13 @@ API pattern (same as old exchange routes):
 - [x] Accept/decline in Inbox; Shared with me list
 - [x] Editors can update note body + checklist todos
 
+### Realtime sync across devices
+
+- [x] Authenticated SSE stream (`/api/realtime`) + in-memory hub
+- [x] Publish on note / task / attachment mutations (`x-client-id` echo skip)
+- [x] Client refreshes lists/editor; mid-edit shows “Updated on another device”
+- [ ] Multi-instance: Redis/Upstash pub-sub or PartyKit/WebSocket rooms
+
 ---
 
 ## Suggested implement order

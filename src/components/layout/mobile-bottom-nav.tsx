@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NotebookPen, Plus, Settings, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { realtimeHeaders } from "@/lib/realtime/client-id";
 import type { SpaceSummary } from "@/types/notes";
 
 export function MobileBottomNav() {
@@ -28,7 +29,7 @@ export function MobileBottomNav() {
     mutationFn: async (spaceId: string) => {
       const response = await fetch("/api/notes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ spaceId, title: "Untitled" }),
       });
       const data = await response.json();

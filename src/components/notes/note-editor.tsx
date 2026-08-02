@@ -3,13 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Star, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NoteChecklist } from "@/components/notes/note-checklist";
+import { NoteFormatToolbar } from "@/components/notes/note-format-toolbar";
 import { NoteResources } from "@/components/notes/note-resources";
 import { NoteSharePanel } from "@/components/notes/note-share-panel";
+import type { RemoteNoteUpdateDetail } from "@/hooks/use-realtime";
+import { realtimeHeaders } from "@/lib/realtime/client-id";
 import type { NoteSummary, NoteTag } from "@/types/notes";
 
 type NoteEditorProps = {
@@ -23,8 +26,23 @@ type DraftSnapshot = {
   tagIds: string[];
 };
 
+type EditorStatus =
+  | "idle"
+  | "saving"
+  | "saved"
+  | "error"
+  | "remote";
+
 function sameTagIds(a: string[], b: string[]) {
   return a.length === b.length && a.every((id) => b.includes(id));
+}
+
+function draftMatchesSaved(draft: DraftSnapshot, saved: DraftSnapshot) {
+  return (
+    draft.title === saved.title &&
+    draft.content === saved.content &&
+    sameTagIds(draft.tagIds, saved.tagIds)
+  );
 }
 
 export function NoteEditor({ note, allTags }: NoteEditorProps) {
@@ -35,15 +53,14 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tagIds, setTagIds] = useState(note.tags.map((tag) => tag.id));
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<EditorStatus>("idle");
   const savedRef = useRef<DraftSnapshot>({
     title: note.title,
     content: note.content,
     tagIds: note.tags.map((tag) => tag.id),
   });
   const draftRef = useRef<DraftSnapshot>(savedRef.current);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Only reload local draft when switching notes — never while typing.
   useEffect(() => {
@@ -64,6 +81,53 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
     draftRef.current = { title, content, tagIds };
   }, [title, content, tagIds]);
 
+  useEffect(() => {
+    async function applyRemote(detail: RemoteNoteUpdateDetail) {
+      if (detail.noteId !== note.id) return;
+      if (detail.type === "note.deleted") {
+        router.push("/notes");
+        return;
+      }
+      if (detail.type !== "note.updated" && detail.type !== "note.created") {
+        return;
+      }
+
+      const response = await fetch(`/api/notes/${note.id}`);
+      if (!response.ok) return;
+      const data = (await response.json()) as { note: NoteSummary };
+      const remote = data.note;
+
+      const draft = draftRef.current;
+      const saved = savedRef.current;
+      const clean = draftMatchesSaved(draft, saved);
+
+      if (clean) {
+        const next: DraftSnapshot = {
+          title: remote.title,
+          content: remote.content,
+          tagIds: remote.tags.map((tag) => tag.id),
+        };
+        setTitle(next.title);
+        setContent(next.content);
+        setTagIds(next.tagIds);
+        savedRef.current = next;
+        draftRef.current = next;
+        queryClient.setQueryData(["note", note.id], { note: remote });
+        setStatus("saved");
+      } else {
+        setStatus("remote");
+      }
+    }
+
+    function onRemote(event: Event) {
+      const custom = event as CustomEvent<RemoteNoteUpdateDetail>;
+      void applyRemote(custom.detail);
+    }
+
+    window.addEventListener("notely:remote-note", onRemote);
+    return () => window.removeEventListener("notely:remote-note", onRemote);
+  }, [note.id, queryClient, router]);
+
   const saveMutation = useMutation({
     mutationFn: async (payload: {
       title: string;
@@ -73,7 +137,7 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
     }) => {
       const response = await fetch(`/api/notes/${note.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(payload),
       });
       const data = await response.json();
@@ -97,7 +161,6 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
       queryClient.setQueryData(["note", note.id], {
         note: {
           ...updated,
-          // Keep newer local draft in the cache if the user typed during save.
           title: draftMatchesSave ? updated.title : draft.title,
           content: draftMatchesSave ? updated.content : draft.content,
           tags: draftMatchesSave
@@ -113,7 +176,10 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/notes/${note.id}`, { method: "DELETE" });
+      const response = await fetch(`/api/notes/${note.id}`, {
+        method: "DELETE",
+        headers: realtimeHeaders(),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete");
     },
@@ -154,59 +220,61 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-3 md:px-6">
+      <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3 md:hidden">
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
           onClick={() => router.push("/notes")}
           aria-label="Back to notes"
         >
           <ArrowLeft className="size-5" />
         </Button>
         <p className="flex-1 truncate text-xs text-muted-foreground">
-          {note.isShared ? `Shared · ${note.accessRole ?? "editor"} · ` : ""}
           {status === "saving"
             ? "Saving…"
             : status === "saved"
               ? "Saved"
               : status === "error"
                 ? "Couldn’t save"
-                : canEdit
-                  ? "Ready"
-                  : "View only"}
+                : status === "remote"
+                  ? "Updated on another device"
+                  : canEdit
+                    ? "Ready"
+                    : "View only"}
         </p>
-        {canShare ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              saveMutation.mutate({
-                title: title.trim() || "Untitled",
-                content,
-                tagIds,
-                isFavorite: !note.isFavorite,
-              })
-            }
-            aria-label="Toggle favorite"
-          >
-            <Star
-              className={`size-4 ${note.isFavorite ? "fill-primary text-primary" : ""}`}
-            />
-          </Button>
-        ) : null}
-        {canShare ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              if (window.confirm("Delete this note?")) deleteMutation.mutate();
-            }}
-            aria-label="Delete note"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        ) : null}
+      </div>
+
+      <NoteFormatToolbar
+        textareaRef={textareaRef}
+        content={content}
+        onContentChange={setContent}
+        canEdit={canEdit}
+        canShare={canShare}
+        isFavorite={note.isFavorite}
+        onToggleFavorite={() =>
+          saveMutation.mutate({
+            title: title.trim() || "Untitled",
+            content,
+            tagIds,
+            isFavorite: !note.isFavorite,
+          })
+        }
+        onDelete={() => {
+          if (window.confirm("Delete this note?")) deleteMutation.mutate();
+        }}
+      />
+
+      <div className="hidden px-4 pt-2 text-xs text-muted-foreground md:block md:px-10">
+        {note.isShared ? `Shared · ${note.accessRole ?? "editor"} · ` : ""}
+        {status === "saving"
+          ? "Saving…"
+          : status === "saved"
+            ? "Saved"
+            : status === "error"
+              ? "Couldn’t save"
+              : status === "remote"
+                ? "Updated on another device"
+                : null}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:px-10 md:pb-10">
@@ -214,14 +282,12 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
           value={title}
           readOnly={!canEdit}
           onChange={(event) => setTitle(event.target.value)}
-          className="mb-4 h-auto border-0 bg-transparent px-0 text-3xl font-semibold shadow-none focus-visible:ring-0 md:text-4xl"
+          className="mb-3 h-auto border-0 bg-transparent px-0 text-3xl font-semibold shadow-none focus-visible:ring-0 md:text-4xl"
           placeholder="Untitled"
         />
 
-        <NoteSharePanel noteId={note.id} canShare={canShare} />
-
         {allTags.length > 0 && canShare ? (
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap gap-2">
             {allTags.map((tag) => {
               const selected = tagIds.includes(tag.id);
               return (
@@ -241,9 +307,27 @@ export function NoteEditor({ note, allTags }: NoteEditorProps) {
               );
             })}
           </div>
+        ) : note.tags.length > 0 ? (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {note.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="rounded-full px-3 py-1 text-xs font-medium"
+                style={{
+                  backgroundColor: `${tag.color}22`,
+                  color: tag.color,
+                }}
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
         ) : null}
 
+        <NoteSharePanel noteId={note.id} canShare={canShare} />
+
         <textarea
+          ref={textareaRef}
           value={content}
           readOnly={!canEdit}
           onChange={(event) => setContent(event.target.value)}

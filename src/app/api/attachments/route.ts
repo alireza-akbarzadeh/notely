@@ -7,6 +7,7 @@ import {
   listAttachmentsForNote,
   MAX_DB_ATTACHMENT_BYTES,
 } from "@/lib/notes/attachments";
+import { getRequestClientId } from "@/lib/realtime/request";
 import { createLinkAttachmentSchema } from "@/lib/validations/notes";
 
 export async function GET(request: Request) {
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
 
   try {
+    const clientId = await getRequestClientId();
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData();
       const noteId = String(form.get("noteId") ?? "");
@@ -43,12 +45,16 @@ export async function POST(request: Request) {
       }
 
       const bytes = Buffer.from(await file.arrayBuffer());
-      const attachment = await createDbFileAttachment(session.user.id, {
-        noteId,
-        fileName: file.name || "upload",
-        mimeType: file.type || "application/octet-stream",
-        bytes,
-      });
+      const attachment = await createDbFileAttachment(
+        session.user.id,
+        {
+          noteId,
+          fileName: file.name || "upload",
+          mimeType: file.type || "application/octet-stream",
+          bytes,
+        },
+        { clientId },
+      );
       return NextResponse.json({ attachment }, { status: 201 });
     }
 
@@ -60,7 +66,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const attachment = await createLinkAttachment(session.user.id, parsed.data);
+    const attachment = await createLinkAttachment(session.user.id, parsed.data, {
+      clientId,
+    });
     return NextResponse.json({ attachment }, { status: 201 });
   } catch (error) {
     const message =

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { jsonError, requireSession } from "@/lib/api/auth-guard";
 import { createNote, ensureDefaultSpace, listNotes } from "@/lib/notes/service";
+import { getRequestClientId } from "@/lib/realtime/request";
 import { createNoteSchema } from "@/lib/validations/notes";
 
 export async function GET(request: Request) {
@@ -34,7 +35,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const note = await createNote(session.user.id, parsed.data);
+    const clientId = await getRequestClientId();
+    const note = await createNote(session.user.id, parsed.data, { clientId });
     return NextResponse.json({ note }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create note";

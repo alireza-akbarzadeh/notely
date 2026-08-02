@@ -4,6 +4,11 @@ import { randomUUID } from "crypto";
 import { db, noteTags, notes, spaces, tags } from "@/lib/db";
 import { requireNoteAccess } from "@/lib/notes/access";
 import { listSharedWithMe } from "@/lib/notes/shares";
+import {
+  publishNoteEvent,
+  publishNoteEventToUsers,
+  recipientUserIdsForNote,
+} from "@/lib/realtime/hub";
 import type {
   CreateNoteValues,
   CreateSpaceValues,
@@ -11,6 +16,8 @@ import type {
   UpdateNoteValues,
   UpdateSpaceValues,
 } from "@/lib/validations/notes";
+
+type RealtimeMeta = { clientId?: string | null };
 
 function summarize(content: string, explicit?: string | null) {
   if (explicit !== undefined && explicit !== null) return explicit;
@@ -216,7 +223,11 @@ async function syncNoteTags(ownerUserId: string, noteId: string, tagIds: string[
   }
 }
 
-export async function createNote(userId: string, input: CreateNoteValues) {
+export async function createNote(
+  userId: string,
+  input: CreateNoteValues,
+  meta?: RealtimeMeta,
+) {
   const space = await assertSpaceOwned(userId, input.spaceId);
   if (!space) throw new Error("Space not found");
 
@@ -240,13 +251,21 @@ export async function createNote(userId: string, input: CreateNoteValues) {
     await syncNoteTags(userId, id, input.tagIds);
   }
 
-  return getNote(userId, id);
+  const note = await getNote(userId, id);
+  await publishNoteEvent({
+    type: "note.created",
+    noteId: id,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
+  return note;
 }
 
 export async function updateNote(
   userId: string,
   noteId: string,
   input: UpdateNoteValues,
+  meta?: RealtimeMeta,
 ) {
   const access = await requireNoteAccess(userId, noteId, "edit");
   if (!access) return null;
@@ -291,13 +310,32 @@ export async function updateNote(
     await syncNoteTags(access.ownerId, noteId, input.tagIds);
   }
 
-  return getNote(userId, noteId);
+  const note = await getNote(userId, noteId);
+  await publishNoteEvent({
+    type: "note.updated",
+    noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
+  return note;
 }
 
-export async function deleteNote(userId: string, noteId: string) {
+export async function deleteNote(
+  userId: string,
+  noteId: string,
+  meta?: RealtimeMeta,
+) {
   const access = await requireNoteAccess(userId, noteId, "share");
   if (!access || access.role !== "owner") return false;
+
+  const recipients = await recipientUserIdsForNote(noteId);
   await db.delete(notes).where(eq(notes.id, noteId));
+  publishNoteEventToUsers(recipients, {
+    type: "note.deleted",
+    noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return true;
 }
 

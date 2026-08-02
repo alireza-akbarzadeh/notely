@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { jsonError, requireSession } from "@/lib/api/auth-guard";
 import { createTask, listTasksForNote } from "@/lib/notes/tasks";
+import { getRequestClientId } from "@/lib/realtime/request";
 import { createTaskSchema } from "@/lib/validations/notes";
 
 export async function GET(request: Request) {
@@ -28,7 +29,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const task = await createTask(session.user.id, parsed.data);
+    const clientId = await getRequestClientId();
+    const task = await createTask(session.user.id, parsed.data, { clientId });
     return NextResponse.json({ task }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create task";

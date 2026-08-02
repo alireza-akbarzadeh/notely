@@ -3,10 +3,13 @@ import { randomUUID } from "crypto";
 
 import { db, tasks } from "@/lib/db";
 import { requireNoteAccess } from "@/lib/notes/access";
+import { publishNoteEvent } from "@/lib/realtime/hub";
 import type {
   CreateTaskValues,
   UpdateTaskValues,
 } from "@/lib/validations/notes";
+
+type RealtimeMeta = { clientId?: string | null };
 
 function serializeTask(row: typeof tasks.$inferSelect) {
   return {
@@ -29,7 +32,11 @@ export async function listTasksForNote(userId: string, noteId: string) {
   return rows.map(serializeTask);
 }
 
-export async function createTask(userId: string, input: CreateTaskValues) {
+export async function createTask(
+  userId: string,
+  input: CreateTaskValues,
+  meta?: RealtimeMeta,
+) {
   const access = await requireNoteAccess(userId, input.noteId, "edit");
   if (!access) throw new Error("Note not found");
 
@@ -52,6 +59,12 @@ export async function createTask(userId: string, input: CreateTaskValues) {
   });
 
   const [row] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+  await publishNoteEvent({
+    type: "tasks.changed",
+    noteId: input.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return serializeTask(row!);
 }
 
@@ -59,6 +72,7 @@ export async function updateTask(
   userId: string,
   taskId: string,
   input: UpdateTaskValues,
+  meta?: RealtimeMeta,
 ) {
   const [existing] = await db
     .select()
@@ -83,10 +97,20 @@ export async function updateTask(
     .where(eq(tasks.id, taskId));
 
   const [row] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1);
+  await publishNoteEvent({
+    type: "tasks.changed",
+    noteId: existing.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return serializeTask(row!);
 }
 
-export async function deleteTask(userId: string, taskId: string) {
+export async function deleteTask(
+  userId: string,
+  taskId: string,
+  meta?: RealtimeMeta,
+) {
   const [existing] = await db
     .select()
     .from(tasks)
@@ -98,6 +122,12 @@ export async function deleteTask(userId: string, taskId: string) {
   if (!access) return false;
 
   await db.delete(tasks).where(eq(tasks.id, taskId));
+  await publishNoteEvent({
+    type: "tasks.changed",
+    noteId: existing.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return true;
 }
 

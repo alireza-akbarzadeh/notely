@@ -6,6 +6,7 @@ import { Check, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { realtimeHeaders } from "@/lib/realtime/client-id";
 import { cn } from "@/lib/utils";
 import type { NoteTask } from "@/types/notes";
 
@@ -31,7 +32,7 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
     mutationFn: async (text: string) => {
       const response = await fetch("/api/tasks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ noteId, text }),
       });
       const data = await response.json();
@@ -52,7 +53,7 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
     }) => {
       const response = await fetch(`/api/tasks/${input.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           text: input.text,
           isCompleted: input.isCompleted,
@@ -69,7 +70,10 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: realtimeHeaders(),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete task");
     },

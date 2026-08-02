@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, FileText, Link2, Paperclip, Trash2, Upload } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { realtimeHeaders } from "@/lib/realtime/client-id";
 import { cn } from "@/lib/utils";
 import type { NoteAttachment } from "@/types/notes";
 
@@ -28,6 +29,15 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const [linkUrl, setLinkUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!canEdit) return;
+    function openPicker() {
+      fileInputRef.current?.click();
+    }
+    window.addEventListener("notely:attach-file", openPicker);
+    return () => window.removeEventListener("notely:attach-file", openPicker);
+  }, [canEdit]);
+
   const attachmentsQuery = useQuery({
     queryKey: ["attachments", noteId],
     queryFn: async (): Promise<{ attachments: NoteAttachment[] }> => {
@@ -46,6 +56,7 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
       form.set("file", file);
       const response = await fetch("/api/attachments", {
         method: "POST",
+        headers: realtimeHeaders(),
         body: form,
       });
       const data = await response.json();
@@ -67,7 +78,7 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
     mutationFn: async () => {
       const response = await fetch("/api/attachments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           noteId,
           fileName: linkName.trim() || "Link",
@@ -93,7 +104,10 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/attachments/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/attachments/${id}`, {
+        method: "DELETE",
+        headers: realtimeHeaders(),
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete");
     },
@@ -105,7 +119,10 @@ export function NoteResources({ noteId, canEdit = true }: NoteResourcesProps) {
   const items: NoteAttachment[] = attachmentsQuery.data?.attachments ?? [];
 
   return (
-    <section className="mb-8 rounded-2xl border border-border/80 bg-card/40 p-4">
+    <section
+      id="note-resources"
+      className="mb-8 rounded-2xl border border-border/80 bg-card/40 p-4"
+    >
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold">Resources</h2>

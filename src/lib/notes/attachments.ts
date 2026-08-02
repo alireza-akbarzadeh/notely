@@ -3,7 +3,10 @@ import { randomUUID } from "crypto";
 
 import { attachments, db } from "@/lib/db";
 import { requireNoteAccess } from "@/lib/notes/access";
+import { publishNoteEvent } from "@/lib/realtime/hub";
 import type { CreateLinkAttachmentValues } from "@/lib/validations/notes";
+
+type RealtimeMeta = { clientId?: string | null };
 
 /** Soft limit for DB-backed uploads (base64 in Postgres). */
 export const MAX_DB_ATTACHMENT_BYTES = 2 * 1024 * 1024;
@@ -41,6 +44,7 @@ export async function listAttachmentsForNote(userId: string, noteId: string) {
 export async function createLinkAttachment(
   userId: string,
   input: CreateLinkAttachmentValues,
+  meta?: RealtimeMeta,
 ) {
   const access = await requireNoteAccess(userId, input.noteId, "edit");
   if (!access) throw new Error("Note not found");
@@ -63,6 +67,12 @@ export async function createLinkAttachment(
     .from(attachments)
     .where(eq(attachments.id, id))
     .limit(1);
+  await publishNoteEvent({
+    type: "attachments.changed",
+    noteId: input.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return serializeAttachment(row!);
 }
 
@@ -74,6 +84,7 @@ export async function createDbFileAttachment(
     mimeType: string;
     bytes: Buffer;
   },
+  meta?: RealtimeMeta,
 ) {
   const access = await requireNoteAccess(userId, input.noteId, "edit");
   if (!access) throw new Error("Note not found");
@@ -105,6 +116,12 @@ export async function createDbFileAttachment(
     .from(attachments)
     .where(eq(attachments.id, id))
     .limit(1);
+  await publishNoteEvent({
+    type: "attachments.changed",
+    noteId: input.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return serializeAttachment(row!);
 }
 
@@ -121,7 +138,11 @@ export async function getAttachmentForUser(userId: string, attachmentId: string)
   return row;
 }
 
-export async function deleteAttachment(userId: string, attachmentId: string) {
+export async function deleteAttachment(
+  userId: string,
+  attachmentId: string,
+  meta?: RealtimeMeta,
+) {
   const [existing] = await db
     .select()
     .from(attachments)
@@ -133,5 +154,11 @@ export async function deleteAttachment(userId: string, attachmentId: string) {
   if (!access) return false;
 
   await db.delete(attachments).where(eq(attachments.id, attachmentId));
+  await publishNoteEvent({
+    type: "attachments.changed",
+    noteId: existing.noteId,
+    actorUserId: userId,
+    clientId: meta?.clientId,
+  });
   return true;
 }
