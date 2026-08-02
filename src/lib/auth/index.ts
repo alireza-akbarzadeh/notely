@@ -7,19 +7,57 @@ import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { sendAuthEmail } from "@/lib/email/send";
 import { getEnv } from "@/lib/env";
+import { importPKCS8 } from "jose";
+
 import {
   generateAppleClientSecret,
   isAppleAuthConfigured,
   isGoogleAuthConfigured,
+  normalizeApplePrivateKey,
 } from "@/lib/auth/social";
 
 const env = getEnv();
 const googleEnabled = isGoogleAuthConfigured(env);
-const appleEnabled = isAppleAuthConfigured(env);
+
+async function resolveAppleEnabled() {
+  if (!isAppleAuthConfigured(env)) return false;
+  try {
+    await importPKCS8(
+      normalizeApplePrivateKey(env.APPLE_PRIVATE_KEY!),
+      "ES256",
+    );
+    return true;
+  } catch (error) {
+    console.warn(
+      "[auth] Apple Sign In disabled: APPLE_PRIVATE_KEY failed PKCS#8 import.",
+      error,
+    );
+    return false;
+  }
+}
+
+const appleEnabled = await resolveAppleEnabled();
 
 function normalizeBaseUrl(url: string) {
   return url.replace(/\/+$/, "");
 }
+
+function resolveAuthBaseUrl() {
+  const configured = env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL;
+  if (configured && !configured.includes("localhost")) {
+    return normalizeBaseUrl(configured);
+  }
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    const host = vercelUrl.replace(/^https?:\/\//, "");
+    return normalizeBaseUrl(`https://${host}`);
+  }
+
+  return normalizeBaseUrl(configured ?? "http://localhost:3000");
+}
+
+const authBaseUrl = resolveAuthBaseUrl();
 
 export const auth = betterAuth({
   appName: "Notely",
@@ -34,7 +72,7 @@ export const auth = betterAuth({
     },
   }),
   secret: env.BETTER_AUTH_SECRET,
-  baseURL: normalizeBaseUrl(env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL),
+  baseURL: authBaseUrl,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -86,7 +124,10 @@ export const auth = betterAuth({
         }
       : {}),
   },
-  trustedOrigins: appleEnabled ? ["https://appleid.apple.com"] : [],
+  trustedOrigins: [
+    authBaseUrl,
+    ...(appleEnabled ? ["https://appleid.apple.com"] : []),
+  ],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,

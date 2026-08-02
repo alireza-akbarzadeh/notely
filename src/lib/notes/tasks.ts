@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, max } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, max } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 import { db, tasks } from "@/lib/db";
@@ -14,6 +14,7 @@ type RealtimeMeta = { clientId?: string | null };
 function serializeTask(row: typeof tasks.$inferSelect) {
   return {
     ...row,
+    dueAt: row.dueAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -32,6 +33,7 @@ export async function listTasksForNote(userId: string, noteId: string) {
   return rows.map(serializeTask);
 }
 
+<<<<<<< HEAD
 export async function createTask(
   userId: string,
   input: CreateTaskValues,
@@ -39,20 +41,39 @@ export async function createTask(
 ) {
   const access = await requireNoteAccess(userId, input.noteId, "edit");
   if (!access) throw new Error("Note not found");
+=======
+export async function listTasks(userId: string) {
+  const rows = await db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.userId, userId))
+    .orderBy(asc(tasks.sortOrder), desc(tasks.updatedAt));
+
+  return rows.map(serializeTask);
+}
+
+export async function createTask(userId: string, input: CreateTaskValues) {
+  if (input.noteId) {
+    const access = await requireNoteAccess(userId, input.noteId, "edit");
+    if (!access) throw new Error("Note not found");
+  }
+>>>>>>> refs/remotes/origin/main
 
   const [agg] = await db
     .select({ maxOrder: max(tasks.sortOrder) })
     .from(tasks)
-    .where(eq(tasks.noteId, input.noteId));
+    .where(eq(tasks.userId, userId));
 
   const id = randomUUID();
   const now = new Date();
   await db.insert(tasks).values({
     id,
-    noteId: input.noteId,
+    noteId: input.noteId ?? null,
     userId,
     text: input.text ?? "",
-    isCompleted: false,
+    status: input.status ?? "todo",
+    isCompleted: (input.status ?? "todo") === "done",
+    dueAt: input.dueAt ? new Date(input.dueAt) : null,
     sortOrder: (agg?.maxOrder ?? -1) + 1,
     createdAt: now,
     updatedAt: now,
@@ -81,17 +102,34 @@ export async function updateTask(
     .limit(1);
   if (!existing) return null;
 
-  const access = await requireNoteAccess(userId, existing.noteId, "edit");
-  if (!access) return null;
+  if (existing.noteId) {
+    const access = await requireNoteAccess(userId, existing.noteId, "edit");
+    if (!access) return null;
+  } else if (existing.userId !== userId) {
+    return null;
+  }
+
+  const nextStatus =
+    input.status ??
+    (input.isCompleted === true
+      ? "done"
+      : input.isCompleted === false
+        ? "todo"
+        : undefined);
 
   await db
     .update(tasks)
     .set({
       ...(input.text !== undefined ? { text: input.text } : {}),
-      ...(input.isCompleted !== undefined
-        ? { isCompleted: input.isCompleted }
-        : {}),
+      ...(nextStatus !== undefined
+        ? { status: nextStatus, isCompleted: nextStatus === "done" }
+        : input.isCompleted !== undefined
+          ? { isCompleted: input.isCompleted }
+          : {}),
       ...(input.sortOrder !== undefined ? { sortOrder: input.sortOrder } : {}),
+      ...(input.dueAt !== undefined
+        ? { dueAt: input.dueAt ? new Date(input.dueAt) : null }
+        : {}),
       updatedAt: new Date(),
     })
     .where(eq(tasks.id, taskId));
@@ -118,8 +156,12 @@ export async function deleteTask(
     .limit(1);
   if (!existing) return false;
 
-  const access = await requireNoteAccess(userId, existing.noteId, "edit");
-  if (!access) return false;
+  if (existing.noteId) {
+    const access = await requireNoteAccess(userId, existing.noteId, "edit");
+    if (!access) return false;
+  } else if (existing.userId !== userId) {
+    return false;
+  }
 
   await db.delete(tasks).where(eq(tasks.id, taskId));
   await publishNoteEvent({
@@ -140,4 +182,29 @@ export async function listIncompleteTasks(userId: string, limit = 20) {
     .limit(limit);
 
   return rows.map(serializeTask);
+}
+
+/** Note ids that have an incomplete task due sometime today (UTC day window via local bounds). */
+export async function listNoteIdsWithTasksDueBetween(
+  userId: string,
+  from: Date,
+  to: Date,
+) {
+  const rows = await db
+    .select({ noteId: tasks.noteId })
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.userId, userId),
+        eq(tasks.isCompleted, false),
+        gte(tasks.dueAt, from),
+        lte(tasks.dueAt, to),
+      ),
+    );
+
+  const ids = new Set<string>();
+  for (const row of rows) {
+    if (row.noteId) ids.add(row.noteId);
+  }
+  return [...ids];
 }

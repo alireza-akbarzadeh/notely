@@ -1,11 +1,21 @@
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-import { NotesWorkspace } from "@/components/notes/notes-workspace";
+import { normalizeWorkspaceView, workspacePath } from "@/lib/workspace/paths";
 
-export default function NotesPage() {
-  return (
-    <Suspense fallback={<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">Loading notes…</div>}>
-      <NotesWorkspace />
-    </Suspense>
+type NotesPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function NotesPage({ searchParams }: NotesPageProps) {
+  const params = await searchParams;
+  const rawView = typeof params.view === "string" ? params.view : null;
+  const spaceId = typeof params.spaceId === "string" ? params.spaceId : null;
+  const view = normalizeWorkspaceView(rawView);
+
+  redirect(
+    workspacePath({
+      view,
+      spaceId,
+    }),
   );
 }

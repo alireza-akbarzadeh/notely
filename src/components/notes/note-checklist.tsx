@@ -6,7 +6,11 @@ import { Check, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+<<<<<<< HEAD
 import { realtimeHeaders } from "@/lib/realtime/client-id";
+=======
+import { readJson } from "@/lib/api/read-json";
+>>>>>>> refs/remotes/origin/main
 import { cn } from "@/lib/utils";
 import type { NoteTask } from "@/types/notes";
 
@@ -21,11 +25,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
 
   const tasksQuery = useQuery({
     queryKey: ["tasks", noteId],
-    queryFn: async (): Promise<{ tasks: NoteTask[] }> => {
-      const response = await fetch(`/api/tasks?noteId=${encodeURIComponent(noteId)}`);
-      if (!response.ok) throw new Error("Failed to load tasks");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ tasks: NoteTask[] }> =>
+      readJson<{ tasks: NoteTask[] }>(
+        await fetch(`/api/tasks?noteId=${encodeURIComponent(noteId)}`),
+        "Failed to load tasks",
+      ),
   });
 
   const createMutation = useMutation({
@@ -35,9 +39,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
         headers: realtimeHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ noteId, text }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to add task");
-      return data.task as NoteTask;
+      const data = await readJson<{ task: NoteTask }>(
+        response,
+        "Failed to add task",
+      );
+      return data.task;
     },
     onSuccess: () => {
       setDraft("");
@@ -59,9 +65,11 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
           isCompleted: input.isCompleted,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to update task");
-      return data.task as NoteTask;
+      const data = await readJson<{ task: NoteTask }>(
+        response,
+        "Failed to update task",
+      );
+      return data.task;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", noteId] });
@@ -70,12 +78,17 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+<<<<<<< HEAD
       const response = await fetch(`/api/tasks/${id}`, {
         method: "DELETE",
         headers: realtimeHeaders(),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Failed to delete task");
+=======
+      const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+      await readJson(response, "Failed to delete task");
+>>>>>>> refs/remotes/origin/main
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", noteId] });
@@ -92,7 +105,7 @@ export function NoteChecklist({ noteId, canEdit = true }: NoteChecklistProps) {
   }
 
   return (
-    <section className="mb-8 rounded-2xl border border-border/80 bg-card/40 p-4">
+    <section className="rounded-2xl border border-border/80 bg-card/40 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold">Checklist</h2>

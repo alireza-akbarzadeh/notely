@@ -13,12 +13,16 @@ export async function GET(request: Request) {
   const spaceId = searchParams.get("spaceId") ?? undefined;
   const favoritesOnly = searchParams.get("favorites") === "1";
   const sharedOnly = searchParams.get("shared") === "1";
+  const archiveOnly = searchParams.get("archive") === "1";
+  const trashOnly = searchParams.get("trash") === "1";
 
   await ensureDefaultSpace(session.user.id);
   const rows = await listNotes(session.user.id, {
-    spaceId,
-    favoritesOnly,
-    sharedOnly,
+    spaceId: trashOnly || sharedOnly ? undefined : spaceId,
+    favoritesOnly: trashOnly || sharedOnly || archiveOnly ? false : favoritesOnly,
+    sharedOnly: trashOnly ? false : sharedOnly,
+    archiveOnly: trashOnly || sharedOnly ? false : archiveOnly,
+    trashOnly,
   });
 
   return NextResponse.json({ notes: rows });

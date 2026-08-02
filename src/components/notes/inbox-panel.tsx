@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Check, Inbox, X } from "lucide-react";
 
+import { NotesEmptyState } from "@/components/notes/notes-empty-state";
 import { Button } from "@/components/ui/button";
+import { readJson } from "@/lib/api/read-json";
 
 type Invite = {
   id: string;
@@ -21,11 +23,11 @@ export function InboxPanel() {
 
   const inboxQuery = useQuery({
     queryKey: ["inbox"],
-    queryFn: async (): Promise<{ invites: Invite[] }> => {
-      const response = await fetch("/api/inbox");
-      if (!response.ok) throw new Error("Failed to load inbox");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ invites: Invite[] }> =>
+      readJson<{ invites: Invite[] }>(
+        await fetch("/api/inbox"),
+        "Failed to load inbox",
+      ),
   });
 
   const respondMutation = useMutation({
@@ -35,8 +37,10 @@ export function InboxPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: input.action }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed");
+      const data = await readJson<{ share?: { noteId?: string } }>(
+        response,
+        "Failed",
+      );
       return { ...data, action: input.action, noteId: data.share?.noteId as string | undefined };
     },
     onSuccess: (result) => {
@@ -70,12 +74,7 @@ export function InboxPanel() {
         {inboxQuery.isLoading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : invites.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
-            <p className="text-sm font-medium">You're all caught up</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Shared note invites will show up here.
-            </p>
-          </div>
+          <NotesEmptyState variant="inbox" className="min-h-[50vh]" />
         ) : (
           <ul className="space-y-3">
             {invites.map((invite) => (

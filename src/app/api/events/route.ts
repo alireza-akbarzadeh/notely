@@ -36,6 +36,8 @@ export async function POST(request: Request) {
     endTime: parsed.data.endTime ? new Date(parsed.data.endTime) : null,
     link: parsed.data.link,
     noteId: parsed.data.noteId,
+    remindMinutesBefore: parsed.data.remindMinutesBefore,
+    reminderSound: parsed.data.reminderSound,
   });
 
   return NextResponse.json({ event }, { status: 201 });

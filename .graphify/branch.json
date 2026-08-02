@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "branchName": "main",
+  "worktreePath": "C:\\Users\\akbarzadeh.ali\\Desktop\\notely",
+  "upstream": "origin/main",
+  "mergeBase": "63a5c8cf1aeacdfccb43d011d3404f242c737a06",
+  "firstSeenHead": "163aa28f79265748e1ef07a8c436b550ad6d2cb2",
+  "lastSeenHead": "63a5c8cf1aeacdfccb43d011d3404f242c737a06",
+  "lastAnalyzedHead": "63a5c8cf1aeacdfccb43d011d3404f242c737a06",
+  "stale": false,
+  "staleReason": null,
+  "staleSince": null,
+  "lifecycleEvent": null,
+  "createdAt": "2026-08-01T07:12:27.622Z",
+  "updatedAt": "2026-08-01T11:29:26.101Z"
+}

@@ -15,6 +15,10 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   forgotPasswordSchema,
   type ForgotPasswordFormValues,
 } from "@/lib/validations/auth";
@@ -69,6 +73,11 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
+  }
+
   const devLink = devEmail ? extractUrl(devEmail.text) : null;
 
   return (
@@ -107,7 +116,10 @@ export default function ForgotPasswordPage() {
             <AuthFooterLink prompt="" href="/login" label="Back to sign in" />
           </div>
         ) : (
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <form
+            onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+            className="space-y-5"
+          >
             <FieldGroup>
               <FormTextField
                 control={form.control}

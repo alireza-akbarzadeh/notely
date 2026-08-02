@@ -12,7 +12,13 @@ import {
 } from "@/lib/validations/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 
 export function AccountSettings() {
@@ -75,9 +81,10 @@ export function AccountSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
+          <CardDescription>Loading your profile…</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Loading account…</p>
+          <div className="h-24 animate-pulse rounded-lg bg-muted/60" />
         </CardContent>
       </Card>
     );
@@ -87,31 +94,34 @@ export function AccountSettings() {
     <Card>
       <CardHeader>
         <CardTitle>Account</CardTitle>
+        <CardDescription>
+          Update how you appear across notes and shared spaces.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-1 text-sm">
-          <p className="text-muted-foreground">Email</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium">{user?.email ?? "—"}</span>
+      <CardContent className="space-y-5">
+        <div className="rounded-xl border border-border/70 bg-background/40 px-3.5 py-3">
+          <p className="text-xs text-muted-foreground">Email</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">{user?.email ?? "—"}</span>
             {user?.emailVerified ? (
               <Badge variant="secondary">Verified</Badge>
             ) : (
               <Badge variant="outline">Unverified</Badge>
             )}
           </div>
+          {!user?.emailVerified ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              disabled={verifyPending}
+              onClick={resendVerification}
+            >
+              {verifyPending ? "Sending…" : "Resend verification email"}
+            </Button>
+          ) : null}
         </div>
-
-        {!user?.emailVerified ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={verifyPending}
-            onClick={resendVerification}
-          >
-            {verifyPending ? "Sending…" : "Resend verification email"}
-          </Button>
-        ) : null}
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FieldGroup>

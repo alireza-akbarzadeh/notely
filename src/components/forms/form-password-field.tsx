@@ -10,11 +10,7 @@ import {
 } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 interface FormPasswordFieldProps<T extends FieldValues> {
@@ -39,13 +35,17 @@ export function FormPasswordField<T extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
+        <Field data-invalid={fieldState.invalid || undefined}>
           <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
           <div className="relative">
             <Input
-              {...field}
               id={field.name}
+              name={field.name}
+              ref={field.ref}
               type={visible ? "text" : "password"}
+              value={field.value ?? ""}
+              onValueChange={field.onChange}
+              onBlur={field.onBlur}
               placeholder={placeholder}
               autoComplete={autoComplete}
               aria-invalid={fieldState.invalid}
@@ -55,7 +55,7 @@ export function FormPasswordField<T extends FieldValues>({
               type="button"
               variant="ghost"
               size="icon-sm"
-              className="absolute top-1/2 right-1 z-10 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute top-1/2 right-1 z-10 -translate-y-1/2 touch-manipulation text-muted-foreground hover:text-foreground"
               onClick={() => setVisible((current) => !current)}
               aria-label={visible ? "Hide password" : "Show password"}
             >

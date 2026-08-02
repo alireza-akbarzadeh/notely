@@ -2,20 +2,60 @@
 
 import { AccountSettings } from "@/components/settings/account-settings";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
+import { NotificationSettings } from "@/components/settings/notification-settings";
 import { SecuritySettings } from "@/components/settings/security-settings";
 
 export default function SettingsPage() {
   return (
-    <main className="grid flex-1 gap-6 overflow-y-auto p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:p-6 md:pb-6 xl:grid-cols-2">
-      <div className="xl:col-span-2">
-        <h2 className="text-lg font-semibold tracking-tight">Settings</h2>
-        <p className="text-sm text-muted-foreground">
-          Account, appearance, and security for your Notely workspace
-        </p>
+    <main className="flex-1 overflow-y-auto">
+      <div className="mx-auto w-full max-w-3xl space-y-8 px-4 py-6 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-8 md:pb-10">
+        <header className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your account, theme, notifications, and security.
+          </p>
+        </header>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">Profile</h2>
+            <p className="text-xs text-muted-foreground">
+              Your name and email on Notely.
+            </p>
+          </div>
+          <AccountSettings />
+        </section>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">Appearance</h2>
+            <p className="text-xs text-muted-foreground">
+              Choose how Notely looks on this device.
+            </p>
+          </div>
+          <AppearanceSettings />
+        </section>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">Notifications</h2>
+            <p className="text-xs text-muted-foreground">
+              Sounds and push alerts for note reminders and calendar events.
+            </p>
+          </div>
+          <NotificationSettings />
+        </section>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-sm font-medium text-foreground">Security</h2>
+            <p className="text-xs text-muted-foreground">
+              Password, two-factor authentication, and active sessions.
+            </p>
+          </div>
+          <SecuritySettings />
+        </section>
       </div>
-      <AccountSettings />
-      <AppearanceSettings />
-      <SecuritySettings />
     </main>
   );
 }

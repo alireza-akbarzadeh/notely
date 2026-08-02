@@ -11,7 +11,7 @@ Notes app: **Next.js 16** (App Router) + **React 19** + **TypeScript**, **Drizzl
 
 | Area | Path |
 |------|------|
-| Routes | `src/app/(marketing)`, `(auth)`, `(dashboard)`, `api/**` |
+| Routes | `src/app/(marketing)`, `(auth)`, `(dashboard)` (`/workspace`, `/notes/[id]`, …), `api/**` |
 | Auth | `src/lib/auth`, `src/proxy.ts`, `src/lib/api/auth-guard.ts` |
 | DB | `src/lib/db` |
 | Notes | `src/lib/notes`, `src/app/api/spaces`, `src/app/api/notes`, `src/app/api/tags`, `src/app/api/tasks`, `src/app/api/attachments` |
@@ -25,5 +25,5 @@ Notes app: **Next.js 16** (App Router) + **React 19** + **TypeScript**, **Drizzl
 - Server secrets only through `getEnv()` — never read `process.env` ad hoc in feature code
 - API handlers: thin — validate with Zod, auth with `requireSession`, logic in `src/lib/**`
 - Prefer existing UI primitives under `src/components/ui` over new one-offs
-- App home after login: `/notes`
+- App home after login: `/workspace`
 - After substantive code edits, run `graphify update .` (see graphify rule)

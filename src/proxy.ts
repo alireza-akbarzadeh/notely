@@ -25,7 +25,11 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/dev") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon")
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/icon") ||
+    pathname.startsWith("/apple-icon") ||
+    pathname.startsWith("/manifest") ||
+    pathname === "/sw.js"
   ) {
     return NextResponse.next();
   }
@@ -49,7 +53,7 @@ export async function proxy(request: NextRequest) {
     pathname !== "/two-factor" &&
     pathname !== "/reset-password"
   ) {
-    return NextResponse.redirect(new URL("/notes", request.url));
+    return NextResponse.redirect(new URL("/workspace", request.url));
   }
 
   return NextResponse.next();

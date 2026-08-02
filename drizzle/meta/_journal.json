@@ -43,6 +43,62 @@
       "when": 1785504000000,
       "tag": "0005_share_events",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785510000000,
+      "tag": "0006_note_trash",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785513000000,
+      "tag": "0007_reminders_push",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785573600000,
+      "tag": "0008_google_connections",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785660000000,
+      "tag": "0009_space_trash",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785663000000,
+      "tag": "0010_task_workflow",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785666000000,
+      "tag": "0011_google_oauth_credentials",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1785670000000,
+      "tag": "0012_note_archive",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1785673000000,
+      "tag": "0013_task_due_at",
+      "breakpoints": true
     }
   ]
 }

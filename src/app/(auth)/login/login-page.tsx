@@ -18,6 +18,10 @@ import { FormPasswordField } from "@/components/forms/form-password-field";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   loginSchema,
   type LoginFormValues,
 } from "@/lib/validations/auth";
@@ -26,7 +30,7 @@ import { FieldGroup } from "@/components/ui/field";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/notes";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/workspace";
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
@@ -40,24 +44,37 @@ export default function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     setServerError(null);
 
-    const result = await authClient.signIn.email(values);
+    try {
+      const result = await authClient.signIn.email(values);
 
-    if (result.error) {
-      setServerError(result.error.message ?? "Unable to sign in");
-      return;
+      if (result.error) {
+        setServerError(result.error.message ?? "Unable to sign in");
+        return;
+      }
+
+      if (
+        result.data &&
+        "twoFactorRedirect" in result.data &&
+        result.data.twoFactorRedirect
+      ) {
+        router.push("/two-factor");
+        return;
+      }
+
+      router.push(callbackUrl);
+      router.refresh();
+    } catch (error) {
+      setServerError(
+        error instanceof Error
+          ? error.message
+          : "Unable to reach the sign-in service. Check your connection and try again.",
+      );
     }
+  }
 
-    if (
-      result.data &&
-      "twoFactorRedirect" in result.data &&
-      result.data.twoFactorRedirect
-    ) {
-      router.push("/two-factor");
-      return;
-    }
-
-    router.push(callbackUrl);
-    router.refresh();
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
   }
 
   return (
@@ -69,7 +86,10 @@ export default function LoginPage() {
       <AuthPanel>
         <SocialAuthButtons callbackURL={callbackUrl} className="mb-5" />
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+          className="space-y-5"
+        >
           <FieldGroup>
             <FormTextField
               control={form.control}

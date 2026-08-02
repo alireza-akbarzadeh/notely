@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { readJson } from "@/lib/api/read-json";
 
 type SearchHit = {
   id: string;
@@ -46,11 +47,11 @@ export function NoteSearchDialog() {
   const searchQuery = useQuery({
     queryKey: ["search", query],
     enabled: open && query.trim().length > 0,
-    queryFn: async (): Promise<{ notes: SearchHit[] }> => {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error("Search failed");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ notes: SearchHit[] }> =>
+      readJson<{ notes: SearchHit[] }>(
+        await fetch(`/api/search?q=${encodeURIComponent(query)}`),
+        "Search failed",
+      ),
   });
 
   const hits: SearchHit[] = searchQuery.data?.notes ?? [];

@@ -14,7 +14,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { readJson } from "@/lib/api/read-json";
 import { cn } from "@/lib/utils";
+import { isWorkspacePath, workspacePath } from "@/lib/workspace/paths";
 
 type AppBarProps = {
   title?: string;
@@ -28,11 +30,11 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
 
   const inboxQuery = useQuery({
     queryKey: ["inbox"],
-    queryFn: async (): Promise<{ invites: unknown[] }> => {
-      const response = await fetch("/api/inbox");
-      if (!response.ok) throw new Error("Failed to load inbox");
-      return response.json();
-    },
+    queryFn: async (): Promise<{ invites: unknown[] }> =>
+      readJson<{ invites: unknown[] }>(
+        await fetch("/api/inbox"),
+        "Failed to load inbox",
+      ),
   });
   const pendingInvites = inboxQuery.data?.invites.length ?? 0;
 
@@ -40,9 +42,11 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
     title ??
     (pathname.startsWith("/settings")
       ? "Settings"
-      : pathname.startsWith("/notes")
-        ? "Notes"
-        : "Notely");
+      : isWorkspacePath(pathname)
+        ? "Workspace"
+        : pathname.startsWith("/notes")
+          ? "Notes"
+          : "Notely");
 
   return (
     <header
@@ -94,8 +98,8 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
                 variant="ghost"
                 size="icon"
                 className="size-9"
-                onClick={() => router.push("/notes?view=shared")}
-                aria-label="Shared notes"
+                onClick={() => router.push(workspacePath({ view: "shared" }))}
+                aria-label="Shared with me"
               />
             }
           >
@@ -112,7 +116,7 @@ export function AppBar({ title, subtitle, className }: AppBarProps) {
                 variant="ghost"
                 size="icon"
                 className="relative size-9"
-                onClick={() => router.push("/notes?view=inbox")}
+                onClick={() => router.push(workspacePath({ view: "inbox" }))}
                 aria-label={
                   pendingInvites > 0
                     ? `Inbox, ${pendingInvites} pending`

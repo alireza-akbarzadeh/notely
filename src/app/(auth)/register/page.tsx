@@ -17,6 +17,10 @@ import { FormPasswordField } from "@/components/forms/form-password-field";
 import { FormTextField } from "@/components/forms/form-text-field";
 import { authClient } from "@/lib/auth/client";
 import {
+  autofillSafeSubmit,
+  scrollToFirstInvalidField,
+} from "@/lib/forms/autofill-submit";
+import {
   registerSchema,
   type RegisterFormValues,
 } from "@/lib/validations/auth";
@@ -39,19 +43,32 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterFormValues) {
     setServerError(null);
 
-    const result = await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const result = await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
-    if (result.error) {
-      setServerError(result.error.message ?? "Unable to create account");
-      return;
+      if (result.error) {
+        setServerError(result.error.message ?? "Unable to create account");
+        return;
+      }
+
+      router.push("/workspace");
+      router.refresh();
+    } catch (error) {
+      setServerError(
+        error instanceof Error
+          ? error.message
+          : "Unable to reach the sign-up service. Check your connection and try again.",
+      );
     }
+  }
 
-    router.push("/notes");
-    router.refresh();
+  function onInvalid() {
+    setServerError("Check the highlighted fields and try again.");
+    scrollToFirstInvalidField();
   }
 
   return (
@@ -61,9 +78,12 @@ export default function RegisterPage() {
       subtitle="One workspace for notes, spaces, and tags."
     >
       <AuthPanel>
-        <SocialAuthButtons callbackURL="/notes" className="mb-5" />
+        <SocialAuthButtons callbackURL="/workspace" className="mb-5" />
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={autofillSafeSubmit(form, onSubmit, onInvalid)}
+          className="space-y-5"
+        >
           <FieldGroup>
             <FormTextField
               control={form.control}
